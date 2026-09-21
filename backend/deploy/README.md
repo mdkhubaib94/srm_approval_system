@@ -37,6 +37,18 @@ Run migrations:
 sudo -u srm-backend .venv/bin/alembic upgrade head
 ```
 
+This also seeds `role_permissions` (which roles can download PDF attachments
+on the request detail page) with every role granted, matching pre-existing
+behavior. If that table ever ends up empty on this server — e.g. it was
+created by hand instead of via `alembic upgrade head`, or a future
+permission key needs its default before its own migration lands — restore
+the default without touching any permission an admin has already
+customized via **User Management → Manage permissions**:
+
+```bash
+sudo -u srm-backend .venv/bin/python -m app.scripts.seed_role_permissions
+```
+
 ## 4. Configuration
 
 ```bash

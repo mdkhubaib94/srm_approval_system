@@ -467,8 +467,7 @@
     flex-direction: column;
   }
 
-  .approveButton,
-  .rejectButton {
+  .actionButtons > button {
     width: 100%;
   }
 }
@@ -476,6 +475,13 @@
 @media (max-width: 640px) {
   .maxWidth {
     padding: 0.5rem;
+  }
+
+  /* Fixed 400px minmax track overflows narrow phones — force a single
+     full-width column instead of relying on auto-fit's minimum. */
+  .detailsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .infoRow {

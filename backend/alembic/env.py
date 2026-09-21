@@ -22,6 +22,7 @@ from app.completed import models as completed_models  # noqa: F401,E402
 from app.flagged import models as flagged_models  # noqa: F401,E402
 from app.sops import models as sops_models  # noqa: F401,E402
 from app.form_configs import models as form_configs_models  # noqa: F401,E402
+from app.permissions import models as permissions_models  # noqa: F401,E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

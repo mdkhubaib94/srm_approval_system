@@ -3,59 +3,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../../common/PasswordInput";
 import SRMRMP_Logo from "../../assets/SRMRMP_LOGO.png";
-import InstitutionSelect from "../../common/InstitutionSelect";
-import NestedSelect from "../../common/NestedSelect";
 import OTPVerification from "../../common/OTPVerification";
 import { useAuth } from "../../context/AuthContext";
 import { sendSignupOtp, verifySignupOtp, resendSignupOtp } from "../../api/auth.api";
 import styles from "./Signup.module.css";
-import {
-  DENTAL_DEPARTMENTS,
-  ENGINEERING_DEPARTMENTS,
-  FSH_DEPARTMENTS,
-  EEC_DEPARTMENTS,
-  MANAGEMENT_DEPARTMENTS,
-  SEAD_DEPARTMENTS,
-  SRM_NIGHTINGALE_SCHOOL_DEPARTMENTS,
-  OTHER_DEPARTMENTS,
-} from "../../utils/constants";
 
-// Match exactly the role values the backend User model accepts
-const roleOptions = [
-  { value: "REQUESTER", label: "Requester / HOD" },
-  { value: "INSTITUTION_MANAGER", label: "Institution Manager" },
-  { value: "ACCOUNTANT", label: "Accountant" },
-  { value: "HEAD_OF_INSTITUTION", label: "Head of Institution" },
-  { value: "CHAIRMAN_OFFICE", label: "Chairman Office" },
-  { value: "HR_HEAD", label: "HR Head" },
-  { value: "MMA", label: "MMA" },
-  { value: "MANAGER_DATA_MANAGEMENT", label: "Manager - Data Management" },
-  { value: "AUDIT", label: "Audit" },
-  { value: "MANAGER_ACCOUNTS", label: "Manager - Accounts" },
-  { value: "GM_FINANCE", label: "GM Finance" },
-  { value: "DIRECTOR_ADMISSIONS", label: "Director Admissions" },
-  { value: "DIRECTOR_RESEARCH", label: "Director Research" },
-  { value: "DEAN_ADMIN", label: "Dean Admin" },
-  { value: "CHIEF_DIRECTOR", label: "Chief Director" },
-  { value: "CHAIRMAN", label: "Chairman" },
-];
-
-// Roles where department selection is shown (only for roles at institution level and above)
-const rolesWithDepartment = ["REQUESTER"];
-
-// Roles where institution selection is shown (only for roles at institution level and above)  
-const rolesWithCollege = ["REQUESTER", "INSTITUTION_MANAGER", "ACCOUNTANT", "HEAD_OF_INSTITUTION"];
-
-const getDepartmentOptions = (college) => {
-  if (college === "DENTAL") return DENTAL_DEPARTMENTS;
-  if (college === "EEC") return EEC_DEPARTMENTS;
-  if (college?.includes("FSH")) return FSH_DEPARTMENTS;
-  if (college?.includes("Management")) return MANAGEMENT_DEPARTMENTS;
-  if (college?.includes("SEAD")) return SEAD_DEPARTMENTS;
-  if (college === "SRM Nightingale School") return SRM_NIGHTINGALE_SCHOOL_DEPARTMENTS;
-  if (college === "Others") return OTHER_DEPARTMENTS;
-  return ENGINEERING_DEPARTMENTS;
-};
+// Self-signup is restricted to CHAIRMAN (see backend SELF_SIGNUP_ROLES) —
+// every other role/account is created by an admin via User Management.
+const SIGNUP_ROLE = "CHAIRMAN";
 
 export default function SignupPage() {
   const [step, setStep] = useState("form"); // form, otp
@@ -63,9 +18,6 @@ export default function SignupPage() {
   const [empId, setEmpId] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [selectedRole, setSelectedRole] = useState("REQUESTER");
-  const [college, setCollege] = useState("");
-  const [department, setDepartment] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,12 +27,6 @@ export default function SignupPage() {
   const { register } = useAuth();
 
   const inputClass = styles.input;
-
-  const handleRoleChange = (role) => {
-    setSelectedRole(role);
-    if (!rolesWithDepartment.includes(role)) setDepartment("");
-    if (!rolesWithCollege.includes(role)) setCollege("");
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,18 +45,6 @@ export default function SignupPage() {
     const phoneDigits = phone.replace(/\D/g, "");
     if (phoneDigits.length !== 10) {
       setError("Contact number must be exactly 10 digits");
-      return;
-    }
-
-    const needsCollege = rolesWithCollege.includes(selectedRole);
-    const needsDepartment = rolesWithDepartment.includes(selectedRole);
-
-    if (needsCollege && !college) {
-      setError("Please select an institution");
-      return;
-    }
-    if (needsDepartment && !department) {
-      setError("Please select a department");
       return;
     }
 
@@ -138,8 +72,6 @@ export default function SignupPage() {
       if (verifyResponse.data.success) {
         // OTP verified, now create the account
         const phoneDigits = phone.replace(/\D/g, "");
-        const needsCollege = rolesWithCollege.includes(selectedRole);
-        const needsDepartment = rolesWithDepartment.includes(selectedRole);
 
         await register({
           name,
@@ -147,9 +79,8 @@ export default function SignupPage() {
           email,
           phone: phoneDigits,
           password,
-          role: selectedRole,
-          institution: needsCollege ? college : "COMMON",
-          department: needsDepartment ? department : undefined,
+          role: SIGNUP_ROLE,
+          institution: "COMMON",
         });
 
         navigate("/login?message=Account created successfully! Please sign in.");
@@ -286,45 +217,6 @@ export default function SignupPage() {
                 autoComplete="new-password"
               />
             </div>
-
-            {/* Role */}
-            <div>
-              <label className={styles.label}>Role *</label>
-              <select
-                value={selectedRole}
-                onChange={(e) => handleRoleChange(e.target.value)}
-                className={inputClass}
-              >
-                {roleOptions.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Institution — only for roles that need institution */}
-            {rolesWithCollege.includes(selectedRole) && (
-              <div>
-                <label className={styles.labelMargin}>Institution *</label>
-                <InstitutionSelect value={college} onChange={setCollege} />
-              </div>
-            )}
-
-            {/* Department — only for REQUESTER */}
-            {rolesWithDepartment.includes(selectedRole) && (
-              <div>
-                <label className={styles.labelMargin}>Department *</label>
-                <NestedSelect
-                  value={department}
-                  onChange={setDepartment}
-                  options={getDepartmentOptions(college)}
-                  placeholder="Select Department"
-                  dropUp={true}
-                  disabled={!college}
-                />
-              </div>
-            )}
 
             <button
               type="submit"

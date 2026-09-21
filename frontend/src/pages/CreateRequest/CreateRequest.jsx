@@ -937,7 +937,7 @@ export default function CreateRequestPage() {
                   onChange={handleFileChange}
                   className={styles.hiddenInput}
                 />
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {INDENT_CAPABLE_MODELS.includes(detailsModel) && (
                     <button
                       type="button"

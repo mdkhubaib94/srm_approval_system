@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getRequestById, routeRequest } from "../../../api/requests.api";
 import { downloadFile } from "../../../api/files.api";
+import { getMyPermissions } from "../../../api/permissions.api";
 import { openInNewTab } from "../../../utils/safeOpen";
 import {
   buildRequestAttachmentFilename,
@@ -100,6 +101,9 @@ export default function RequestDetailPage() {
   const { user: currentUser, loading: authLoading } = useAuth();
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Defaults to visible (the pre-permission-system behavior) and is only
+  // narrowed once /permissions/mine resolves — see the fetch effect below.
+  const [canDownloadAttachments, setCanDownloadAttachments] = useState(true);
   const [error, setError] = useState(null);
   const [showApprovalHistory, setShowApprovalHistory] = useState(true);
   const [showProcessModal, setShowProcessModal] = useState(false);
@@ -132,13 +136,24 @@ export default function RequestDetailPage() {
         setLoading(true);
         setError(null);
 
-        const response = await getRequestById(id);
+        const [response, permissionsResponse] = await Promise.all([
+          getRequestById(id),
+          // Failure here shouldn't block the page — fall back to the
+          // current `canDownloadAttachments` default (visible) instead.
+          getMyPermissions().catch((err) => {
+            console.error('Error fetching permissions:', err);
+            return null;
+          }),
+        ]);
 
         if (!response.data) {
           throw new Error('Request not found');
         }
 
         setRequest(response.data);
+        if (permissionsResponse) {
+          setCanDownloadAttachments(Boolean(permissionsResponse.data?.downloadAttachments));
+        }
       } catch (err) {
         console.error('Error fetching request:', err);
         const errorMessage =
@@ -567,22 +582,24 @@ export default function RequestDetailPage() {
                           </svg>
                           View
                         </button>
-                        <button
-                          onClick={() =>
-                            handleDownloadAttachment(
-                              attachment.fileId,
-                              buildRequestAttachmentFilename(request.requestID, index, attachment.filename)
-                            )
-                          }
-                          className={styles.downloadBtn}
-                          type="button"
-                          title="Download file"
-                        >
-                          <svg className={styles.downloadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          Download
-                        </button>
+                        {canDownloadAttachments && (
+                          <button
+                            onClick={() =>
+                              handleDownloadAttachment(
+                                attachment.fileId,
+                                buildRequestAttachmentFilename(request.requestID, index, attachment.filename)
+                              )
+                            }
+                            className={styles.downloadBtn}
+                            type="button"
+                            title="Download file"
+                          >
+                            <svg className={styles.downloadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -641,22 +658,24 @@ export default function RequestDetailPage() {
                               </svg>
                               View
                             </button>
-                            <button
-                              onClick={() =>
-                                handleDownloadAttachment(
-                                  attachment.fileId,
-                                  buildQueryAttachmentFilename(request.requestID, indexWithinQuery, attachment.filename)
-                                )
-                              }
-                              className={styles.downloadBtn}
-                              type="button"
-                              title="Download file"
-                            >
-                              <svg className={styles.downloadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              Download
-                            </button>
+                            {canDownloadAttachments && (
+                              <button
+                                onClick={() =>
+                                  handleDownloadAttachment(
+                                    attachment.fileId,
+                                    buildQueryAttachmentFilename(request.requestID, indexWithinQuery, attachment.filename)
+                                  )
+                                }
+                                className={styles.downloadBtn}
+                                type="button"
+                                title="Download file"
+                              >
+                                <svg className={styles.downloadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download
+                              </button>
+                            )}
                           </div>
                         </div>
                       );

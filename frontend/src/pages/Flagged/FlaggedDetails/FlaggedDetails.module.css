@@ -692,6 +692,9 @@
 @media (max-width: 640px) {
   .modalContent {
     margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    display: flex;
+    flex-direction: column;
   }
 
   .modalHeader {
@@ -700,6 +703,7 @@
 
   .modalBody {
     padding: 1.25rem;
+    overflow-y: auto;
   }
 
   .modalFooter {

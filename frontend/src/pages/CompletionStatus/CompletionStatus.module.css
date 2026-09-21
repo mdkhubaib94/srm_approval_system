@@ -473,4 +473,8 @@
   .titleText {
     font-size: 0.8rem;
   }
+
+  .paginationBar {
+    flex-wrap: wrap;
+  }
 }

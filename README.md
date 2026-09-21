@@ -59,6 +59,13 @@ Run migrations:
 alembic upgrade head
 ```
 
+This also seeds `role_permissions` (which roles can download PDF attachments
+on the request detail page) with every role granted by default. If that
+table is ever empty on a given server — e.g. it was created without running
+this migration — restore the default without clobbering any admin
+customization via `python -m app.scripts.seed_role_permissions` (safe to
+re-run; see its docstring).
+
 Start the API:
 
 ```bash

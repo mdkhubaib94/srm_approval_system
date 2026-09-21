@@ -40,6 +40,17 @@ USER_MANAGER_ROLES: list[str] = [
     "CHAIRMAN",
 ]
 
+# Roles allowed to view/change role -> permission grants (e.g. which roles
+# can download attachments). Deliberately narrower than USER_MANAGER_ROLES:
+# HEAD_OF_INSTITUTION only manages accounts within their own institution, but
+# permission grants are global (apply to every role across every
+# institution), so it's excluded here.
+PERMISSION_MANAGER_ROLES: list[str] = [
+    "CHAIRMAN_OFFICE",
+    "DEAN_ADMIN",
+    "CHAIRMAN",
+]
+
 
 def is_institution_scoped_role(role: str) -> bool:
     return role in INSTITUTION_SCOPED_ROLES

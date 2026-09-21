@@ -52,7 +52,7 @@
   position: relative;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1025px) {
   .desktopView {
     display: flex;
   }
@@ -185,7 +185,7 @@
   flex-direction: column;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1025px) {
   .mobileView {
     display: none;
   }

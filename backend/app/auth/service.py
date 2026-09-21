@@ -50,11 +50,11 @@ def self_signup_roles() -> list[str]:
     """Roles a stranger may assign to themselves at /auth/register.
 
     Port of authController.js's SELF_SIGNUP_ROLES: validated against ROLES,
-    never left empty (falls back to ["REQUESTER"]) so a bad env value cannot
+    never left empty (falls back to ["CHAIRMAN"]) so a bad env value cannot
     silently disable signup entirely.
     """
     configured = [r for r in get_settings().self_signup_roles if r in ROLES]
-    return configured or ["REQUESTER"]
+    return configured or ["CHAIRMAN"]
 
 
 # ─── Signup OTP ───────────────────────────────────────────────────────────────

@@ -491,12 +491,12 @@ export default function IndentInformation({
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th className={styles.th}>S.No</th>
-                    <th className={styles.th}>Product ID</th>
-                    <th className={styles.th}>Product Name</th>
+                    <th className={`${styles.th} ${styles.thSerial}`}>S.No</th>
+                    <th className={`${styles.th} ${styles.thProductId}`}>Product ID</th>
+                    <th className={`${styles.th} ${styles.thProductName}`}>Product Name</th>
                     <th className={`${styles.th} ${styles.thDescription}`}>Product Description</th>
-                    <th className={styles.th}>Quantity</th>
-                    <th className={styles.th}>Actions</th>
+                    <th className={`${styles.th} ${styles.thQuantity}`}>Quantity</th>
+                    <th className={`${styles.th} ${styles.thActions}`}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>

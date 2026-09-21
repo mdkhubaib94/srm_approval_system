@@ -563,6 +563,49 @@
   }
 }
 
+@media (max-width: 640px) {
+  .filterRow1 {
+    @apply flex-wrap;
+  }
+
+  .filterSearchWrapper {
+    @apply w-full;
+  }
+
+  .clearFilterBtn {
+    @apply w-full justify-center;
+  }
+
+  /* Institution/Department column is dropped on phones to keep Title,
+     Stage and Date legible instead of squeezing all four columns. */
+  .colInstitution {
+    display: none;
+  }
+
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1.4fr 0.8fr 1fr;
+    gap: 0.5rem;
+    @apply px-2 py-2;
+  }
+
+  .summaryPills {
+    @apply gap-2;
+  }
+
+  .summaryCard {
+    @apply px-2 py-2;
+  }
+
+  .summaryVal {
+    @apply text-xl;
+  }
+
+  .paginationBar {
+    @apply flex-wrap;
+  }
+}
+
 .gridLayout {
   @apply grid grid-cols-1 gap-4;
 }

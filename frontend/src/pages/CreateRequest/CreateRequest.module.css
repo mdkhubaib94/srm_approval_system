@@ -3,6 +3,12 @@
   @apply max-w-4xl mx-auto p-6;
 }
 
+@media (max-width: 640px) {
+  .container {
+    @apply p-4;
+  }
+}
+
 .loadingWrapper {
   @apply min-h-screen flex items-center justify-center;
 }
@@ -107,6 +113,12 @@
   @apply flex justify-between items-center mt-4;
 }
 
+@media (max-width: 640px) {
+  .attachmentsHeader {
+    @apply flex-col items-start gap-2;
+  }
+}
+
 .hiddenInput {
   @apply hidden;
 }
@@ -175,6 +187,16 @@
   @apply flex justify-between items-center gap-3 p-3 hover:bg-gray-50 transition-colors;
 }
 
+@media (max-width: 400px) {
+  .attachmentsItem {
+    @apply flex-col items-start gap-2;
+  }
+
+  .fileActions {
+    @apply self-end;
+  }
+}
+
 .attachmentsHint {
   @apply text-xs text-gray-500 mt-1;
 }
@@ -217,6 +239,17 @@
 
 .buttonGroup {
   @apply flex justify-end gap-4 pt-6;
+}
+
+@media (max-width: 480px) {
+  .buttonGroup {
+    @apply flex-col-reverse;
+  }
+
+  .cancelBtn,
+  .submitBtn {
+    @apply w-full;
+  }
 }
 
 .cancelBtn {
