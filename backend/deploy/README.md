@@ -17,11 +17,11 @@ Copy this `backend/` directory's contents to `/opt/srm-backend` (excluding
 
 ## 2. Python environment
 
-Requires Python 3.13+.
+Requires Python 3.14+.
 
 ```bash
 cd /opt/srm-backend
-sudo -u srm-backend python3.13 -m venv .venv
+sudo -u srm-backend python3.14 -m venv .venv
 sudo -u srm-backend .venv/bin/pip install -r requirements-lock.txt
 ```
 
