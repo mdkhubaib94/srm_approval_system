@@ -127,7 +127,7 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 2.2fr 0.8fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 2.2fr) minmax(0, 0.8fr) minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem;
   background-color: #f9fafb;
@@ -141,7 +141,7 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 2.2fr 0.8fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 2.2fr) minmax(0, 0.8fr) minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
@@ -168,6 +168,8 @@
 .colDescription,
 .colDate,
 .colActions {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   flex-direction: column;
 }
@@ -365,7 +367,7 @@
 @media (max-width: 1024px) {
   .tableHeader,
   .tableRow {
-    grid-template-columns: 1fr 1.3fr 1.8fr 0.7fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1.8fr) minmax(0, 0.7fr) minmax(0, 1fr);
   }
 }
 
@@ -381,7 +383,7 @@
   /* Hide description and date on tablet */
   .tableHeader,
   .tableRow {
-    grid-template-columns: 1fr 1.5fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
   }
 
   .tableHeader > :nth-child(3),

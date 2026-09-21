@@ -455,14 +455,14 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
   gap: 1rem;
   @apply px-4 py-3 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 text-xs uppercase tracking-widest;
 }
 
 .tableRow {
   display: grid;
-  grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
   gap: 1rem;
   @apply px-4 py-3 border-b border-gray-200 items-center hover:bg-gray-50 cursor-pointer transition-colors;
 }
@@ -479,6 +479,8 @@
 .colStatus,
 .colDate,
 .colAction {
+  min-width: 0;
+  overflow-wrap: anywhere;
   @apply flex items-center;
 }
 
@@ -538,14 +540,14 @@
 @media (max-width: 1024px) {
   .tableHeader,
   .tableRow {
-    grid-template-columns: 1.2fr 1.2fr 0.8fr 1fr;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .tableHeader,
   .tableRow {
-    grid-template-columns: 1fr 1.2fr 0.8fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1fr);
     @apply text-xs px-3 py-2;
   }
 

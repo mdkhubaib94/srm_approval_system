@@ -189,7 +189,7 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 1.4fr 1.4fr 0.9fr 0.9fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem;
   background-color: #f9fafb;
@@ -203,7 +203,7 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: 1.4fr 1.4fr 0.9fr 0.9fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
@@ -218,7 +218,6 @@
 
 .tableRow:hover {
   background-color: #f3f4f6;
-  transform: translateX(4px);
 }
 
 /* Column Styling */
@@ -230,6 +229,8 @@
 .colRequestStatus,
 .colDate,
 .colAction {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   align-items: center;
 }
@@ -392,7 +393,7 @@
 @media (max-width: 1024px) {
   .tableHeader,
   .tableRow {
-    grid-template-columns: 1.1fr 1.1fr 0.8fr 0.8fr 0.9fr;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.9fr);
   }
 }
 
@@ -420,12 +421,12 @@
   .tableHeader {
     font-size: 0.75rem;
     padding: 0.75rem;
-    grid-template-columns: 0.9fr 1.1fr 0.7fr 0.7fr 0.8fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 0.7fr) minmax(0, 0.7fr) minmax(0, 0.8fr);
   }
 
   .tableRow {
     padding: 0.75rem;
-    grid-template-columns: 0.9fr 1.1fr 0.7fr 0.7fr 0.8fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 0.7fr) minmax(0, 0.7fr) minmax(0, 0.8fr);
   }
 
   .titleText {
@@ -454,7 +455,7 @@
 
   .tableHeader,
   .tableRow {
-    grid-template-columns: 1fr 0.8fr 0.8fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 0.8fr);
     gap: 0.5rem;
     font-size: 0.7rem;
     padding: 0.5rem;
