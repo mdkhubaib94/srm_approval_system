@@ -48,6 +48,14 @@
   color: #2563eb;
 }
 
+.iconWrapperDanger {
+  background-color: #fee2e2;
+}
+
+.iconWrapperDanger .icon {
+  color: #dc2626;
+}
+
 .title {
   margin: 0 0 0.5rem;
   font-size: 1.25rem;
@@ -102,6 +110,20 @@
 .confirmButton:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
+}
+
+.confirmButtonDanger {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.confirmButtonDanger:hover:not(:disabled) {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.confirmButtonDanger:focus-visible {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35);
 }
 
 .cancelButton:disabled,

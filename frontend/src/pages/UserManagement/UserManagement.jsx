@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { getUsers, createUser, bulkCreateUsers, updateUser, deleteUser } from "../../api/users.api";
+import { PencilSquareIcon, TrashIcon, UsersIcon } from "@heroicons/react/24/outline";
+import ConfirmModal from "../../common/ConfirmModal";
 import { useAuth } from "../../context/AuthContext";
 import ProtectedRoute from "../../common/ProtectedRoute";
 import NestedSelect from "../../common/NestedSelect";
@@ -421,7 +423,8 @@ function UsersTable({ users, onEdit, onDelete }) {
         <thead>
           <tr>
             <th>Name</th><th>Employee ID</th><th>Email</th><th>Phone</th>
-            <th>Role</th><th>Institution</th><th>Department</th><th></th>
+            <th>Role</th><th>Institution</th><th>Department</th>
+            <th className={styles.actionsHead}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -434,9 +437,27 @@ function UsersTable({ users, onEdit, onDelete }) {
               <td>{label(u.role)}</td>
               <td>{u.institution || "—"}</td>
               <td>{u.department || "—"}</td>
-              <td className={styles.rowActions}>
-                <button className={styles.linkBtn} onClick={() => onEdit(u)}>Edit</button>
-                <button className={styles.dangerLink} onClick={() => onDelete(u)}>Delete</button>
+              <td>
+                <div className={styles.rowActions}>
+                  <button
+                    type="button"
+                    className={styles.editBtn}
+                    onClick={() => onEdit(u)}
+                    aria-label={`Edit ${u.name}`}
+                  >
+                    <PencilSquareIcon className={styles.actionIcon} aria-hidden="true" />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.deleteBtn}
+                    onClick={() => onDelete(u)}
+                    aria-label={`Delete ${u.name}`}
+                  >
+                    <TrashIcon className={styles.actionIcon} aria-hidden="true" />
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
@@ -448,7 +469,7 @@ function UsersTable({ users, onEdit, onDelete }) {
 
 // ─── Manage-users modal (large, scrollable) ─────────────────────────────────────
 
-function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose }) {
+function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose, deleteError }) {
   return (
     <div className={styles.overlay} onMouseDown={onClose}>
       <div className={styles.modalWide} onMouseDown={(e) => e.stopPropagation()}>
@@ -467,6 +488,7 @@ function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, 
           </label>
           <span className={styles.count}>{users.length} user{users.length === 1 ? "" : "s"}</span>
         </div>
+        {deleteError && <div className={styles.inlineError}>{deleteError}</div>}
         <div className={styles.wideBody}>
           {loading ? (
             <div className={styles.empty}>Loading…</div>
@@ -529,13 +551,35 @@ function UserManagementContent() {
 
   const refresh = () => setReloadKey((k) => k + 1);
 
-  const handleDelete = async (u) => {
-    if (!window.confirm(`Delete ${u.name} (${u.email})? This cannot be undone.`)) return;
+  // Delete is confirmed through ConfirmModal rather than window.confirm so the
+  // dialog matches the rest of the app and can show the in-flight/failed state.
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const requestDelete = (u) => {
+    setDeleteError("");
+    setDeleteTarget(u);
+  };
+
+  const cancelDelete = () => {
+    if (deleting) return;
+    setDeleteTarget(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError("");
     try {
-      await deleteUser(u._id);
+      await deleteUser(deleteTarget._id);
+      setDeleteTarget(null);
       refresh();
     } catch (err) {
-      alert(err.response?.data?.message || "Delete failed.");
+      setDeleteError(err.response?.data?.message || "Delete failed.");
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -632,14 +676,23 @@ function UserManagementContent() {
 
       {/* Manage existing users */}
       <section className={styles.manageCard}>
-        <div className={styles.manageCardText}>
-          <h2 className={styles.manageCardTitle}>Already have users?</h2>
-          <p className={styles.manageCardNote}>
-            Click the button to open the user manager, where you can view, edit, or delete existing accounts.
-          </p>
+        <div className={styles.manageCardMain}>
+          <span className={styles.manageCardIcon} aria-hidden="true">
+            <UsersIcon className={styles.manageCardIconSvg} />
+          </span>
+          <div className={styles.manageCardText}>
+            <h2 className={styles.manageCardTitle}>Existing users</h2>
+            <p className={styles.manageCardNote}>
+              {isHoi
+                ? `Accounts in ${user?.institution || "your institution"}.`
+                : "Accounts you are able to administer."}{" "}
+              Click on the button to open the manager to view, edit or remove them.
+            </p>
+          </div>
         </div>
+
         <button className={styles.manageBtn} onClick={() => setShowManage(true)}>
-          Manage existing users
+          Manage users
           <span className={styles.manageBtnArrow} aria-hidden="true">→</span>
         </button>
       </section>
@@ -652,10 +705,27 @@ function UserManagementContent() {
           setRoleFilter={setRoleFilter}
           allowed={allowed}
           onEdit={(u) => setModal({ mode: "edit", initial: u })}
-          onDelete={handleDelete}
+          onDelete={requestDelete}
+          deleteError={deleteError}
           onClose={() => setShowManage(false)}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        danger
+        title="Delete this user?"
+        message={
+          deleteTarget
+            ? `${deleteTarget.name} (${deleteTarget.email}) will be permanently removed. This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete user"
+        cancelLabel="Keep user"
+        loading={deleting}
+      />
 
       {modal && (
         <UserFormModal
