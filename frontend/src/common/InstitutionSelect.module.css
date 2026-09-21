@@ -67,12 +67,3 @@
 .errorText {
   @apply text-xs text-red-600 mt-1;
 }
-
-@media (max-width: 640px) {
-  .submenu {
-    position: static;
-    width: 100%;
-    margin-left: 0;
-    box-shadow: none;
-  }
-}

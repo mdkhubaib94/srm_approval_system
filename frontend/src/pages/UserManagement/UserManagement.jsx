@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { getUsers, createUser, bulkCreateUsers, updateUser, deleteUser } from "../../api/users.api";
-import { getPermissions, updatePermissionRoles } from "../../api/permissions.api";
+import { PencilSquareIcon, TrashIcon, UsersIcon } from "@heroicons/react/24/outline";
+import ConfirmModal from "../../common/ConfirmModal";
 import { useAuth } from "../../context/AuthContext";
 import ProtectedRoute from "../../common/ProtectedRoute";
 import NestedSelect from "../../common/NestedSelect";
@@ -422,7 +423,8 @@ function UsersTable({ users, onEdit, onDelete }) {
         <thead>
           <tr>
             <th>Name</th><th>Employee ID</th><th>Email</th><th>Phone</th>
-            <th>Role</th><th>Institution</th><th>Department</th><th></th>
+            <th>Role</th><th>Institution</th><th>Department</th>
+            <th className={styles.actionsHead}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -435,9 +437,27 @@ function UsersTable({ users, onEdit, onDelete }) {
               <td>{label(u.role)}</td>
               <td>{u.institution || "—"}</td>
               <td>{u.department || "—"}</td>
-              <td className={styles.rowActions}>
-                <button className={styles.editBtn} onClick={() => onEdit(u)}>Edit</button>
-                <button className={styles.deleteBtn} onClick={() => onDelete(u)}>Delete</button>
+              <td>
+                <div className={styles.rowActions}>
+                  <button
+                    type="button"
+                    className={styles.editBtn}
+                    onClick={() => onEdit(u)}
+                    aria-label={`Edit ${u.name}`}
+                  >
+                    <PencilSquareIcon className={styles.actionIcon} aria-hidden="true" />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.deleteBtn}
+                    onClick={() => onDelete(u)}
+                    aria-label={`Delete ${u.name}`}
+                  >
+                    <TrashIcon className={styles.actionIcon} aria-hidden="true" />
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
@@ -447,145 +467,9 @@ function UsersTable({ users, onEdit, onDelete }) {
   );
 }
 
-// ─── Delete-confirmation modal ───────────────────────────────────────────────
-
-function DeleteConfirmModal({ user, busy, error, onConfirm, onCancel }) {
-  return (
-    <div className={styles.overlay} onMouseDown={onCancel}>
-      <div className={styles.confirmModal} onMouseDown={(e) => e.stopPropagation()}>
-        <h3 className={styles.confirmTitle}>Delete user</h3>
-        <p className={styles.confirmLead}>You are about to delete this user:</p>
-
-        <div className={styles.confirmUserCard}>
-          <div className={styles.confirmUserName}>{user.name}</div>
-          <div>{label(user.role)}</div>
-          <div>{user.email}</div>
-          <div>Employee ID: {user.employeeID}</div>
-        </div>
-
-        {error && <div className={styles.errorBox}>{error}</div>}
-
-        <div className={styles.confirmWarning}>
-          This action is irreversible. Are you sure you want to continue?
-        </div>
-
-        <div className={styles.actionsRow}>
-          <button className={styles.dangerBtn} onClick={onConfirm} disabled={busy}>
-            {busy ? "Deleting…" : "Yes, delete user"}
-          </button>
-          <button className={styles.ghostBtn} onClick={onCancel} disabled={busy}>
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Manage-permissions modal ────────────────────────────────────────────────
-
-function ManagePermissionsModal({ onClose }) {
-  const [permissions, setPermissions] = useState([]);
-  const [selectedRoles, setSelectedRoles] = useState({}); // key -> role[]
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [savedKey, setSavedKey] = useState("");
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const { data } = await getPermissions();
-        const list = Array.isArray(data) ? data : [];
-        setPermissions(list);
-        setSelectedRoles(Object.fromEntries(list.map((p) => [p.key, [...p.roles]])));
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load permissions.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  const toggleRole = (key, role) => {
-    setSavedKey("");
-    setSelectedRoles((prev) => {
-      const current = prev[key] || [];
-      const next = current.includes(role) ? current.filter((r) => r !== role) : [...current, role];
-      return { ...prev, [key]: next };
-    });
-  };
-
-  const handleSave = async (key) => {
-    setSaving(true);
-    setError("");
-    setSavedKey("");
-    try {
-      const { data } = await updatePermissionRoles(key, selectedRoles[key] || []);
-      setPermissions((prev) => prev.map((p) => (p.key === key ? data : p)));
-      setSelectedRoles((prev) => ({ ...prev, [key]: [...data.roles] }));
-      setSavedKey(key);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to save permission.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className={styles.overlay} onMouseDown={onClose}>
-      <div className={`${styles.modal} ${styles.permissionsModal}`} onMouseDown={(e) => e.stopPropagation()}>
-        <h3 className={styles.modalTitle}>Manage permissions</h3>
-        <p className={styles.permissionsIntro}>
-          Choose which roles can see the <strong>Download</strong> option for PDF attachments
-          (request attachments and query-reply attachments) on the request detail page. Viewing/
-          previewing stays available to everyone — this only controls the download button.
-        </p>
-
-        {error && <div className={styles.errorBox}>{error}</div>}
-
-        {loading ? (
-          <div className={styles.empty}>Loading…</div>
-        ) : (
-          permissions.map((perm) => (
-            <div key={perm.key} className={styles.permissionBlock}>
-              <div className={styles.permissionTitle}>{perm.label}</div>
-              <div className={styles.permissionRoles}>
-                {ALL_ROLES.map((role) => (
-                  <label key={role} className={styles.permissionRoleOption}>
-                    <input
-                      type="checkbox"
-                      checked={(selectedRoles[perm.key] || []).includes(role)}
-                      onChange={() => toggleRole(perm.key, role)}
-                    />
-                    {label(role)}
-                  </label>
-                ))}
-              </div>
-              <div className={styles.actionsRow}>
-                <button className={styles.primaryBtn} onClick={() => handleSave(perm.key)} disabled={saving}>
-                  {saving ? "Saving…" : "Save"}
-                </button>
-                {savedKey === perm.key && <span className={styles.count}>Saved.</span>}
-              </div>
-            </div>
-          ))
-        )}
-
-        <div className={styles.actionsRow}>
-          <button type="button" className={styles.ghostBtn} onClick={onClose}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Manage-users modal (large, scrollable) ─────────────────────────────────────
 
-function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose }) {
+function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose, deleteError }) {
   return (
     <div className={styles.overlay} onMouseDown={onClose}>
       <div className={styles.modalWide} onMouseDown={(e) => e.stopPropagation()}>
@@ -604,6 +488,7 @@ function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, 
           </label>
           <span className={styles.count}>{users.length} user{users.length === 1 ? "" : "s"}</span>
         </div>
+        {deleteError && <div className={styles.inlineError}>{deleteError}</div>}
         <div className={styles.wideBody}>
           {loading ? (
             <div className={styles.empty}>Loading…</div>
@@ -639,11 +524,7 @@ function UserManagementContent() {
   const [hoiTab, setHoiTab] = useState("REQUESTER");
   const [modal, setModal] = useState(null); // {mode, initial, presetRole}
   const [showManage, setShowManage] = useState(false);
-  const [showPermissions, setShowPermissions] = useState(false);
   const [error, setError] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteBusy, setDeleteBusy] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
 
   // Bumped by refresh() to re-run the effect below with the same roleFilter,
   // instead of holding an externally-callable fetch function (which the
@@ -670,13 +551,25 @@ function UserManagementContent() {
 
   const refresh = () => setReloadKey((k) => k + 1);
 
+  // Delete is confirmed through ConfirmModal rather than window.confirm so the
+  // dialog matches the rest of the app and can show the in-flight/failed state.
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   const requestDelete = (u) => {
     setDeleteError("");
     setDeleteTarget(u);
   };
 
+  const cancelDelete = () => {
+    if (deleting) return;
+    setDeleteTarget(null);
+  };
+
   const confirmDelete = async () => {
-    setDeleteBusy(true);
+    if (!deleteTarget) return;
+    setDeleting(true);
     setDeleteError("");
     try {
       await deleteUser(deleteTarget._id);
@@ -684,8 +577,9 @@ function UserManagementContent() {
       refresh();
     } catch (err) {
       setDeleteError(err.response?.data?.message || "Delete failed.");
+      setDeleteTarget(null);
     } finally {
-      setDeleteBusy(false);
+      setDeleting(false);
     }
   };
 
@@ -782,31 +676,26 @@ function UserManagementContent() {
 
       {/* Manage existing users */}
       <section className={styles.manageCard}>
-        <div className={styles.manageCardText}>
-          <h2 className={styles.manageCardTitle}>Click the button to open the user manager, where you can view, edit, or delete existing accounts.</h2>
-
+        <div className={styles.manageCardMain}>
+          <span className={styles.manageCardIcon} aria-hidden="true">
+            <UsersIcon className={styles.manageCardIconSvg} />
+          </span>
+          <div className={styles.manageCardText}>
+            <h2 className={styles.manageCardTitle}>Existing users</h2>
+            <p className={styles.manageCardNote}>
+              {isHoi
+                ? `Accounts in ${user?.institution || "your institution"}.`
+                : "Accounts you are able to administer."}{" "}
+              Click on the button to open the manager to view, edit or remove them.
+            </p>
+          </div>
         </div>
+
         <button className={styles.manageBtn} onClick={() => setShowManage(true)}>
-          Manage existing users
+          Manage users
           <span className={styles.manageBtnArrow} aria-hidden="true">→</span>
         </button>
       </section>
-
-      {/* Roles & permissions — HOI is excluded: permission grants are global
-          across every institution, not scoped to the HOI's own one. */}
-      {!isHoi && (
-        <section className={styles.manageCard}>
-          <div className={styles.manageCardText}>
-            <h2 className={styles.manageCardTitle}>
-              Control which roles can download PDF attachments on the request detail page.
-            </h2>
-          </div>
-          <button className={styles.manageBtn} onClick={() => setShowPermissions(true)}>
-            Manage permissions
-            <span className={styles.manageBtnArrow} aria-hidden="true">→</span>
-          </button>
-        </section>
-      )}
 
       {showManage && (
         <ManageUsersModal
@@ -817,23 +706,26 @@ function UserManagementContent() {
           allowed={allowed}
           onEdit={(u) => setModal({ mode: "edit", initial: u })}
           onDelete={requestDelete}
+          deleteError={deleteError}
           onClose={() => setShowManage(false)}
         />
       )}
 
-      {showPermissions && (
-        <ManagePermissionsModal onClose={() => setShowPermissions(false)} />
-      )}
-
-      {deleteTarget && (
-        <DeleteConfirmModal
-          user={deleteTarget}
-          busy={deleteBusy}
-          error={deleteError}
-          onConfirm={confirmDelete}
-          onCancel={() => setDeleteTarget(null)}
-        />
-      )}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        danger
+        title="Delete this user?"
+        message={
+          deleteTarget
+            ? `${deleteTarget.name} (${deleteTarget.email}) will be permanently removed. This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete user"
+        cancelLabel="Keep user"
+        loading={deleting}
+      />
 
       {modal && (
         <UserFormModal

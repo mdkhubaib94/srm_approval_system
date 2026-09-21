@@ -126,31 +126,3 @@
 .infoAlertText {
   @apply text-xs text-gray-700 text-center;
 }
-
-@media (max-width: 640px) {
-  .card {
-    @apply p-5;
-  }
-
-  .otpGrid {
-    @apply gap-1.5;
-  }
-
-  .otpInput {
-    @apply w-10 h-12 text-xl;
-  }
-}
-
-@media (max-width: 400px) {
-  .card {
-    @apply p-4;
-  }
-
-  .otpGrid {
-    @apply gap-1;
-  }
-
-  .otpInput {
-    @apply w-9 h-11 text-lg;
-  }
-}

@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
 
     # Self-signup
-    self_signup_roles: list[str] = ["CHAIRMAN"]
+    self_signup_roles: list[str] = ["REQUESTER"]
 
     # File storage
     storage_root: str = "./storage"

@@ -17,7 +17,6 @@ from app.middleware.camel_case import CamelCaseResponseMiddleware
 from app.middleware.global_rate_limit import GlobalRateLimitMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.trusted_proxy import TrustedProxyMiddleware
-from app.permissions.controller import router as permissions_router
 from app.policies.controller import router as policies_router
 from app.queries.controller import router as queries_router
 from app.requests.controller import router as requests_router
@@ -97,7 +96,6 @@ app.include_router(flagged_router)
 app.include_router(files_router)
 app.include_router(sops_router)
 app.include_router(form_configs_router)
-app.include_router(permissions_router)
 
 
 @app.get("/")

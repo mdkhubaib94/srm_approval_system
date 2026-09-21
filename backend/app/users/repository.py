@@ -27,10 +27,7 @@ async def get_user_by_email_excluding_id(db: AsyncSession, email: str, exclude_i
 
 
 async def list_users_by_roles(db: AsyncSession, roles: list[str], *, institution: str | None = None) -> list[User]:
-    # Ordered by id so the list stays in a stable order across edits —
-    # without this, Postgres returns heap order, which an UPDATE can
-    # reshuffle (the edited row appears to "jump" in the list).
-    stmt = select(User).where(User.role.in_(roles)).order_by(User.id)
+    stmt = select(User).where(User.role.in_(roles))
     if institution is not None:
         stmt = stmt.where(User.institution == institution)
     result = await db.execute(stmt)

@@ -81,7 +81,7 @@
 }
 
 .mainWrapper {
-  @apply lg:pl-64 flex flex-col flex-1;
+  @apply flex flex-col flex-1;
 }
 
 .topBar {
