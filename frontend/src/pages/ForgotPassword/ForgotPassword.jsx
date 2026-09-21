@@ -209,7 +209,7 @@ export default function ForgotPasswordPage() {
             className={styles.logo}
             
           />
-          <h1 className={styles.title}>SRM-RMP Approval System</h1>
+          <h1 className={styles.title}>SRM PRIME Approval System</h1>
         </div>
 
         <div className={styles.textCenter}>
