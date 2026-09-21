@@ -12,7 +12,7 @@ This guide gets both halves running locally from a clean checkout.
 
 ## Prerequisites
 
-- **Python 3.13+**
+- **Python 3.14+**
 - **Node.js 20+** and npm
 - **Docker** (for the local Postgres container) — or a Postgres 16 instance of your own
 - **git**
