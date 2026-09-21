@@ -188,6 +188,16 @@ export default function DashboardPage() {
     }
   };
 
+  // Policies are authored by HEAD_OF_INSTITUTION and approved up the
+  // CHAIRMAN_OFFICE -> DEAN_ADMIN -> CHAIRMAN chain; nobody else acts on
+  // them, so the tile is hidden from every other role.
+  const POLICY_TILE_ROLES = [
+    "CHAIRMAN",
+    "CHAIRMAN_OFFICE",
+    "DEAN_ADMIN",
+    "HEAD_OF_INSTITUTION",
+  ];
+
   // Base stats cards for all users
   const baseStatsCards = [
     {
@@ -242,18 +252,23 @@ export default function DashboardPage() {
       bgColor: "bg-purple-100",
       description: "View queries raised to you",
     },
-    {
-      name: "Policies",
-      stat: stats?.policiesCount || 0,
-      icon: DocumentTextIcon,
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-100",
-      description: currentUser?.role === "HEAD_OF_INSTITUTION" 
-        ? "View all policies you have created"
-        : ["DEAN_ADMIN", "CHAIRMAN"].includes(currentUser?.role) 
-          ? "View policies awaiting your approval" 
-          : "View policies in the system",
-    },
+    ...(POLICY_TILE_ROLES.includes(currentUser?.role)
+      ? [
+          {
+            name: "Policies",
+            stat: stats?.policiesCount || 0,
+            icon: DocumentTextIcon,
+            color: "text-indigo-600",
+            bgColor: "bg-indigo-100",
+            description:
+              currentUser?.role === "HEAD_OF_INSTITUTION"
+                ? "View all policies you have created"
+                : ["DEAN_ADMIN", "CHAIRMAN"].includes(currentUser?.role)
+                  ? "View policies awaiting your approval"
+                  : "View policies in the system",
+          },
+        ]
+      : []),
   ];
 
   // Additional tiles for ACCOUNTANT role
@@ -343,7 +358,12 @@ export default function DashboardPage() {
           error={sectionErrors.stats}
           onRetry={fetchDashboardData}
         >
-          <div className={styles.statsGrid}>
+          <div
+            className={styles.statsGrid}
+            style={{
+              gridTemplateColumns: `repeat(${baseStatsCards.length}, minmax(0, 1fr))`,
+            }}
+          >
             {baseStatsCards.map((item) => (
               <StatsCard
                 key={item.name}
