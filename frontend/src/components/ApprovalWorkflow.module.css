@@ -1,0 +1,287 @@
+.container {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+@media (min-width: 640px) {
+  .header {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.title {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.description {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.content {
+  padding: 1.25rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .content {
+    padding: 1.5rem;
+  }
+}
+
+/* Desktop View */
+.desktopView {
+  display: none;
+  flex-direction: column;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .desktopView {
+    display: flex;
+  }
+}
+
+.progressLineContainer {
+  position: absolute;
+  top: 0.1rem;
+  left: 0;
+  right: 0;
+  margin-bottom: 0;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 0;
+}
+
+.progressLineBackground {
+  height: 0.25rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressLineFill {
+  height: 100%;
+  background-color: #10b981;
+  transition: width 0.3s ease;
+}
+
+.stepsContainer {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-top: 0;
+}
+
+.stepsWrapper {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.stepWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  z-index: 10;
+}
+
+.stepBadge {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.completedBadge {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.currentBadge {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.futureBadge {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.checkIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.stepNumber {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stepLabel {
+  text-align: center;
+}
+
+.stepName {
+  display: block;
+  font-size: 0.75rem;
+  width: 5.5rem;
+  line-height: 1;
+  word-wrap: break-word;
+}
+
+.stepNameCurrent {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.stepNameCompleted {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.stepNameFuture {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Mobile View */
+.mobileView {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .mobileView {
+    display: none;
+  }
+}
+
+.mobileStepContainer {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.mobileStepHeader {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.mobileStepInfo {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileStepInfo .stepName {
+  font-size: 0.875rem;
+  width: auto;
+  margin-bottom: 0.25rem;
+}
+
+.mobileConnector {
+  position: absolute;
+  left: 1rem;
+  top: 2rem;
+  width: 0.125rem;
+  height: 1rem;
+  background-color: #e5e7eb;
+}
+
+.completedConnector {
+  background-color: #10b981;
+}
+
+.currentBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Status Info Section */
+.statusInfo {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #eff6ff;
+  border-radius: 0.5rem;
+}
+
+.statusInfoContent {
+  display: flex;
+  align-items: flex-start;
+}
+
+.statusInfoIcon {
+  flex-shrink: 0;
+  margin-right: 1rem;
+}
+
+.infoIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #60a5fa;
+}
+
+.statusInfoText {
+  flex: 1;
+}
+
+.statusInfoTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e40af;
+  margin: 0;
+}
+
+.statusInfoDetails {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #1e3a8a;
+}
+
+.statusInfoValue {
+  font-weight: 600;
+  margin: 0;
+}

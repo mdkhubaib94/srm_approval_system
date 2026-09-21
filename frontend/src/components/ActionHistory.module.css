@@ -1,0 +1,278 @@
+.container {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.header {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1.25rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .header {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.toggleButton {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1.25rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggleButton:hover {
+  background-color: #f9fafb;
+}
+
+@media (min-width: 640px) {
+  .toggleButton {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.titleContainer {
+  text-align: left;
+  margin: 0;
+}
+
+.title {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.description {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.chevron {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  margin-left: 1rem;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.content {
+  border-top: 1px solid #e5e7eb;
+}
+
+.timeline {
+  padding: 0;
+}
+
+.historyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  divide-y: divide-gray-200;
+}
+
+.historyItem {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.historyItem:last-child {
+  border-bottom: none;
+}
+
+@media (min-width: 640px) {
+  .historyItem {
+    padding: 1.5rem;
+  }
+}
+
+.itemWrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.badgeContainer {
+  flex-shrink: 0;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  color: white;
+  font-size: 0.875rem;
+}
+
+.badgeSuccess {
+  background-color: #10b981;
+}
+
+.badgeError {
+  background-color: #ef4444;
+}
+
+.badgeWarning {
+  background-color: #f59e0b;
+}
+
+.badgeDefault {
+  background-color: #3b82f6;
+}
+
+.badgeCurrentStatus {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.checkIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.itemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .itemHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+}
+
+.actionInfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.actionBadge.badgeSuccess {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.actionBadge.badgeError {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.actionBadge.badgeWarning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.actionBadge.badgeDefault {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.actionBadge.badgeCurrentStatus {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.byText {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.actorName {
+  font-weight: 500;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.detailRow {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.value {
+  margin-left: 0.25rem;
+  color: #6b7280;
+}
+
+.currentStatusText {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.stageName {
+  font-weight: 600;
+  color: #1f2937;
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .badge {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+
+  .actionInfo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timestamp {
+    font-size: 0.75rem;
+  }
+}

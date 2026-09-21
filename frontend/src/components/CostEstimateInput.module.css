@@ -1,0 +1,29 @@
+@reference "../index.css";
+
+.inputWrapper {
+  @apply relative mt-1 rounded-lg shadow-sm;
+}
+
+.leftAddon {
+  @apply pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3;
+}
+
+.addonText {
+  @apply text-gray-500 sm:text-sm;
+}
+
+.inputField {
+  @apply block w-full rounded-lg border pl-7 pr-12 py-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all border-gray-300 hover:border-gray-400;
+}
+
+.inputFieldError {
+  @apply border-red-500 focus:ring-red-200;
+}
+
+.rightAddon {
+  @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3;
+}
+
+.errorText {
+  @apply text-xs text-red-600 mt-1;
+}

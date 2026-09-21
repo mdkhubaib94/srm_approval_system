@@ -1,0 +1,141 @@
+@reference "../index.css";
+
+.layout {
+  @apply min-h-screen bg-gray-50 flex flex-col lg:flex-row;
+}
+
+.sidebar {
+  @apply fixed inset-y-0 left-0 z-50 w-64 flex flex-col -translate-x-full transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto;
+}
+
+.sidebarOpen {
+  @apply translate-x-0;
+}
+
+.backdrop {
+  @apply fixed inset-0 z-40 bg-black/50 lg:hidden;
+}
+
+.sidebarInner {
+  @apply flex flex-col grow bg-white border-r border-gray-200 pt-5 pb-4 shadow-sm;
+}
+
+.logoArea {
+  @apply px-6 mb-8;
+}
+
+.logoAreaRow {
+  @apply flex items-center justify-between;
+}
+
+.closeDrawerBtn {
+  @apply lg:hidden text-gray-500 hover:text-gray-700 p-1 rounded-md;
+}
+
+.closeDrawerIcon {
+  @apply h-5 w-5;
+}
+
+.logoText {
+  @apply text-xl font-bold text-gray-900 tracking-tight;
+}
+
+.navList {
+  @apply flex-1 px-4 space-y-2;
+}
+
+.navLink {
+  @apply flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200;
+}
+
+.navLinkActive {
+  @apply bg-blue-50 text-blue-700 border-r-2 border-blue-700;
+}
+
+.navLinkInactive {
+  @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50;
+}
+
+.navIcon {
+  @apply h-5 w-5 mr-3;
+}
+
+.navIconActive {
+  @apply text-blue-700;
+}
+
+.navIconInactive {
+  @apply text-gray-400;
+}
+
+.badge {
+  @apply ml-2 bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full min-w-5 text-center;
+}
+
+.policyBadge {
+  @apply ml-2 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2 py-1 rounded-full min-w-5 text-center;
+}
+
+.flaggedBadge {
+  @apply ml-2 bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded-full min-w-5 text-center;
+}
+
+.mainWrapper {
+  @apply lg:pl-64 flex flex-col flex-1;
+}
+
+.topBar {
+  @apply flex h-14 sm:h-16 bg-white border-b border-gray-200 items-center justify-between px-4;
+}
+
+.logoBtn {
+  @apply flex items-center gap-3 lg:hover:opacity-80 lg:transition-opacity lg:cursor-pointer cursor-default;
+}
+
+.menuBtn {
+  @apply lg:hidden text-gray-500 hover:text-gray-700 p-1 rounded-md mr-2;
+}
+
+.menuIcon {
+  @apply h-6 w-6;
+}
+
+.systemTitle {
+  @apply text-lg font-semibold text-gray-800 hidden sm:block;
+}
+
+.userSection {
+  @apply flex items-center gap-3;
+}
+
+.userInfo {
+  @apply text-center sm:text-right;
+}
+
+.userRole {
+  @apply text-sm text-gray-700;
+}
+
+.userRoleBold {
+  @apply font-medium;
+}
+
+.userInst {
+  @apply text-xs text-gray-500;
+}
+
+.logoutBtn {
+  @apply text-gray-500 hover:text-gray-700 p-1 rounded-md;
+}
+
+.logoutIcon {
+  @apply h-6 w-6;
+}
+
+.mainContent {
+  @apply flex-1 overflow-y-auto;
+}
+
+.mainInner {
+  @apply max-w-7xl mx-auto px-4 py-6;
+}

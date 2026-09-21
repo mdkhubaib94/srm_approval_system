@@ -1,0 +1,150 @@
+@reference "../../index.css";
+.container {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+.header {
+  @apply mb-6 sm:mb-8;
+}
+
+.headerTitle {
+  @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900;
+}
+
+.welcomeText {
+  @apply text-lg sm:text-xl text-gray-600 mt-2 font-medium;
+}
+
+.userInfo {
+  @apply mt-2;
+}
+
+.userDetails {
+  @apply text-sm sm:text-base text-gray-500 mt-1 font-normal;
+}
+
+.warningBox {
+  @apply mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4;
+}
+
+.warningFlex {
+  @apply flex items-start;
+}
+
+.warningIcon {
+  @apply h-5 w-5 text-yellow-600 mt-0.5 mr-2 shrink-0;
+}
+
+.warningContent {
+  @apply flex-1;
+}
+
+.warningTitle {
+  @apply text-sm font-medium text-yellow-800;
+}
+
+.warningList {
+  @apply mt-1 text-sm text-yellow-700 list-disc list-inside;
+}
+
+.warningBtn {
+  @apply mt-2 text-sm text-yellow-800 underline hover:text-yellow-900;
+}
+
+.statsGrid {
+  @apply mt-4 sm:mt-6 grid grid-cols-6 gap-2 sm:gap-3 min-h-[220px];
+}
+
+.accountantTilesGrid {
+  @apply mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3 min-h-[220px];
+}
+
+.card {
+  @apply mt-8 sm:mt-10 bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 lg:p-8;
+}
+
+.cardHeader {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2;
+}
+
+.cardTitle {
+  @apply text-xl sm:text-2xl font-bold text-gray-900;
+}
+
+.cardHelpText {
+  @apply text-xs sm:text-sm text-gray-500;
+}
+
+.loadingSpinnerWrapper {
+  @apply flex justify-center items-center py-8;
+}
+
+.spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600;
+}
+
+.spinnerLabel {
+  @apply ml-3 text-gray-500;
+}
+
+.list {
+  @apply divide-y divide-gray-200;
+}
+
+.listItem {
+  @apply py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 hover:scale-[1.01] transition-all cursor-pointer rounded-lg px-3 sm:px-4 -mx-3 sm:-mx-4 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 active:scale-[0.99] gap-3 sm:gap-0;
+}
+
+.itemDetails {
+  @apply flex-1 min-w-0;
+}
+
+.itemTitle {
+  @apply text-base sm:text-lg font-semibold text-blue-700 hover:text-blue-800 transition-colors truncate;
+}
+
+.itemSubtitle {
+  @apply text-sm sm:text-base text-gray-700 font-medium mt-1 truncate;
+}
+
+.itemMeta {
+  @apply text-sm text-gray-600 font-medium mt-1;
+}
+
+.itemRightCol {
+  @apply flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3 shrink-0;
+}
+
+.itemPillWrapper {
+  @apply flex items-center space-x-2;
+}
+
+.statusPill {
+  @apply px-2 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap;
+}
+
+.chevronIcon {
+  @apply w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0;
+}
+
+.emptyPlaceholder {
+  @apply text-center text-gray-500 py-6;
+}
+
+.footer {
+  @apply mt-6 text-center;
+}
+
+.viewAllBtn {
+  @apply text-blue-600 hover:text-blue-800 font-medium transition-colors;
+}

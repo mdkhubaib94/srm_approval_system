@@ -1,0 +1,29 @@
+@reference "../index.css";
+
+.container {
+  @apply bg-red-50 border border-red-200 rounded-lg p-4;
+}
+
+.flexWrapper {
+  @apply flex items-start;
+}
+
+.icon {
+  @apply h-5 w-5 text-red-600 mt-0.5 mr-2 shrink-0;
+}
+
+.content {
+  @apply flex-1;
+}
+
+.title {
+  @apply text-sm font-medium text-red-800;
+}
+
+.errorMessage {
+  @apply mt-1 text-xs text-red-700;
+}
+
+.retryBtn {
+  @apply mt-2 text-xs text-red-800 underline hover:text-red-900;
+}

@@ -1,0 +1,767 @@
+/* Materials Requirement — dedicated page, styled like a spreadsheet: sticky
+   header, gridlines on every cell, generous row height, full-width layout
+   instead of a cramped modal. */
+
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+}
+
+.pageError {
+  max-width: 640px;
+  margin: 4rem auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  color: #374151;
+  font-size: 1rem;
+}
+
+/* ─── Top bar ─────────────────────────────────────────────────────────── */
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.backButton {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #f3f4f6;
+}
+
+.topBarTitle {
+  flex: 1;
+  min-width: 16rem;
+}
+
+.pageTitle {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.pageSubtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.toolbarButton {
+  background-color: white;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.toolbarButton:hover:not(:disabled) {
+  background-color: #eff6ff;
+  border-color: #2563eb;
+}
+
+.toolbarButtonPrimary {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.toolbarButtonPrimary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.toolbarButtonSecondary {
+  background-color: white;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.toolbarButtonSecondary:hover:not(:disabled) {
+  background-color: #eff6ff;
+}
+
+.toolbarButton:disabled,
+.toolbarButtonPrimary:disabled,
+.toolbarButtonSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+/* ─── Banners ──────────────────────────────────────────────────────────── */
+
+.helpBanner {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  margin-bottom: 1rem;
+}
+
+.errorBanner {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  margin-bottom: 1rem;
+}
+
+/* ─── Search bar ───────────────────────────────────────────────────────── */
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 24rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background-color: white;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.searchBar:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.searchIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: #111827;
+  background: transparent;
+}
+
+.searchClearBtn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.125rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.searchClearBtn:hover {
+  color: #374151;
+}
+
+/* ─── The spreadsheet ─────────────────────────────────────────────────── */
+
+.sheetWrapper {
+  overflow-x: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background-color: white;
+}
+
+.sheet {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  padding: 0.625rem 0.875rem;
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+.thSerial {
+  width: 3.5rem;
+}
+
+.thQuantity {
+  width: 6rem;
+}
+
+.thActions {
+  width: 6.5rem;
+}
+
+.thDescription {
+  min-width: 16rem;
+}
+
+.td {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #e2e8f0;
+  color: #111827;
+  vertical-align: top;
+}
+
+.tdSerial,
+.tdQuantity {
+  text-align: center;
+  color: #6b7280;
+}
+
+.sheet tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.sheet tbody tr:hover {
+  background-color: #eff6ff;
+}
+
+.rowDraft {
+  background-color: #fefce8 !important;
+}
+
+.rowEditing {
+  background-color: #f9fafb !important;
+}
+
+.emptyRow {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 1.5rem 0.875rem;
+}
+
+/* Inline editing controls — same visual language as the spreadsheet cells,
+   just interactive. */
+
+.cellInput,
+.cellInputSmall {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.25rem;
+  padding: 0.3125rem 0.5rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.cellInputSmall {
+  width: 4.5rem;
+}
+
+.editableField {
+  border-color: #2563eb !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.cellTextarea {
+  width: 100%;
+  min-width: 14rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.25rem;
+  padding: 0.3125rem 0.5rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: #111827;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.cellInput:focus,
+.cellInputSmall:focus,
+.cellTextarea:focus {
+  border-color: #2563eb;
+}
+
+.cellInput:disabled,
+.cellInputSmall:disabled,
+.cellTextarea:disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.mutedText {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.linkBtn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.rowActions {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.saveBtn {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background-color: #15803d;
+}
+
+.cancelBtn {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.saveBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  cursor: pointer;
+}
+
+.iconBtn:hover:not(:disabled) {
+  background-color: #eff6ff;
+  border-color: #2563eb;
+}
+
+.iconBtnDanger {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.iconBtnDanger:hover:not(:disabled) {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+}
+
+.iconBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* ─── Remarks (expandable row) ────────────────────────────────────────── */
+
+.remarksPanel {
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  padding: 0.875rem 1rem;
+}
+
+.remarksList {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.remarksListItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.remarksListItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.remarkMeta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.remarkText {
+  font-size: 0.875rem;
+  color: #111827;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.remarkForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+/* ─── Change log ───────────────────────────────────────────────────────── */
+
+.changeLogSection {
+  margin-top: 1.25rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+}
+
+.changeLogToggle {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.changeLogToggle:hover {
+  text-decoration: underline;
+}
+
+.changeLogList {
+  list-style: none;
+  margin: 0.875rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.changeLogItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.changeLogItem:last-child {
+  border-bottom: none;
+}
+
+.changeLogText {
+  color: #374151;
+}
+
+.changeLogWhen {
+  color: #9ca3af;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Delete confirmation ─────────────────────────────────────────────── */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.confirmModal {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  width: 100%;
+  padding: 1.5rem;
+}
+
+.confirmTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.75rem;
+}
+
+.confirmText {
+  font-size: 0.9375rem;
+  color: #374151;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.confirmDeleteBtn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmDeleteBtn:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.confirmDeleteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Modals (Change Logs, Remark) ───────────────────────────────────── */
+.modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-width: 720px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideIn 0.2s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+}
+
+.closeButton:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.helpText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.emptyText {
+  color: #9ca3af;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.changeLogList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.changeLogItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  padding: 0.625rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border-left: 3px solid #2563eb;
+}
+
+.changeLogMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.changeLogSerialAndId {
+  color: #2563eb;
+  flex: 1;
+}
+
+.changeLogHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.changeLogText {
+  color: #374151;
+  flex: 1;
+}
+
+.changeLogWhen {
+  color: #9ca3af;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.changeLogRemark {
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 0.375rem 0;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.375rem;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .topBar {
+    flex-direction: column;
+  }
+
+  .toolbar {
+    width: 100%;
+  }
+}

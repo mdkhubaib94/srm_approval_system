@@ -1,0 +1,576 @@
+@reference "../../index.css";
+/* --- Common --- */
+.container {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+/* --- StageProgress --- */
+.progressWrapper {
+  @apply flex items-center gap-0.5;
+}
+
+.progressDot {
+  @apply h-1.5 w-4 rounded-sm transition-colors;
+}
+
+.progressDotDone {
+  @apply bg-green-500;
+}
+
+.progressDotActive {
+  @apply bg-blue-500;
+}
+
+.progressDotPending {
+  @apply bg-gray-200;
+}
+
+.progressLine {
+  @apply h-px w-0.5 bg-gray-200;
+}
+
+/* --- RequestCard --- */
+.card {
+  @apply bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-[0.99];
+}
+
+.cardHeader {
+  @apply flex items-start justify-between gap-3;
+}
+
+.cardInfo {
+  @apply min-w-0;
+}
+
+.cardTitle {
+  @apply font-semibold text-gray-900 truncate text-sm;
+}
+
+.cardSubtitle {
+  @apply text-xs text-gray-400 mt-0.5 truncate;
+}
+
+.statusPill {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shrink-0;
+}
+
+.cardMeta {
+  @apply mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500;
+}
+
+.cardProgressWrapper {
+  @apply mt-3;
+}
+
+.cardProgressHeader {
+  @apply flex items-center justify-between mb-1;
+}
+
+.progressStageText {
+  @apply text-xs text-gray-500;
+}
+
+.progressStageRole {
+  @apply ml-1 text-blue-600;
+}
+
+.progressPercentText {
+  @apply text-xs text-gray-400;
+}
+
+.cardFooter {
+  @apply mt-2.5 flex justify-end;
+}
+
+.chevronIcon {
+  @apply h-4 w-4 text-gray-400;
+}
+
+/* --- InstitutionTree --- */
+.treeWrapper {
+  @apply space-y-2 w-full;
+}
+
+.campusHeader {
+  @apply flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-2.5 border border-blue-200 w-full cursor-pointer hover:bg-blue-100 transition-colors;
+}
+
+.campusBtn {
+  @apply p-0.5 text-blue-600 hover:text-blue-800 shrink-0;
+}
+
+.campusTitle {
+  @apply flex-1 text-left text-base font-bold text-blue-900;
+}
+
+.campusCount {
+  @apply text-base font-bold text-blue-900 shrink-0;
+}
+
+.institutionList {
+  @apply ml-6 space-y-2;
+}
+
+.instHeader {
+  @apply flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200 w-full;
+}
+
+.instBtn {
+  @apply p-0.5 text-gray-400 hover:text-gray-600 shrink-0;
+}
+
+.instTitle {
+  @apply flex-1 text-left text-sm font-medium transition-colors text-gray-700 hover:text-gray-900;
+}
+
+.instTitleActive {
+  @apply text-blue-700;
+}
+
+.instCount {
+  @apply text-sm font-semibold text-gray-600 shrink-0 ml-auto;
+}
+
+.deptList {
+  @apply ml-6 space-y-1;
+}
+
+.deptBtn {
+  @apply w-full flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors;
+}
+
+.deptBtnActive {
+  @apply bg-blue-50 border-blue-200 text-blue-700;
+}
+
+.deptBtnWithData {
+  @apply bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300;
+}
+
+.deptBtnEmpty {
+  @apply bg-white border-gray-100 text-gray-400 hover:bg-gray-50;
+}
+
+.deptTitle {
+  @apply flex-1 text-left text-sm;
+}
+
+.deptTitleActive {
+  @apply font-medium;
+}
+
+.deptCount {
+  @apply text-sm shrink-0 ml-auto;
+}
+
+.deptCountActive {
+  @apply font-semibold text-blue-700;
+}
+
+.deptCountEmpty {
+  @apply text-gray-300;
+}
+
+.deptCountWithData {
+  @apply font-semibold text-gray-600;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  @apply w-full lg:w-64 xl:w-72 shrink-0 space-y-5;
+}
+
+.sidebarCard {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm p-4;
+}
+
+.sidebarCardGap {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4;
+}
+
+.searchWrapper {
+  @apply relative;
+}
+
+.searchIcon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400;
+}
+
+.searchInput {
+  @apply w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.filterHeader {
+  @apply flex items-center justify-between;
+}
+
+.filterTitle {
+  @apply text-xs font-semibold text-gray-500 uppercase tracking-wide;
+}
+
+.clearBtn {
+  @apply text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1;
+}
+
+.selectLabel {
+  @apply block text-xs font-medium text-gray-600 mb-1.5;
+}
+
+.selectInput {
+  @apply w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white;
+}
+
+.customDateWrapper {
+  @apply mt-2 space-y-1.5;
+}
+
+.dateInput {
+  @apply w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.sidebarTreeHeader {
+  @apply flex items-center gap-2 mb-3;
+}
+
+.sidebarTreeTitle {
+  @apply text-xs font-semibold text-gray-500 uppercase tracking-wide;
+}
+
+.sidebarTreeDesc {
+  @apply text-xs text-gray-400 mb-3;
+}
+
+/* --- WorkflowPage main --- */
+.pageHeader {
+  @apply mb-6 flex items-center justify-between gap-3 flex-wrap;
+}
+
+.pageTitle {
+  @apply text-2xl sm:text-3xl font-bold text-gray-900;
+}
+
+.pageSubtitle {
+  @apply text-sm text-gray-500 mt-0.5;
+}
+
+.refreshBtn {
+  @apply flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 transition;
+}
+
+.refreshIcon {
+  @apply h-4 w-4;
+}
+
+.refreshIconSpin {
+  @apply animate-spin;
+}
+
+.summaryPills {
+  @apply grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6;
+}
+
+.summaryCard {
+  @apply rounded-xl px-4 py-3 text-center;
+}
+
+.summaryCardBlue {
+  @apply bg-blue-50 text-blue-700;
+}
+
+.summaryCardYellow {
+  @apply bg-yellow-50 text-yellow-700;
+}
+
+.summaryCardGreen {
+  @apply bg-green-50 text-green-700;
+}
+
+.summaryCardRed {
+  @apply bg-red-50 text-red-700;
+}
+
+.summaryCardTeal {
+  @apply bg-teal-50 text-teal-700;
+}
+
+.summaryCardOrange {
+  @apply bg-orange-50 text-orange-700;
+}
+
+.summaryCardIndigo {
+  @apply bg-indigo-50 text-indigo-700;
+}
+
+.summaryCardPink {
+  @apply bg-pink-50 text-pink-700;
+}
+
+.summaryCardClickable {
+  @apply cursor-pointer transition ring-1 ring-transparent hover:ring-current select-none;
+}
+
+.summaryCardActive {
+  @apply ring-2 ring-current;
+}
+
+.summaryVal {
+  @apply text-2xl font-bold;
+}
+
+.summaryLabel {
+  @apply text-xs font-medium mt-0.5;
+}
+
+.filterCard {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-5 space-y-3;
+}
+
+.filterRow1 {
+  @apply flex items-center gap-3;
+}
+
+.filterSearchWrapper {
+  @apply relative flex-1;
+}
+
+.filterSearchInput {
+  @apply w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.clearFilterBtn {
+  @apply flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 rounded-lg px-3 py-2 shrink-0;
+}
+
+.filterRow2 {
+  @apply flex flex-wrap gap-3;
+}
+
+.filterSelect {
+  @apply text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white;
+}
+
+.filterDateInput {
+  @apply text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.treeContainerCard {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-5;
+}
+
+.treeContainerHeader {
+  @apply flex items-center gap-2 mb-3;
+}
+
+.treeContainerTitle {
+  @apply text-xs font-semibold text-gray-500 uppercase tracking-wide;
+}
+
+.treeContainerDesc {
+  @apply text-xs text-gray-400;
+}
+
+.treeContainerBody {
+  @apply flex flex-wrap gap-x-6 gap-y-1;
+}
+
+.loadingFlex {
+  @apply flex flex-col items-center justify-center py-24 gap-3;
+}
+
+.loadingSpinner {
+  @apply animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600;
+}
+
+.loadingText {
+  @apply text-sm text-gray-500;
+}
+
+.errorFlex {
+  @apply flex flex-col items-center justify-center py-24 gap-4;
+}
+
+.errorIcon {
+  @apply h-12 w-12 text-red-400;
+}
+
+.errorText {
+  @apply text-gray-600;
+}
+
+.errorRetryBtn {
+  @apply px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition;
+}
+
+.emptyFlex {
+  @apply flex flex-col items-center justify-center py-24 gap-2 text-gray-400;
+}
+
+.emptyIcon {
+  @apply h-12 w-12;
+}
+
+.emptyText {
+  @apply text-sm;
+}
+
+.emptyClearBtn {
+  @apply text-xs text-blue-600 hover:underline mt-1;
+}
+
+.footerCounter {
+  @apply text-xs text-gray-400 text-center mt-6;
+}
+
+.paginationBar {
+  @apply flex items-center justify-center gap-4 mt-5;
+}
+
+.pageBtn {
+  @apply px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition;
+}
+
+.pageIndicator {
+  @apply text-sm text-gray-500;
+}
+
+/* --- Table Layout --- */
+.requestsList {
+  @apply bg-white border border-gray-100 rounded-xl overflow-hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  @apply flex flex-col;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr;
+  gap: 1rem;
+  @apply px-4 py-3 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 text-xs uppercase tracking-widest;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr;
+  gap: 1rem;
+  @apply px-4 py-3 border-b border-gray-200 items-center hover:bg-gray-50 cursor-pointer transition-colors;
+}
+
+.tableRow:last-child {
+  @apply border-b-0;
+}
+
+/* Table Columns */
+.colRequestID,
+.colTitle,
+.colInstitution,
+.colCost,
+.colStatus,
+.colDate,
+.colAction {
+  @apply flex items-center;
+}
+
+.requestIDText {
+  font-family: 'Monaco', 'Courier New', monospace;
+  @apply text-sm text-blue-600 font-bold;
+}
+
+.titleText {
+  @apply text-gray-900 font-medium break-words;
+}
+
+.institutionText {
+  @apply text-gray-600 text-sm;
+}
+
+.costText {
+  @apply text-green-600 font-bold;
+}
+
+.dateText {
+  @apply text-gray-600 text-sm;
+}
+
+.statusBadge {
+  @apply inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap;
+}
+
+.statusApproved {
+  @apply bg-green-100 text-green-700;
+}
+
+.statusRejected {
+  @apply bg-red-100 text-red-700;
+}
+
+.statusPending {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.statusDefault {
+  @apply bg-gray-100 text-gray-700;
+}
+
+.statusUnknown {
+  @apply bg-gray-100 text-gray-700;
+}
+
+.viewBtn {
+  @apply px-3 py-2 bg-blue-100 text-blue-700 border-0 rounded-md cursor-pointer font-medium text-xs transition-all;
+}
+
+.viewBtn:hover {
+  @apply bg-blue-200 text-blue-800;
+}
+
+@media (max-width: 1024px) {
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1.2fr 1.2fr 0.8fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr 1.2fr 0.8fr 1fr;
+    @apply text-xs px-3 py-2;
+  }
+
+  .titleText {
+    @apply text-sm;
+  }
+
+  .institutionText,
+  .dateText {
+    @apply text-xs;
+  }
+
+  .viewBtn {
+    @apply px-2 py-1.5 text-xs;
+  }
+}
+
+.gridLayout {
+  @apply grid grid-cols-1 gap-4;
+}
+
+.clearIcon {
+  @apply h-3.5 w-3.5;
+}
+
+.treeIcon {
+  @apply h-4 w-4 text-gray-400;
+}

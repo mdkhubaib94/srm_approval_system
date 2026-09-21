@@ -1,0 +1,896 @@
+
+.maxWidth {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+/* Loading & Error States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+  gap: 1rem;
+}
+
+.spinner {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  border: 2px solid #ddd;
+  border-top: 2px solid #2563eb;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorContainer {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #7f1d1d;
+  margin-bottom: 0.5rem;
+}
+
+.errorText {
+  font-size: 1rem;
+  color: #b91c1c;
+  margin-bottom: 1rem;
+}
+
+.errorActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.viewIndentBtn,
+.routeBtn,
+.raiseQueryBtn,
+.queryHistoryBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+/* Process Request — primary call to action (blue) */
+.primaryBtn {
+  background-color: #2563eb;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background-color: #1d4ed8;
+}
+
+.secondaryBtn {
+  background-color: #4b5563;
+  color: white;
+}
+
+.secondaryBtn:hover {
+  background-color: #374151;
+}
+
+/* View Indent Details — neutral, outlined (informational) */
+.viewIndentBtn {
+  background-color: white;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.viewIndentBtn:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Route Request — teal (re-routing action) */
+.routeBtn {
+  background-color: #0d9488;
+  color: white;
+}
+
+.routeBtn:hover {
+  background-color: #0f766e;
+}
+
+/* Raise Query — amber (needs attention) */
+.raiseQueryBtn {
+  background-color: #d97706;
+  color: white;
+}
+
+.raiseQueryBtn:hover {
+  background-color: #b45309;
+}
+
+/* Query History — neutral, outlined (informational) */
+.queryHistoryBtn {
+  background-color: white;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+.queryHistoryBtn:hover {
+  background-color: #eef2ff;
+  border-color: #a5b4fc;
+}
+
+/* Back Button */
+.backButtonContainer {
+  margin-bottom: 1.5rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.backButton:hover {
+  color: #1e40af;
+}
+
+.backIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+/* Details Card */
+.detailsCard {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.cardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  word-break: break-word;
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+/* Details Grid */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detailsSection {
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+  background-color: #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+}
+
+/* Info Grid */
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #d1d5db;
+  align-items: center;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* Status & Badges */
+.categoryBadge {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusBadge,
+.badge {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+/* Attachments Section */
+.attachmentsSection {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.attachmentItem {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attachmentItem:last-child {
+  border-bottom: none;
+}
+
+.attachmentName {
+  font-size: 0.875rem;
+  word-break: break-all;
+  flex: 1;
+  min-width: 0;
+}
+
+.attachmentMeta {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.attachmentQueryLink {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.attachmentQueryLink:hover {
+  color: #1e40af;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.downloadBtn:hover {
+  background-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #dcfce7;
+  color: #166534;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.viewBtn:hover {
+  background-color: #bbf7d0;
+  color: #15803d;
+}
+
+.attachmentActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.downloadIcon,
+.viewIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+/* SOP Badge */
+.sopBadgeContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sopBadge {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* History Toggle Switch */
+.historyToggleContainer {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.historyLabel {
+  font-size: 0.75rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .historyLabel {
+    font-size: 0.875rem;
+  }
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-flex;
+  height: 1.25rem;
+  width: 2.25rem;
+  align-items: center;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  focus: outline none;
+  outline: none;
+  padding: 0;
+}
+
+.toggleSwitch:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .toggleSwitch {
+    height: 1.5rem;
+    width: 2.75rem;
+  }
+}
+
+.toggleSwitchThumb {
+  display: inline-block;
+  height: 0.75rem;
+  width: 0.75rem;
+  transform: translateX(0.25rem);
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .toggleSwitchThumb {
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+/* History Section */
+.historySection {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e5e7eb;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
+
+.timelineMarker {
+  position: absolute;
+  left: -1.375rem;
+  top: 0.25rem;
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
+  background-color: #2563eb;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px #e5e7eb;
+}
+
+.timelineContent {
+  flex: 1;
+}
+
+.timelineAction {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.actionBadge {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.actionTime {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.actionActor {
+  font-size: 0.875rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.actionComments {
+  font-size: 0.875rem;
+  color: #4b5563;
+  background-color: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  margin-top: 0.5rem;
+  word-break: break-word;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .maxWidth {
+    padding: 0.5rem 1rem;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .infoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .infoRow {
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+  }
+
+  .attachmentItem {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .attachmentName {
+    flex: 1;
+  }
+
+  .downloadBtn,
+  .viewBtn {
+    white-space: nowrap;
+  }
+
+  .attachmentActions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .errorActions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .maxWidth {
+    padding: 0.5rem;
+  }
+
+  .cardHeader {
+    padding: 1rem;
+  }
+
+  .cardContent {
+    padding: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+  }
+
+  .infoRow {
+    grid-template-columns: 100px 1fr;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  .infoLabel {
+    font-size: 0.75rem;
+  }
+
+  .infoValue {
+    font-size: 0.75rem;
+  }
+
+  .attachmentItem {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.75rem;
+  }
+
+  .attachmentActions {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .viewBtn,
+  .downloadBtn {
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
+  }
+
+  .timelineItem {
+    gap: 0.75rem;
+  }
+
+  .timelineMarker {
+    left: -1.25rem;
+    height: 0.75rem;
+    width: 0.75rem;
+  }
+
+  .historyToggleContainer {
+    padding: 0.5rem 0;
+    gap: 0.5rem;
+  }
+
+  .historyLabel {
+    font-size: 0.75rem;
+  }
+
+  .toggleSwitch {
+    height: 1.25rem;
+    width: 2.25rem;
+  }
+
+  .toggleSwitchThumb {
+    height: 0.75rem;
+    width: 0.75rem;
+  }
+}
+
+/* Flagged Warning Banner */
+.flaggedBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-left: 4px solid #dc2626;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.1);
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+.flaggedIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #dc2626;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.flaggedContent {
+  flex: 1;
+}
+
+.flaggedTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flaggedMessage {
+  font-size: 0.938rem;
+  color: #7f1d1d;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.6;
+}
+
+.flaggedHours {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 1.125rem;
+}
+
+.flaggedAction {
+  font-size: 0.875rem;
+  color: #991b1b;
+  margin: 0;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Route-first notice (OTHER request awaiting HOI category assignment) */
+.routeNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background-color: #eff6ff;
+  border-left: 4px solid #2563eb;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.routeNoticeIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.routeNoticeText {
+  font-size: 0.9rem;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.55;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsive for Flagged Banner */
+@media (max-width: 768px) {
+  .flaggedBanner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.25rem;
+  }
+
+  .flaggedIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .flaggedTitle {
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  .flaggedMessage {
+    font-size: 0.875rem;
+  }
+
+  .flaggedHours {
+    font-size: 1rem;
+  }
+}
+
+/* Dynamic Form Details */
+.dynamicDetailsSection {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.dynamicSectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #2563eb;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.dynamicInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #f3f4f6;
+}
+
+.dynamicInfoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.dynamicInfoRow:last-child {
+  border-bottom: none;
+}
+
+.dynamicInfoLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dynamicInfoValue {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 500;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.fullWidthRow {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .dynamicInfoGrid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .fullWidthRow {
+    grid-column: span 1;
+  }
+}

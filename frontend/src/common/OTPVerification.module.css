@@ -1,0 +1,128 @@
+
+@reference "../index.css";
+.container {
+  @apply min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100 px-4;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+.wrapper {
+  @apply max-w-md w-full space-y-8;
+}
+
+.header {
+  @apply flex flex-col items-center text-center;
+}
+
+.logo {
+  @apply mb-4;
+}
+
+.logoTitle {
+  @apply text-3xl font-extrabold text-gray-900 drop-shadow-sm;
+}
+
+.sectionHeader {
+  @apply text-center;
+}
+
+.subtitle {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+.instruction {
+  @apply mt-1 text-gray-600 text-sm;
+}
+
+.emailHighlight {
+  @apply font-semibold text-gray-900;
+}
+
+.card {
+  @apply bg-white p-8 rounded-2xl shadow-xl border border-gray-100;
+}
+
+.errorBox {
+  @apply bg-red-50 text-red-600 border border-red-200 p-3 rounded-md text-sm mb-6 flex items-center gap-2;
+}
+
+.errorIcon {
+  @apply w-4 h-4 shrink-0;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-700 mb-3 text-center;
+}
+
+.otpGrid {
+  @apply flex justify-center gap-2 mb-4;
+}
+
+.otpInput {
+  @apply w-12 h-14 text-center text-2xl font-bold border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition;
+}
+
+.otpInputError {
+  @apply border-red-400 bg-red-50;
+}
+
+.otpInputFilled {
+  @apply border-blue-500 bg-blue-50;
+}
+
+.otpInputEmpty {
+  @apply border-gray-400;
+}
+
+.verifyingFlex {
+  @apply text-center mb-6;
+}
+
+.spinner {
+  @apply inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600;
+}
+
+.verifyingText {
+  @apply text-sm text-gray-600 mt-2;
+}
+
+.resendWrapper {
+  @apply text-center mb-6;
+}
+
+.resendPrompt {
+  @apply text-sm text-gray-600 mb-2;
+}
+
+.resendCountdown {
+  @apply text-sm text-gray-500;
+}
+
+.countdownHighlight {
+  @apply font-semibold text-blue-700;
+}
+
+.resendBtn {
+  @apply text-blue-600 font-semibold hover:text-blue-700 disabled:opacity-50 text-sm;
+}
+
+.backBtn {
+  @apply w-full border border-gray-400 bg-white hover:bg-gray-50 text-gray-900 py-3 rounded-lg font-medium shadow-sm transition disabled:opacity-50;
+}
+
+.infoAlert {
+  @apply mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100;
+}
+
+.infoAlertText {
+  @apply text-xs text-gray-700 text-center;
+}

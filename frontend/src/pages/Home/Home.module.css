@@ -1,0 +1,64 @@
+@reference "../../index.css";
+.container {
+  @apply relative overflow-hidden min-h-screen;
+}
+
+.bgImage {
+  @apply absolute inset-0 transition-opacity duration-1000;
+}
+
+.bgImageActive {
+  @apply opacity-100;
+}
+
+.bgImageInactive {
+  @apply opacity-0;
+}
+
+.overlay {
+  @apply absolute inset-0 bg-black/40;
+}
+
+.contentWrapper {
+  @apply relative z-10 flex flex-col min-h-screen;
+}
+
+.mainContent {
+  @apply flex-1 flex items-center justify-center;
+}
+
+.innerContent {
+  @apply mx-auto max-w-4xl px-4 w-full;
+}
+
+.logoTextGroup {
+  @apply flex flex-col items-center justify-center text-center py-8;
+}
+
+.logoWrapper {
+  @apply mb-8;
+}
+
+.logo {
+  @apply h-40 sm:h-56 w-auto max-w-full drop-shadow-lg;
+}
+
+.title {
+  @apply text-4xl sm:text-5xl tracking-tight font-extrabold text-white lg:text-6xl mb-8 lg:mb-16 drop-shadow-lg;
+}
+
+.titleBlock {
+  @apply block;
+}
+
+.titleBlue {
+  @apply block text-blue-300;
+}
+
+.btnGroup {
+  @apply flex justify-center;
+}
+
+.loginBtn {
+  @apply bg-blue-700 hover:bg-blue-800 text-white text-xl px-10 py-3 rounded-lg shadow-md transition duration-300 transform hover:scale-105;
+}

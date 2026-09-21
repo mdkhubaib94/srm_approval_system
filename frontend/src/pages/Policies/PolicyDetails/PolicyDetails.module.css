@@ -1,0 +1,506 @@
+.maxWidth {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+/* Loading & Error States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+  gap: 1rem;
+}
+
+.spinner {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  border: 2px solid #ddd;
+  border-top: 2px solid #2563eb;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorContainer {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #7f1d1d;
+  margin-bottom: 0.5rem;
+}
+
+.errorText {
+  font-size: 1rem;
+  color: #b91c1c;
+  margin-bottom: 1rem;
+}
+
+.errorActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.primaryBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  background-color: #2563eb;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Raise Query — amber (attention) */
+.raiseQueryBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  background-color: #d97706;
+  color: white;
+}
+
+.raiseQueryBtn:hover {
+  background-color: #b45309;
+}
+
+/* Query History — neutral, outlined (informational) */
+.queryHistoryBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  background-color: white;
+  color: #4338ca;
+}
+
+.queryHistoryBtn:hover {
+  background-color: #eef2ff;
+  border-color: #a5b4fc;
+}
+
+/* Back Button */
+.backButtonContainer {
+  margin-bottom: 1.5rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.backButton:hover {
+  color: #1e40af;
+}
+
+.backIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+/* Details Card */
+.detailsCard {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.cardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+/* Details Grid */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detailsSection {
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+  background-color: #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+}
+
+/* Info Grid */
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 2rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #d1d5db;
+  align-items: center;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoRowFull {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.infoRowFull:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.rejectionReason {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #991b1b;
+  line-height: 1.6;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.statusApproved {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusRejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.statusPending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Attachments Section */
+.attachmentsSection {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.attachmentItem {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attachmentItem:last-child {
+  border-bottom: none;
+}
+
+.attachmentName {
+  font-size: 0.875rem;
+  word-break: break-all;
+  flex: 1;
+  min-width: 0;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.downloadBtn:hover {
+  background-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #dcfce7;
+  color: #166534;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.viewBtn:hover {
+  background-color: #bbf7d0;
+  color: #15803d;
+}
+
+.attachmentActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.downloadIcon,
+.viewIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.approveButton,
+.rejectButton {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.approveButton {
+  background-color: #16a34a;
+  color: white;
+}
+
+.approveButton:hover:not(:disabled) {
+  background-color: #15803d;
+}
+
+.rejectButton {
+  background-color: #dc2626;
+  color: white;
+}
+
+.rejectButton:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.approveButton:disabled,
+.rejectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .maxWidth {
+    padding: 0.5rem 1rem;
+  }
+
+  .cardHeader {
+    padding: 1rem;
+  }
+
+  .cardContent {
+    padding: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+  }
+
+  .infoRow {
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .infoLabel {
+    font-size: 0.75rem;
+  }
+
+  .infoValue {
+    font-size: 0.875rem;
+  }
+
+  .attachmentItem {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .attachmentName {
+    flex: 1;
+  }
+
+  .downloadBtn,
+  .viewBtn {
+    white-space: nowrap;
+  }
+
+  .attachmentActions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .approveButton,
+  .rejectButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .maxWidth {
+    padding: 0.5rem;
+  }
+
+  .infoRow {
+    grid-template-columns: 100px 1fr;
+    gap: 0.75rem;
+  }
+
+  .attachmentItem {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.75rem;
+  }
+
+  .attachmentActions {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .viewBtn,
+  .downloadBtn {
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
+  }
+}

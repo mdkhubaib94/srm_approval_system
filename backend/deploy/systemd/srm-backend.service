@@ -1,0 +1,27 @@
+[Unit]
+Description=SRM Approval System backend (FastAPI/uvicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=srm-backend
+Group=srm-backend
+WorkingDirectory=/opt/srm-backend
+EnvironmentFile=/opt/srm-backend/.env
+ExecStart=/opt/srm-backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+
+# Single worker process: app/tasks/scheduler.py starts the SLA/overdue/SOP
+# APScheduler jobs in-process with no leader-election guard, so more than
+# one worker/instance would run those cron jobs redundantly. Do not add
+# --workers or run this unit at anything but a single Instances=1.
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/srm-backend/storage /opt/srm-backend/logs
+
+[Install]
+WantedBy=multi-user.target
