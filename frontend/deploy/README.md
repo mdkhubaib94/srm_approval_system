@@ -7,11 +7,11 @@ API, so the browser only ever talks to **one origin**.
                     ┌──────────────────────────────────────┐
   browser  ────────▶│ nginx :443                           │
                     │   /       → /var/www/srm-approval    │  (dist/)
-                    │   /api/*  → 127.0.0.1:5000/*         │  (prefix stripped)
+                    │   /api/*  → 127.0.0.1:8000/*         │  (prefix stripped)
                     └──────────────────────────────────────┘
                                       │
                                       ▼
-                            Node backend :5000
+                          FastAPI backend :8000 (uvicorn)
 ```
 
 ## Why one origin
@@ -66,24 +66,22 @@ paths, `root`, and the backend address in the `upstream` block.
 ## 4. Backend configuration — **required**
 
 Two changes on the API side. The first one is load-bearing: skip it and login
-returns 403.
+returns 403. Full backend deployment steps (systemd unit, `.env`, migrations)
+are in [`backend/deploy/README.md`](../../backend/deploy/README.md); this is
+just the piece specifically triggered by adding an nginx-fronted frontend.
 
-### 4a. Add the site origin to the CORS allowlist
+### 4a. Add the site origin to `ALLOWED_ORIGINS`
 
-`backend/src/config/allowedOrigins.js`
+In the backend's `.env` (see `backend/.env.example`):
 
-```js
-const allowedOrigins = [
-  "http://localhost:5173",                  // Vite dev server
-  "https://srm-approval.example.edu",       // ← this deployment
-  // …existing entries
-];
+```
+ALLOWED_ORIGINS=["https://srm-approval.example.edu"]
 ```
 
 This is needed *even though the API is same-origin*, and the failure mode is
 deceptive. Browsers attach an `Origin` header to non-GET requests — including
-same-origin ones — nginx forwards it, and the CORS middleware rejects an origin
-it does not recognise with a 403. GET requests carry no `Origin` and are
+same-origin ones — nginx forwards it, and FastAPI's `CORSMiddleware` rejects an
+origin it does not recognise with a 403. GET requests carry no `Origin` and are
 allowed through.
 
 So if you skip this step the app looks *half* working: pages load and lists
@@ -95,26 +93,28 @@ GET  /requests    Origin: (none)                  → allowed
 POST /auth/login  Origin: https://srm-approval…   → 403 unless allowlisted
 ```
 
-Note the dev entry too: the app ran on port 3000 under Next.js and the
-allowlist still reflects that. Vite serves on **5173**, so local development
-needs that line for the same reason.
+`ALLOWED_ORIGINS` only needs the real deployed origin(s) — it is not a place
+to keep old dev entries around.
 
 ### 4b. Bind the backend to localhost
 
-The backend should be reachable only through nginx:
+The systemd unit already does this (see
+[`backend/deploy/systemd/srm-backend.service`](../../backend/deploy/systemd/srm-backend.service)):
 
 ```
-HOST=127.0.0.1
-PORT=5000
+uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Leave `app.set("trust proxy", 1)` in `server.js` as-is — the nginx config sends
-`X-Forwarded-Proto` and `X-Forwarded-For`, and the backend derives cookie
-`Secure` and its rate-limit keys from them.
+so the backend is reachable only through nginx, never directly from the
+network.
+
+Set `TRUSTED_PROXY_IPS=["127.0.0.1"]` in `.env` so the backend honors nginx's
+`X-Forwarded-For`/`X-Forwarded-Proto` headers — it derives cookie `Secure` and
+its rate-limit keys from them.
 
 Do **not** set `ALLOW_INSECURE_COOKIES` on an HTTPS deployment. It exists only
 so plain-http localhost development works; in production it would let the
-30-day refresh token travel in clear text.
+refresh token travel in clear text.
 
 ## 5. Verify
 
@@ -161,7 +161,7 @@ a build. Serve `dist/` through nginx.
 | Symptom | Cause |
 |---|---|
 | Logged out on every reload | Refresh cookie not first-party or not `Secure`. Check `X-Forwarded-Proto` is reaching the backend, and that the app is not calling a cross-origin `VITE_API_URL`. |
-| 403 on login | Site origin missing from `allowedOrigins.js` (step 4a). |
+| 403 on login | Site origin missing from `ALLOWED_ORIGINS` (step 4a). |
 | Deep links 404 | SPA fallback missing — the `try_files $uri $uri/ /index.html` block. |
 | API calls 404 | Lost trailing slash on `proxy_pass http://srm_backend/` — without it `/api` is not stripped. |
 | 413 on upload | Raise `client_max_body_size`. |

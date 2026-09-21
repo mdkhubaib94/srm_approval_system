@@ -114,6 +114,44 @@ The PDFs in [`sops/`](sops) are real SOP/MOU documents you can upload through
 the app's **Create SOP** page to try out text extraction and AI-assisted
 search end to end.
 
+## On-premises deployment
+
+This system is designed to run entirely on-prem — no cloud services are
+required. A typical deployment is a single Linux host running:
+
+```
+                    ┌──────────────────────────────────────┐
+  browser  ────────▶│ nginx :443 (TLS terminates here)      │
+                    │   /       → static frontend build     │  (dist/)
+                    │   /api/*  → 127.0.0.1:8000/* (FastAPI) │
+                    └──────────────────────────────────────┘
+                                      │
+                                      ▼
+                         PostgreSQL 16 (same host or reachable)
+```
+
+- Frontend is built to static files and served by nginx.
+- Backend runs as a systemd service (`uvicorn`, single instance — it runs
+  in-process scheduled jobs, so no multi-worker/load-balanced setup) bound to
+  `127.0.0.1` and reverse-proxied by nginx.
+- Postgres needs no extensions (SOP embeddings are stored as plain arrays),
+  so a stock PostgreSQL 16 install is sufficient.
+- nginx is the single public entry point and the only place TLS is
+  configured; the frontend and backend must appear as one origin to the
+  browser (this matters for cookie-based auth and CORS — see the frontend
+  deploy guide below).
+
+Full step-by-step instructions:
+
+- [`backend/deploy/README.md`](backend/deploy/README.md) — service user,
+  Python venv, migrations, `.env` production settings, and the systemd unit
+- [`frontend/deploy/README.md`](frontend/deploy/README.md) — production
+  build, nginx config, and the CORS/cookie requirements for same-origin
+  deployment
+
+Neither guide requires Docker in production — `docker-compose.yml` here is
+for local development only.
+
 ## Troubleshooting
 
 - **Port already in use**: Postgres dev DB uses `5442` and the test DB uses
