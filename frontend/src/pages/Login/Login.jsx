@@ -135,7 +135,18 @@ function LoginContent() {
 
           </form>
 
-          
+          <div className={styles.footer}>
+            <p className={styles.footerText}>
+              Don't have an account?{" "}
+
+              <button
+                onClick={() => navigate("/signup")}
+                className={styles.linkBtn}
+              >
+                Sign up
+              </button>
+            </p>
+          </div>
 
         </div>
       </div>

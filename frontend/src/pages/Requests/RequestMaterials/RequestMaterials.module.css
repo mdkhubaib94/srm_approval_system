@@ -756,12 +756,6 @@
 
 /* ─── Responsive ───────────────────────────────────────────────────────── */
 
-@media (max-width: 1024px) {
-  .page {
-    padding: 1.25rem 1rem 2.5rem;
-  }
-}
-
 @media (max-width: 720px) {
   .topBar {
     flex-direction: column;
@@ -769,43 +763,5 @@
 
   .toolbar {
     width: 100%;
-  }
-}
-
-@media (max-width: 640px) {
-  .page {
-    padding: 1rem 0.75rem 2rem;
-  }
-
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .toolbarButton,
-  .toolbarButtonPrimary,
-  .toolbarButtonSecondary {
-    width: 100%;
-    text-align: center;
-  }
-
-  .searchBar {
-    max-width: 100%;
-  }
-
-  .modalHeader {
-    padding: 1rem;
-  }
-
-  .modalBody {
-    padding: 1rem;
-  }
-
-  .confirmModal {
-    padding: 1.25rem;
-  }
-
-  .confirmActions {
-    flex-wrap: wrap;
   }
 }

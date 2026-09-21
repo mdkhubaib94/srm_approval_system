@@ -391,8 +391,4 @@
   .colHours::before { content: 'Hours: '; font-weight: 600; }
   .colFlagged::before { content: 'Flagged: '; font-weight: 600; }
   .colStatus::before { content: 'Status: '; font-weight: 600; }
-
-  .paginationBar {
-    flex-wrap: wrap;
-  }
 }

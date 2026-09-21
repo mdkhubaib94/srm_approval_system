@@ -179,7 +179,6 @@
 .actionButtons {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
 }
 
 .actionButton {
@@ -579,8 +578,7 @@
   }
 
   .formActions,
-  .confirmActions,
-  .actionButtons {
+  .confirmActions {
     flex-direction: column;
   }
 

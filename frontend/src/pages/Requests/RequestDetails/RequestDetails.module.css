@@ -701,18 +701,6 @@
     height: 0.75rem;
     width: 0.75rem;
   }
-
-  /* Button groups stack full-width on phone so multiple action buttons
-     (Materials Requirement / Route / Process / Raise Query / Query History)
-     never get cramped into a wrapped multi-row flex layout. */
-  .actionButtons {
-    flex-direction: column;
-  }
-
-  .actionButtons > button {
-    width: 100%;
-    justify-content: center;
-  }
 }
 
 /* Flagged Warning Banner */
