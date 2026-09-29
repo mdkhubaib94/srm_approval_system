@@ -5,9 +5,7 @@ import PasswordInput from "../../common/PasswordInput";
 import SRMRMP_Logo from "../../assets/SRMRMP_LOGO.png";
 import InstitutionSelect from "../../common/InstitutionSelect";
 import NestedSelect from "../../common/NestedSelect";
-import OTPVerification from "../../common/OTPVerification";
 import { useAuth } from "../../context/AuthContext";
-import { sendSignupOtp, verifySignupOtp, resendSignupOtp } from "../../api/auth.api";
 import styles from "./Signup.module.css";
 import {
   DENTAL_DEPARTMENTS,
@@ -58,7 +56,6 @@ const getDepartmentOptions = (college) => {
 };
 
 export default function SignupPage() {
-  const [step, setStep] = useState("form"); // form, otp
   const [name, setName] = useState("");
   const [empId, setEmpId] = useState("");
   const [email, setEmail] = useState("");
@@ -116,75 +113,25 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      // Send OTP to email
-      const response = await sendSignupOtp(email, name);
+      await register({
+        name,
+        employeeID: empId,
+        email,
+        phone: phoneDigits,
+        password,
+        role: selectedRole,
+        institution: needsCollege ? college : "COMMON",
+        department: needsDepartment ? department : undefined,
+      });
 
-      if (response.data.success) {
-        setStep("otp");
-      }
+      navigate("/login?message=Account created successfully! Please sign in.");
     } catch (err) {
-      console.error("Error sending OTP:", err);
-      setError(err.response?.data?.message || "Failed to send OTP. Please try again.");
+      console.error("Error creating account:", err);
+      setError(err.response?.data?.message || err.message || "Failed to create account. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  const handleVerifyOTP = async (otpCode) => {
-    try {
-      // Verify OTP
-      const verifyResponse = await verifySignupOtp(email, otpCode);
-
-      if (verifyResponse.data.success) {
-        // OTP verified, now create the account
-        const phoneDigits = phone.replace(/\D/g, "");
-        const needsCollege = rolesWithCollege.includes(selectedRole);
-        const needsDepartment = rolesWithDepartment.includes(selectedRole);
-
-        await register({
-          name,
-          employeeID: empId,
-          email,
-          phone: phoneDigits,
-          password,
-          role: selectedRole,
-          institution: needsCollege ? college : "COMMON",
-          department: needsDepartment ? department : undefined,
-        });
-
-        navigate("/login?message=Account created successfully! Please sign in.");
-      }
-    } catch (err) {
-      console.error("Error verifying OTP:", err);
-      throw new Error(err.response?.data?.message || "Invalid OTP. Please try again.", { cause: err });
-    }
-  };
-
-  const handleResendOTP = async () => {
-    try {
-      const response = await resendSignupOtp(email, name);
-
-      if (response.data.success) {
-        return Promise.resolve();
-      }
-    } catch (err) {
-      console.error("Error resending OTP:", err);
-      throw new Error(err.response?.data?.message || "Failed to resend OTP.", { cause: err });
-    }
-  };
-
-  // OTP Verification Step
-  if (step === "otp") {
-    return (
-      <OTPVerification
-        email={email}
-        type="signup"
-        onVerify={handleVerifyOTP}
-        onResend={handleResendOTP}
-        onBack={() => setStep("form")}
-      />
-    );
-  }
 
   // Registration Form Step
   return (
@@ -331,7 +278,7 @@ export default function SignupPage() {
               disabled={loading}
               className={styles.submitBtn}
             >
-              {loading ? "Sending OTP..." : "Create Account"}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 

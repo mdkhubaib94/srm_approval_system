@@ -28,7 +28,6 @@ from app.core.security import (
     verify_password,
 )
 from app.email.service import send_password_reset_otp as send_password_reset_otp_email
-from app.email.service import send_signup_otp as send_signup_otp_email
 from app.auth import repository as repo
 from app.users.models import User
 
@@ -57,55 +56,6 @@ def self_signup_roles() -> list[str]:
     return configured or ["REQUESTER"]
 
 
-# ─── Signup OTP ───────────────────────────────────────────────────────────────
-
-
-async def dispatch_signup_otp(email: str, name: str) -> None:
-    throttle = otp_cache.can_send_otp(email)
-    if not throttle.allowed:
-        raise AuthServiceError(
-            429,
-            {
-                "success": False,
-                "message": f"An OTP was already sent. Please wait {throttle.retry_after_seconds}s before requesting another.",
-            },
-        )
-
-    code = otp_cache.generate_otp()
-    otp_cache.store_otp(email, code)
-
-    try:
-        await send_signup_otp_email(email, code, name)
-    except Exception:
-        logger.exception("[SIGNUP OTP] Email sending failed")
-        raise AuthServiceError(500, {"success": False, "message": "Failed to send OTP email. Please try again later."})
-
-
-async def send_signup_otp(db: AsyncSession, email: str, name: str) -> None:
-    existing = await repo.find_user_by_email(db, email)
-    if existing:
-        raise AuthServiceError(
-            409, {"success": False, "message": "A user with this email already exists. Please login instead."}
-        )
-    await dispatch_signup_otp(email, name)
-
-
-def verify_signup_otp(email: str, otp: str) -> None:
-    verification = otp_cache.verify_otp(email, otp)
-    if not verification.valid:
-        raise AuthServiceError(400, {"success": False, "message": verification.message})
-    # Record the verification so /auth/register can require it. Without this,
-    # the whole OTP step is skippable by calling /auth/register directly.
-    otp_cache.mark_email_verified(email)
-
-
-async def resend_signup_otp(db: AsyncSession, email: str, name: str) -> None:
-    existing = await repo.find_user_by_email(db, email)
-    if existing:
-        raise AuthServiceError(409, {"success": False, "message": "A user with this email already exists."})
-    await dispatch_signup_otp(email, name)
-
-
 # ─── Register ─────────────────────────────────────────────────────────────────
 
 
@@ -123,12 +73,6 @@ async def register(
 ) -> User:
     if len(password) < MIN_PASSWORD_LENGTH:
         raise AuthServiceError(400, {"message": f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"})
-
-    # The signup OTP must have been verified for this exact address. Consuming
-    # it here (rather than trusting the client) is what makes the email
-    # verification step non-optional.
-    if not otp_cache.consume_email_verification(email):
-        raise AuthServiceError(403, {"message": "Email not verified. Please request and verify an OTP before registering."})
 
     requested_role = role or "REQUESTER"
     if requested_role not in ROLES:

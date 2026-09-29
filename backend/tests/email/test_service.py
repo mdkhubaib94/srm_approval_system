@@ -1,17 +1,6 @@
 from app.email import service
 
 
-async def test_send_signup_otp_includes_code_in_html_and_text(_stub_mail_transport):
-    await service.send_signup_otp("new@example.com", "123456", "Jane")
-
-    assert len(_stub_mail_transport) == 1
-    sent = _stub_mail_transport[0]
-    assert sent["to"] == ["new@example.com"]
-    assert "123456" in sent["html"]
-    assert "123456" in sent["text"]
-    assert "Jane" in sent["html"]
-
-
 async def test_send_request_notification_created_vs_forwarded_subjects(_stub_mail_transport):
     request_data = {
         "request_id": "EECSE875",

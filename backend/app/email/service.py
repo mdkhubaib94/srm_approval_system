@@ -143,26 +143,6 @@ async def send_password_reset_otp(email: str, otp: str, name: str = "User") -> d
     return await _dispatch({"to": [email], "subject": "Password Reset OTP - SRM-RMP Approval System", "html": html, "text": text}, label="Password reset OTP", recipient=email)
 
 
-async def send_signup_otp(email: str, otp: str, name: str = "User") -> dict:
-    body_html = f"""
-<h2 style="margin: 0 0 20px; color: #111827; font-size: 24px; font-weight: 600;">Welcome to SRM-RMP!</h2>
-<p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.5;">Hello <strong>{name}</strong>,</p>
-<p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.5;">Thank you for signing up! Please verify your email address using the following OTP code:</p>
-{_otp_box(otp)}
-<div style="padding: 16px; background-color: #eff6ff; border-left: 4px solid #2563eb; border-radius: 4px; margin: 20px 0;">
-  <p style="margin: 0; color: #1e40af; font-size: 14px; line-height: 1.5;"><strong>Note:</strong> If you didn't create this account, please ignore this email. The account will not be created without email verification.</p>
-</div>
-<p style="margin: 20px 0 0; color: #4b5563; font-size: 14px; line-height: 1.5;">This is an automated email, please do not reply.</p>"""
-
-    html = _shell(header_gradient="linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", header_title="SRM-RMP Approval System", body_html=body_html, recipient_email=email)
-    text = (
-        f"Email Verification - SRM-RMP Approval System\n\nHello {name},\n\n"
-        f"Thank you for signing up! Please verify your email address using the following OTP code:\n\nOTP: {otp}\n\n"
-        f"This code expires in 10 minutes.\n\n© {_YEAR} SRM-RMP Approval System."
-    )
-    return await _dispatch({"to": [email], "subject": "Verify Your Email - SRM-RMP Approval System", "html": html, "text": text}, label="Signup OTP", recipient=email)
-
-
 # ─── Request workflow notifications ─────────────────────────────────────────────
 
 

@@ -11,10 +11,8 @@ from app.auth.schemas import (
     RegisterOut,
     RegisteredUserOut,
     ResetPasswordIn,
-    SendSignupOtpIn,
     VerifyResetOtpIn,
     VerifyResetOtpOut,
-    VerifySignupOtpIn,
 )
 from app.config import get_settings
 from app.core.rate_limit import login_rate_limit_precheck, otp_rate_limit, register_rate_limit
@@ -27,36 +25,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 def _error_response(exc: service.AuthServiceError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content=exc.body)
-
-
-# ─── Signup OTP ───────────────────────────────────────────────────────────────
-
-
-@router.post("/send-signup-otp", dependencies=[Depends(otp_rate_limit)])
-async def send_signup_otp(body: SendSignupOtpIn, db: AsyncSession = Depends(get_db)):
-    try:
-        await service.send_signup_otp(db, body.email, body.name)
-    except service.AuthServiceError as exc:
-        return _error_response(exc)
-    return MessageOut(success=True, message="OTP sent successfully to your email.")
-
-
-@router.post("/verify-signup-otp", dependencies=[Depends(otp_rate_limit)])
-async def verify_signup_otp(body: VerifySignupOtpIn):
-    try:
-        service.verify_signup_otp(body.email, body.otp)
-    except service.AuthServiceError as exc:
-        return _error_response(exc)
-    return MessageOut(success=True, message="OTP verified successfully. You can now complete your registration.")
-
-
-@router.post("/resend-signup-otp", dependencies=[Depends(otp_rate_limit)])
-async def resend_signup_otp(body: SendSignupOtpIn, db: AsyncSession = Depends(get_db)):
-    try:
-        await service.resend_signup_otp(db, body.email, body.name)
-    except service.AuthServiceError as exc:
-        return _error_response(exc)
-    return MessageOut(success=True, message="OTP sent successfully to your email.")
 
 
 # ─── Register ─────────────────────────────────────────────────────────────────

@@ -63,10 +63,8 @@ def _reset_otp_cache():
     from app.auth import otp as otp_module
 
     otp_module._otp_store.clear()
-    otp_module._verified_emails.clear()
     yield
     otp_module._otp_store.clear()
-    otp_module._verified_emails.clear()
 
 
 @pytest.fixture(autouse=True)

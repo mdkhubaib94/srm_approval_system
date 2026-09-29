@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 OTP_EXPIRY_SECONDS = 10 * 60
 MAX_ATTEMPTS = 5
 RESEND_COOLDOWN_SECONDS = 60
-VERIFICATION_WINDOW_SECONDS = 15 * 60
 
 
 @dataclass
@@ -41,8 +40,6 @@ class ThrottleResult:
 
 
 _otp_store: dict[str, _OtpRecord] = {}
-# Emails that have completed OTP verification and may now finish signup.
-_verified_emails: dict[str, float] = {}
 
 
 def generate_otp() -> str:
@@ -114,27 +111,8 @@ def delete_otp(email: str) -> None:
     _otp_store.pop(email.lower(), None)
 
 
-def mark_email_verified(email: str) -> None:
-    """Record that this email passed OTP verification and may complete signup."""
-    _verified_emails[email.lower()] = time.time() + VERIFICATION_WINDOW_SECONDS
-
-
-def consume_email_verification(email: str) -> bool:
-    """Consume a pending verification. True only if the email verified an
-    OTP recently; the entry is removed so it cannot be replayed."""
-    key = (email or "").lower()
-    expires_at = _verified_emails.get(key)
-    if expires_at is None:
-        return False
-    del _verified_emails[key]
-    return time.time() <= expires_at
-
-
 def cleanup_expired() -> None:
     now = time.time()
     for email, record in list(_otp_store.items()):
         if now > record.expires_at:
             del _otp_store[email]
-    for email, expires_at in list(_verified_emails.items()):
-        if now > expires_at:
-            del _verified_emails[email]

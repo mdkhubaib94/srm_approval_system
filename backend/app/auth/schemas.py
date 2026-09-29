@@ -6,16 +6,6 @@ class MessageOut(BaseModel):
     message: str
 
 
-class SendSignupOtpIn(BaseModel):
-    email: str
-    name: str
-
-
-class VerifySignupOtpIn(BaseModel):
-    email: str
-    otp: str
-
-
 class RegisterIn(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
