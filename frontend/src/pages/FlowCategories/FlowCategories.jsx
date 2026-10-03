@@ -97,8 +97,7 @@ const CATEGORIES = [
           "Brochure, Marketing & Website",
           "Others",
         ],
-        flow: ["Audit", "GM Finance", "Director Admissions*", "Director Admin", "Chairman"],
-        note: "* Director Admissions is included only for Branding and Fees Concession items.",
+        flow: ["Audit", "GM Finance", "Director Admissions", "Director Admin", "Chairman"],
       },
       {
         id: "ACADEMIC_NON_FINANCE",

@@ -3,7 +3,7 @@ from tests.api_helpers import create_mou_request, login
 from tests.factories import make_user
 
 
-async def _approve_via_full_chain(client, db_session, req_email, req_institution="EEC"):
+async def _approve_via_full_chain(client, db_session, req_email, req_institution="EEC", chairman_data=None):
     """Create a MouDetail (RESEARCH) request and forward it all the way to
     CHAIRMAN, then have the chairman APPROVE it — this is what spawns the
     Completed record under test."""
@@ -37,7 +37,7 @@ async def _approve_via_full_chain(client, db_session, req_email, req_institution
         if role == "CHAIRMAN":
             resp = await client.patch(
                 f"/requests/{created['requestID']}",
-                data={"action": "forwarded", "status_update": "APPROVED"},
+                data=chairman_data or {"action": "forwarded", "status_update": "APPROVED"},
                 headers={"Authorization": f"Bearer {token}"},
             )
         else:
@@ -118,3 +118,42 @@ async def test_unrelated_requester_cannot_update_completed(client, db_session):
         headers={"Authorization": f"Bearer {outsider_token}"},
     )
     assert resp.status_code == 404
+
+
+async def test_chairman_approve_action_alone_approves_and_creates_completed(client, db_session):
+    """The Chairman's "approved" action must finalize the request and create
+    its completion record even when no explicit status_update is sent."""
+    await make_user(db_session, employee_id="CMP104", email="req.cmp4@example.com", role="REQUESTER", institution="EEC", department="Physics")
+
+    created = await _approve_via_full_chain(
+        client, db_session, "req.cmp4@example.com", chairman_data={"action": "approved", "comments": "Approved."}
+    )
+
+    from sqlalchemy import select
+
+    completed_rows = (await db_session.execute(select(Completed))).scalars().all()
+    assert len(completed_rows) == 1
+
+    req_token = await login(client, "req.cmp4@example.com")
+    view = await client.get(f"/requests/{created['requestID']}", headers={"Authorization": f"Bearer {req_token}"})
+    assert view.json()["status"] == "APPROVED"
+
+
+async def test_only_chairman_can_approve(client, db_session):
+    await make_user(db_session, employee_id="CMP105", email="req.cmp5@example.com", role="REQUESTER", institution="EEC", department="Physics")
+    await make_user(db_session, employee_id="CMP106", email="im.cmp5@example.com", role="INSTITUTION_MANAGER", institution="EEC")
+
+    req_token = await login(client, "req.cmp5@example.com")
+    created = await create_mou_request(client, req_token, title="Approve guard MOU")
+
+    im_token = await login(client, "im.cmp5@example.com")
+    resp = await client.patch(
+        f"/requests/{created['requestID']}",
+        data={"action": "approved"},
+        headers={"Authorization": f"Bearer {im_token}"},
+    )
+    assert resp.status_code == 403
+
+    from sqlalchemy import select
+
+    assert (await db_session.execute(select(Completed))).scalars().all() == []

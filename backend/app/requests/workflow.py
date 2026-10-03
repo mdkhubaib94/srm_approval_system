@@ -83,6 +83,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "AUDIT",
         "GM_FINANCE",
+        "DIRECTOR_ADMISSIONS",
         "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],

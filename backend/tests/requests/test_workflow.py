@@ -259,3 +259,11 @@ async def test_equipment_purchase_indent_details_and_change_log(client, db_sessi
         headers={"Authorization": f"Bearer {acct_token}"},
     )
     assert change_log_remark.status_code == 200
+
+
+def test_academic_finance_always_includes_director_admissions():
+    from app.requests.workflow import CATEGORY_STAGE_SEQUENCES, get_next_stage
+
+    assert CATEGORY_STAGE_SEQUENCES["ACADEMIC_FINANCE"][-4:] == ["GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_ADMIN", "CHAIRMAN"]
+    assert get_next_stage("ACADEMIC_FINANCE", "GM_FINANCE") == "DIRECTOR_ADMISSIONS"
+    assert get_next_stage("ACADEMIC_FINANCE", "DIRECTOR_ADMISSIONS") == "DIRECTOR_ADMIN"

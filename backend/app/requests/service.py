@@ -486,6 +486,45 @@ async def route_request(db: AsyncSession, current_user: CurrentUser, lookup_valu
 ACTION_VALUES = ("approved", "rejected", "forwarded", "created")
 
 
+async def _mark_request_approved(db: AsyncSession, request) -> None:
+    """Set a request to APPROVED and make sure it has a Completed record.
+
+    Every path that approves a request must go through here: the completion
+    record is what the Completion Status page tracks, so it is created in the
+    same transaction as the status change. Idempotent: an existing completion
+    record is left untouched.
+    """
+    from app.completed.models import Completed
+
+    request.status = "APPROVED"
+
+    existing_completed_id = await repo.get_completed_id_for_request(db, request.id)
+    if existing_completed_id is not None:
+        return
+
+    new_completed = Completed(request_id=request.id, completed_status=False)
+    repo.add_completed(db, new_completed)
+    await repo.flush(db)
+
+    requester = request.requester
+    if requester and requester.email:
+        try:
+            await send_request_approval_email(
+                requester.email,
+                requester.name,
+                {
+                    "request_id": request.request_id,
+                    "title": request.title,
+                    "institution": request.institution,
+                    "department": request.department,
+                    "cost": float(request.cost) if request.cost else None,
+                    "completed_id": new_completed.id,
+                },
+            )
+        except Exception:
+            pass
+
+
 async def update_request(
     db: AsyncSession,
     current_user: CurrentUser,
@@ -549,35 +588,18 @@ async def update_request(
         request = await repo.get_request_by_lookup(db, lookup_value)
         return await serialize_request(db, request, current_user)
 
-    # CHAIRMAN-only explicit approve/flag.
-    if current_user.role == "CHAIRMAN" and status_update in ("APPROVED", "QUERY", "FLAGGED"):
+    # Approval is CHAIRMAN-only. An "approved" action and an explicit
+    # status_update=APPROVED are treated the same way: either one finalizes
+    # the request AND creates its completion record, so the request can never
+    # be logged as approved while its status (and Completion Status) lag behind.
+    is_approval = action == "approved" or status_update == "APPROVED"
+    if is_approval and current_user.role != "CHAIRMAN":
+        raise RequestServiceError(403, "Only the Chairman can approve a request.")
+
+    if current_user.role == "CHAIRMAN" and is_approval:
+        await _mark_request_approved(db, request)
+    elif current_user.role == "CHAIRMAN" and status_update in ("QUERY", "FLAGGED"):
         request.status = status_update
-        if status_update == "APPROVED":
-            from app.completed.models import Completed
-
-            existing_completed_id = await repo.get_completed_id_for_request(db, request.id)
-            if existing_completed_id is None:
-                new_completed = Completed(request_id=request.id, completed_status=False)
-                repo.add_completed(db, new_completed)
-                await repo.flush(db)
-
-                requester = request.requester
-                if requester and requester.email:
-                    try:
-                        await send_request_approval_email(
-                            requester.email,
-                            requester.name,
-                            {
-                                "request_id": request.request_id,
-                                "title": request.title,
-                                "institution": request.institution,
-                                "department": request.department,
-                                "cost": float(request.cost) if request.cost else None,
-                                "completed_id": new_completed.id,
-                            },
-                        )
-                    except Exception:
-                        pass
 
     # SOP fields (Institution Manager) and budget fields (Accountant) — no
     # role restriction per field, matching the source (any stage holder can

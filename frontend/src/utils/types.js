@@ -105,6 +105,7 @@ export const CATEGORY_STAGE_SEQUENCES = Object.freeze({
     "CHAIRMAN_OFFICE",
     "AUDIT",
     "GM_FINANCE",
+    "DIRECTOR_ADMISSIONS",
     "DIRECTOR_ADMIN",
     "CHAIRMAN",
   ],
