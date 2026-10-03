@@ -4,7 +4,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { saveIndentDetails as saveIndentDetailsApi, addIndentChangeLogRemark } from '../api/requests.api';
 import { downloadIndentPdf } from '../utils/indentPdf';
 import { parseMaterialsWorkbook, downloadMaterialsTemplate } from '../utils/loadXlsx';
-import styles from './IndentInformation.module.css';
+import styles from './IndentInformation.module.css';
+import { sameInstitution } from '../utils/institutionGroups';
 
 const EMPTY_DRAFT = { productId: '', productName: '', productDescription: '', quantity: 1 };
 
@@ -125,7 +126,7 @@ export default function IndentInformation({
     request?.stage === currentUser.role &&
     currentUser.role !== 'REQUESTER' &&
     (!['INSTITUTION_MANAGER', 'ACCOUNTANT', 'HEAD_OF_INSTITUTION'].includes(currentUser.role) ||
-      request?.institution === currentUser.institution);
+      sameInstitution(request?.institution, currentUser.institution, currentUser.role));
 
   // Full add/edit/delete/import rights: the requester while drafting, or the
   // current stage holder on a live request. Nobody else — including the

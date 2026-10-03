@@ -23,7 +23,7 @@ GLOBAL_VIEW_ROLES = [
     "GM_FINANCE",
     "DIRECTOR_ADMISSIONS",
     "DIRECTOR_RESEARCH",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "CHIEF_DIRECTOR",
     "CHAIRMAN",
 ]
@@ -32,10 +32,10 @@ GLOBAL_VIEW_ROLES = [
 INSTITUTION_VIEW_ROLES = ["INSTITUTION_MANAGER", "ACCOUNTANT", "HEAD_OF_INSTITUTION"]
 
 # Roles allowed to pull the unfiltered cross-institution request list.
-ALL_REQUESTS_ROLES = ["DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"]
+ALL_REQUESTS_ROLES = ["DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"]
 
 # Roles that see every completion record (mirrors get_all_completed, Phase 4).
-COMPLETED_ADMIN_ROLES = ["DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN", "CHAIRMAN_OFFICE"]
+COMPLETED_ADMIN_ROLES = ["DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN", "CHAIRMAN_OFFICE"]
 
 
 def _same_id(a, b) -> bool:
@@ -216,13 +216,13 @@ def can_reply_to_query(user, query, request) -> bool:
 
 # ─── Policies ─────────────────────────────────────────────────────────────────
 
-POLICY_FULL_VIEW_ROLES = ["DEAN_ADMIN", "CHAIRMAN"]
+POLICY_FULL_VIEW_ROLES = ["DIRECTOR_ADMIN", "CHAIRMAN"]
 
 POLICY_PUBLIC_FIELDS = ["title", "description", "cost", "requester", "created_at", "updated_at", "policy_approval_status"]
 
 
 def can_view_full_policy(user, policy) -> bool:
-    """Authors see their own; DEAN_ADMIN and CHAIRMAN approve them so they
+    """Authors see their own; DIRECTOR_ADMIN and CHAIRMAN approve them so they
     see all."""
     if not user or not policy:
         return False

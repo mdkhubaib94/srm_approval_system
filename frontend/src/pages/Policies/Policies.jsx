@@ -20,7 +20,7 @@ const PoliciesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Check if user has full access to policies
-  const hasFullAccess = ["HEAD_OF_INSTITUTION", "DEAN_ADMIN", "CHAIRMAN"].includes(user?.role);
+  const hasFullAccess = ["HEAD_OF_INSTITUTION", "DIRECTOR_ADMIN", "CHAIRMAN"].includes(user?.role);
 
   useEffect(() => {
     if (authLoading) return;
@@ -63,7 +63,7 @@ const PoliciesPage = () => {
       navigate(`/policies/${policyId}`);
     } else {
       // Read-only users get a message or limited view
-      alert('You can only view policy information. Policy management is restricted to HOI, Dean Admin, and Chairman.');
+      alert('You can only view policy information. Policy management is restricted to HOI, Director Admin, and Chairman.');
     }
   };
 
@@ -92,7 +92,7 @@ const PoliciesPage = () => {
         </p>
         {!hasFullAccess && (
           <div className={styles.accessNotice}>
-            <p>ℹ️ You have read-only access. Policy management is restricted to HOI, Dean Admin, and Chairman.</p>
+            <p>ℹ️ You have read-only access. Policy management is restricted to HOI, Director Admin, and Chairman.</p>
           </div>
         )}
       </div>

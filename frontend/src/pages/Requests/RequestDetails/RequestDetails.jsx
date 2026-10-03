@@ -23,7 +23,8 @@ import RouteRequestModal from "../../../components/RouteRequestModal";
 import SuccessModal from "../../../common/SuccessModal";
 import styles from './RequestDetails.module.css';
 import { formConfigs } from "../../../utils/formConfigs";
-import { REQUEST_CATEGORY_LABELS, INDENT_CAPABLE_MODELS } from "../../../utils/types";
+import { REQUEST_CATEGORY_LABELS, INDENT_CAPABLE_MODELS } from "../../../utils/types";
+import { sameInstitution } from "../../../utils/institutionGroups";
 
 // Helper to resolve nested object path values
 const getNestedValue = (obj, path) => {
@@ -229,7 +230,7 @@ export default function RequestDetailPage() {
     // For institution-scoped roles, also check institution match
     const INSTITUTION_SCOPED_STAGES = ['INSTITUTION_MANAGER', 'ACCOUNTANT', 'HEAD_OF_INSTITUTION'];
     if (INSTITUTION_SCOPED_STAGES.includes(userRole)) {
-      return requestStage === userRole && request.institution === currentUser.institution;
+      return requestStage === userRole && sameInstitution(request.institution, currentUser.institution, userRole);
     }
 
     // All other roles map directly to a stage

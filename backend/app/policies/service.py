@@ -65,7 +65,7 @@ async def list_policies(db: AsyncSession, current_user: CurrentUser) -> dict:
     if current_user.role == "HEAD_OF_INSTITUTION":
         policies = await repo.list_policies(db, requester_id=current_user.id)
         access_level = "full"
-    elif current_user.role in ("DEAN_ADMIN", "CHAIRMAN"):
+    elif current_user.role in ("DIRECTOR_ADMIN", "CHAIRMAN"):
         policies = await repo.list_policies(db)
         access_level = "full"
     else:
@@ -89,7 +89,7 @@ async def get_policy(db: AsyncSession, current_user: CurrentUser, policy_id: int
         raise PolicyServiceError(404, "Policy not found")
 
     # GET /policies deliberately reduces the projection for roles outside
-    # HEAD_OF_INSTITUTION (own policies only), DEAN_ADMIN and CHAIRMAN — this
+    # HEAD_OF_INSTITUTION (own policies only), DIRECTOR_ADMIN and CHAIRMAN — this
     # endpoint must not be a way around that projection, so the same rule
     # applies here. Policies stay readable by all staff by design (reference
     # material); only the privileged fields are gated.

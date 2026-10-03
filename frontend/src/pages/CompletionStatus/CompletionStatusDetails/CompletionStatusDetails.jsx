@@ -10,7 +10,7 @@ import { useAuth } from '../../../context/AuthContext';
 import LoadingScreen from '../../../common/LoadingScreen';
 import styles from './CompletionStatusDetails.module.css';
 
-const ADMIN_ROLES = ['DEAN_ADMIN', 'CHIEF_DIRECTOR', 'CHAIRMAN', 'CHAIRMAN_OFFICE'];
+const ADMIN_ROLES = ['DIRECTOR_ADMIN', 'CHIEF_DIRECTOR', 'CHAIRMAN', 'CHAIRMAN_OFFICE'];
 
 export default function CompletionDetailPage() {
   const navigate = useNavigate();

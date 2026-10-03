@@ -36,7 +36,7 @@ const STAGES = [
   "GM_FINANCE",
   "DIRECTOR_ADMISSIONS",
   "DIRECTOR_RESEARCH",
-  "DEAN_ADMIN",
+  "DIRECTOR_ADMIN",
   "CHIEF_DIRECTOR",
   "CHAIRMAN",
 ];
@@ -54,7 +54,7 @@ const STAGE_LABELS = {
   GM_FINANCE: "GM Finance",
   DIRECTOR_ADMISSIONS: "Director Admissions",
   DIRECTOR_RESEARCH: "Director Research",
-  DEAN_ADMIN: "Dean Admin",
+  DIRECTOR_ADMIN: "Director Admin",
   CHIEF_DIRECTOR: "Chief Director",
   CHAIRMAN: "Chairman",
 };

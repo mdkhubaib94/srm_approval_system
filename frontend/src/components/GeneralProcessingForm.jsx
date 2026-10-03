@@ -106,7 +106,7 @@ export default function GeneralProcessingForm({
       case 'GM_FINANCE':
       case 'DIRECTOR_ADMISSIONS':
       case 'DIRECTOR_RESEARCH':
-      case 'DEAN_ADMIN':
+      case 'DIRECTOR_ADMIN':
       case 'CHIEF_DIRECTOR':
         return (
           <ReviewOnlyForm

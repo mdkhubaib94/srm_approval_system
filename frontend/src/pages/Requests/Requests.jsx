@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getRequests } from '../../api/requests.api';
 import LoadingScreen from '../../common/LoadingScreen';
 import styles from './Requests.module.css';
+import { sameInstitution } from "../../utils/institutionGroups";
 
 const REQUESTS_PAGE_SIZE = 20;
 
@@ -148,7 +149,7 @@ const RequestsPageContent = () => {
     // For institution-scoped roles, also check institution match
     const INSTITUTION_SCOPED_STAGES = ['INSTITUTION_MANAGER', 'ACCOUNTANT', 'HEAD_OF_INSTITUTION'];
     if (INSTITUTION_SCOPED_STAGES.includes(userRole)) {
-      return requestStage === userRole && request.institution === user.institution;
+      return requestStage === userRole && sameInstitution(request.institution, user.institution, userRole);
     }
 
     // All other roles map directly to a stage — match stage to role

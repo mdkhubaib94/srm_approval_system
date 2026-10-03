@@ -18,7 +18,7 @@ ALL_STAGES: list[str] = [
     "GM_FINANCE",
     "DIRECTOR_ADMISSIONS",
     "DIRECTOR_RESEARCH",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "CHIEF_DIRECTOR",
     "CHAIRMAN",
 ]
@@ -40,7 +40,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "HEAD_OF_INSTITUTION",
         "CHAIRMAN_OFFICE",
         "HR_HEAD",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHIEF_DIRECTOR",
         "CHAIRMAN",
     ],
@@ -51,7 +51,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "MMA",
         "AUDIT",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "ADMIN_IT": [
@@ -62,7 +62,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "MANAGER_DATA_MANAGEMENT",
         "AUDIT",
         "DIRECTOR_ADMISSIONS",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "ADMIN_MAINTENANCE": [
@@ -72,7 +72,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "MMA",
         "AUDIT",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHIEF_DIRECTOR",
         "CHAIRMAN",
     ],
@@ -83,7 +83,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "AUDIT",
         "GM_FINANCE",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "ACADEMIC_NON_FINANCE": [
@@ -91,7 +91,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "ACCOUNTANT",
         "HEAD_OF_INSTITUTION",
         "CHAIRMAN_OFFICE",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "RESEARCH": [
@@ -101,7 +101,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "AUDIT",
         "DIRECTOR_RESEARCH",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHIEF_DIRECTOR",
         "CHAIRMAN",
     ],
@@ -207,6 +207,8 @@ DEPARTMENT_SHORTFORMS: dict[str, str] = {
     "Physical Education": "PE",
     "Counselling": "COUN",
     "Management Studies": "MS",
+    "MBA": "MBA",
+    "BBA": "BBA",
     "Others": "OTH",
 }
 

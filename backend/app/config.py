@@ -30,7 +30,9 @@ class Settings(BaseSettings):
     reset_token_secret: str | None = None
     access_token_expires_minutes: int = 30
     refresh_token_expires_days_default: int = 1
-    refresh_token_expires_days_chairman: int = 30
+    # Effectively "until manual logout": rotated on every refresh, so it only
+    # lapses if the Chairman does not open the app for this long.
+    refresh_token_expires_days_chairman: int = 3650
 
     @model_validator(mode="after")
     def _forbid_default_secrets_in_production(self) -> "Settings":

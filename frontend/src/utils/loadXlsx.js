@@ -3,7 +3,7 @@
 //
 // Served from our own origin rather than a public CDN. This runs in every
 // signed-in session that touches a spreadsheet — bulk user import (Head of
-// Institution / Chairman / Dean) and attachment conversion on create-request —
+// Institution / Chairman / Director Admin) and attachment conversion on create-request —
 // so a tampered CDN response would execute with those privileges, and the
 // script tag carried no integrity hash to detect that.
 //

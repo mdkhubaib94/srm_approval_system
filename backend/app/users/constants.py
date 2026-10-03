@@ -10,7 +10,7 @@ INSTITUTIONS: list[str] = [
     "SRM Nightingale School",
     "Others",
     # Sentinel for central roles that are not scoped to a single institution
-    # (Chairman Office, Audit, Deans, etc.). Signup sends this when the
+    # (Chairman Office, Audit, Director Admin, etc.). Signup sends this when the
     # selected role does not require a college.
     "COMMON",
 ]
@@ -81,6 +81,8 @@ DEPARTMENTS: list[str] = [
     "Physical Education",
     "Counselling",
     "Management Studies",
+    "MBA",
+    "BBA",
 ]
 
 

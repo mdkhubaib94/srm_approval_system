@@ -18,7 +18,7 @@ ROLES: list[str] = [
     "GM_FINANCE",
     "DIRECTOR_ADMISSIONS",
     "DIRECTOR_RESEARCH",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "CHIEF_DIRECTOR",
     "CHAIRMAN",
 ]
@@ -35,7 +35,7 @@ INSTITUTION_SCOPED_ROLES: list[str] = [
 USER_MANAGER_ROLES: list[str] = [
     "HEAD_OF_INSTITUTION",
     "CHAIRMAN_OFFICE",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "CHAIRMAN",
 ]
 
@@ -49,13 +49,13 @@ def allowed_roles_for(creator_role: str) -> list[str]:
 
     - CHAIRMAN: everyone (including other chairmen)
     - HEAD_OF_INSTITUTION: requesters, institution managers, accountants (own institution only)
-    - CHAIRMAN_OFFICE / DEAN_ADMIN: all roles except CHAIRMAN and their own role
+    - CHAIRMAN_OFFICE / DIRECTOR_ADMIN: all roles except CHAIRMAN and their own role
     - everyone else: none
     """
     if creator_role == "CHAIRMAN":
         return list(ROLES)
     if creator_role == "HEAD_OF_INSTITUTION":
         return ["REQUESTER", "INSTITUTION_MANAGER", "ACCOUNTANT"]
-    if creator_role in ("CHAIRMAN_OFFICE", "DEAN_ADMIN"):
+    if creator_role in ("CHAIRMAN_OFFICE", "DIRECTOR_ADMIN"):
         return [r for r in ROLES if r not in ("CHAIRMAN", creator_role)]
     return []

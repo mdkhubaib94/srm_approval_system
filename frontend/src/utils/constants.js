@@ -129,7 +129,7 @@ export const EEC_DEPARTMENTS = [
   "Others",
 ];
 
-export const MANAGEMENT_DEPARTMENTS = ["Common", "Management Studies", "Others"];
+export const MANAGEMENT_DEPARTMENTS = ["Common", "Management Studies", "MBA", "BBA", "Others"];
 
 export const SEAD_DEPARTMENTS = [
   "Common",

@@ -57,7 +57,7 @@ async def list_completed(db: AsyncSession, current_user: CurrentUser) -> dict:
     elif role == "HEAD_OF_INSTITUTION":
         inst_ids = await repo.list_request_ids_for_institution(db, current_user.institution)
         completed = await repo.list_completed(db, request_ids=inst_ids)
-    elif role in ("DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN", "CHAIRMAN_OFFICE"):
+    elif role in ("DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN", "CHAIRMAN_OFFICE"):
         completed = await repo.list_completed(db)
     else:
         raise CompletedServiceError(403, "Unauthorized or unknown role.")

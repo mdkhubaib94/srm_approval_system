@@ -14,7 +14,7 @@ const STAGE_DISPLAY_NAMES = {
   GM_FINANCE: 'GM Finance',
   DIRECTOR_ADMISSIONS: 'Director Admissions',
   DIRECTOR_RESEARCH: 'Director Research',
-  DEAN_ADMIN: 'Dean Admin',
+  DIRECTOR_ADMIN: 'Director Admin',
   CHIEF_DIRECTOR: 'Chief Director',
   CHAIRMAN: 'Chairman',
 };

@@ -20,8 +20,8 @@ from app.requests.workflow import ALL_STAGES, get_next_stage, skip_hoi_stage
 # visibility since each role only acts at its own stage.
 STAGES_ORDER = list(ALL_STAGES)
 
-# Stages DEAN_ADMIN can see/act on: everything except CHAIRMAN_OFFICE, CHIEF_DIRECTOR, CHAIRMAN
-DEAN_ADMIN_STAGES = [s for s in STAGES_ORDER if s not in ("CHAIRMAN_OFFICE", "CHIEF_DIRECTOR", "CHAIRMAN")]
+# Stages DIRECTOR_ADMIN can see/act on: everything except CHAIRMAN_OFFICE, CHIEF_DIRECTOR, CHAIRMAN
+DIRECTOR_ADMIN_STAGES = [s for s in STAGES_ORDER if s not in ("CHAIRMAN_OFFICE", "CHIEF_DIRECTOR", "CHAIRMAN")]
 # Stages CHIEF_DIRECTOR can see/act on: everything except CHAIRMAN_OFFICE, CHAIRMAN
 CHIEF_DIRECTOR_STAGES = [s for s in STAGES_ORDER if s not in ("CHAIRMAN_OFFICE", "CHAIRMAN")]
 
@@ -43,8 +43,8 @@ def _has_access(current_user: CurrentUser, request: Request) -> bool:
         return True
     if role in ("HR_HEAD", "MMA", "MANAGER_DATA_MANAGEMENT", "AUDIT", "GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_RESEARCH"):
         return request.stage == role
-    if role == "DEAN_ADMIN":
-        return request.stage in DEAN_ADMIN_STAGES
+    if role == "DIRECTOR_ADMIN":
+        return request.stage in DIRECTOR_ADMIN_STAGES
     if role == "CHIEF_DIRECTOR":
         return request.stage in CHIEF_DIRECTOR_STAGES
     if role == "CHAIRMAN":
@@ -125,8 +125,8 @@ async def list_flagged(db: AsyncSession, current_user: CurrentUser, *, show_reso
         pass
     elif role in ("HR_HEAD", "MMA", "MANAGER_DATA_MANAGEMENT", "AUDIT", "GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_RESEARCH"):
         stmt = stmt.where(Request.stage == role)
-    elif role == "DEAN_ADMIN":
-        stmt = stmt.where(Request.stage.in_(DEAN_ADMIN_STAGES))
+    elif role == "DIRECTOR_ADMIN":
+        stmt = stmt.where(Request.stage.in_(DIRECTOR_ADMIN_STAGES))
     elif role == "CHIEF_DIRECTOR":
         stmt = stmt.where(Request.stage.in_(CHIEF_DIRECTOR_STAGES))
     elif role == "CHAIRMAN":

@@ -30,7 +30,7 @@ const CATEGORIES = [
           "Maternity Leave",
           "Others",
         ],
-        flow: ["HR Head", "Dean Admin", "Chief Director", "Chairman"],
+        flow: ["HR Head", "Director Admin", "Chief Director", "Chairman"],
       },
       {
         id: "ADMIN_PURCHASE",
@@ -42,7 +42,7 @@ const CATEGORIES = [
           "Lab Equipment",
           "Others",
         ],
-        flow: ["MMA", "Audit", "Dean Admin", "Chairman"],
+        flow: ["MMA", "Audit", "Director Admin", "Chairman"],
       },
       {
         id: "ADMIN_IT",
@@ -60,7 +60,7 @@ const CATEGORIES = [
           "Manager – Data Management",
           "Audit",
           "Director Admissions",
-          "Dean Admin",
+          "Director Admin",
           "Chairman",
         ],
       },
@@ -71,7 +71,7 @@ const CATEGORIES = [
         flow: [
           "MMA",
           "Audit",
-          "Dean Admin",
+          "Director Admin",
           "Chief Director",
           "Chairman",
           
@@ -97,14 +97,14 @@ const CATEGORIES = [
           "Brochure, Marketing & Website",
           "Others",
         ],
-        flow: ["Audit", "GM Finance", "Director Admissions*", "Dean Admin", "Chairman"],
+        flow: ["Audit", "GM Finance", "Director Admissions*", "Director Admin", "Chairman"],
         note: "* Director Admissions is included only for Branding and Fees Concession items.",
       },
       {
         id: "ACADEMIC_NON_FINANCE",
         label: "Non-Finance",
         examples: ["Industrial Trip", "Industrial Tour", "Discontinue", "Readmission", "Others"],
-        flow: ["Dean Admin", "Chairman"],
+        flow: ["Director Admin", "Chairman"],
       },
     ],
   },
@@ -129,7 +129,7 @@ const CATEGORIES = [
         flow: [
           "Audit",
           "Director Research",
-          "Dean Admin",
+          "Director Admin",
           "Chief Director",
           "Chairman",
         ],
