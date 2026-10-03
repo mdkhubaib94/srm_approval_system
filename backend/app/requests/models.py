@@ -53,6 +53,10 @@ class Request(Base):
     # approval stage is skipped (they are already the institution's approver).
     is_hoi_created: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=false(), default=False)
 
+    # True when an Institution Manager submitted the request: it starts at the
+    # ACCOUNTANT stage, so the INSTITUTION_MANAGER stage never applies to it.
+    is_im_created: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=false(), default=False)
+
     cost: Mapped[float] = mapped_column(Numeric, nullable=False, server_default="0")
     rejected_reason: Mapped[str | None] = mapped_column(String, nullable=True)
 

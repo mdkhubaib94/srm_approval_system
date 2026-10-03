@@ -136,8 +136,13 @@ def is_request_owner(user, request) -> bool:
     """Is this user the REQUESTER who submitted this request?"""
     if not user or not request:
         return False
-    # A Head of Institution who submitted the request owns it like a requester.
-    if user.role != "REQUESTER" and not (user.role == "HEAD_OF_INSTITUTION" and getattr(request, "is_hoi_created", False)):
+    # A Head of Institution / Institution Manager who submitted the request owns
+    # it like a requester.
+    is_creator_role = (
+        (user.role == "HEAD_OF_INSTITUTION" and getattr(request, "is_hoi_created", False))
+        or (user.role == "INSTITUTION_MANAGER" and getattr(request, "is_im_created", False))
+    )
+    if user.role != "REQUESTER" and not is_creator_role:
         return False
     return _same_id(request.requester_id, user.id)
 
@@ -176,7 +181,7 @@ def can_update_completed(user, request) -> bool:
     """
     if not user or not request:
         return False
-    if user.role == "REQUESTER":
+    if user.role == "REQUESTER" or is_request_owner(user, request):
         return is_request_owner(user, request)
     if user.role in COMPLETED_ADMIN_ROLES:
         return True

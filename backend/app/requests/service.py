@@ -175,6 +175,10 @@ async def create_request(
             )
         await repo.flush(db)
 
+    # Institution Manager submissions skip their own stage and go straight to the Accountant.
+    is_im_created = current_user.role == "INSTITUTION_MANAGER"
+    initial_stage = "ACCOUNTANT" if is_im_created else "INSTITUTION_MANAGER"
+
     request = Request(
         requester_id=current_user.id,
         request_id=request_id,
@@ -189,9 +193,10 @@ async def create_request(
         sop_text=sop_text,
         sop_id=sop_id,
         sop_available=True if sop_id else None,
-        stage="INSTITUTION_MANAGER",
+        stage=initial_stage,
         status="PENDING",
         is_hoi_created=current_user.role == "HEAD_OF_INSTITUTION",
+        is_im_created=is_im_created,
     )
     repo.add_request(db, request)
     await repo.flush(db)
@@ -219,7 +224,7 @@ async def create_request(
     # response is sent but (on the FastAPI version pinned here, >=0.106)
     # before this request's `db` session (a yield-dependency) is closed, so
     # reusing it here is safe.
-    background_tasks.add_task(notify_relevant_users, db, "INSTITUTION_MANAGER", request, "created")
+    background_tasks.add_task(notify_relevant_users, db, initial_stage, request, "created")
 
     return request
 
@@ -315,6 +320,7 @@ async def serialize_request(
         "stage": request.stage,
         "status": request.status,
         "is_hoi_created": request.is_hoi_created,
+        "is_im_created": request.is_im_created,
         "cost": float(request.cost) if request.cost is not None else None,
         "rejected_reason": request.rejected_reason,
         "sop_available": request.sop_available,

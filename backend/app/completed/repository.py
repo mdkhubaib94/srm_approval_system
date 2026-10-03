@@ -33,6 +33,15 @@ async def list_request_ids_for_requester(db: AsyncSession, requester_id: int) ->
     return result.scalars().all()
 
 
+async def list_request_ids_created_by(db: AsyncSession, user_id: int, *, im_created: bool) -> list[int]:
+    """Requests this user submitted while acting as an Institution Manager."""
+    stmt = select(Request.id).where(Request.requester_id == user_id)
+    if im_created:
+        stmt = stmt.where(Request.is_im_created.is_(True))
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 async def list_request_ids_for_institution(db: AsyncSession, institution: str | None) -> list[int]:
     result = await db.execute(select(Request.id).where(Request.institution == institution))
     return result.scalars().all()

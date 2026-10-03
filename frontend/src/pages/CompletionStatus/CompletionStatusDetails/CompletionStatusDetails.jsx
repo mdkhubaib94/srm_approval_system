@@ -239,12 +239,12 @@ export default function CompletionDetailPage() {
 
   const isRequester = () => {
     if (currentUser?.role === 'REQUESTER') return true;
-    // A Head of Institution acts like the requester only on requests they created themselves.
-    return (
-      currentUser?.role === 'HEAD_OF_INSTITUTION' &&
-      completed?.request?.isHoiCreated === true &&
-      String(completed?.request?.requester?.id) === String(currentUser?.id)
-    );
+    // A Head of Institution / Institution Manager acts like the requester only on
+    // requests they created themselves.
+    const createdAsOwnRole =
+      (currentUser?.role === 'HEAD_OF_INSTITUTION' && completed?.request?.isHoiCreated === true) ||
+      (currentUser?.role === 'INSTITUTION_MANAGER' && completed?.request?.isImCreated === true);
+    return createdAsOwnRole && String(completed?.request?.requester?.id) === String(currentUser?.id);
   };
 
   const isAdminRole = () => {

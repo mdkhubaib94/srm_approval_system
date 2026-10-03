@@ -150,7 +150,7 @@ const CATEGORIES = [
   },
 ];
 
-const ALLOWED_ROLES = ["REQUESTER", "HEAD_OF_INSTITUTION", "CHAIRMAN"];
+const ALLOWED_ROLES = ["REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER", "CHAIRMAN"];
 
 export default function FlowCategoriesPage() {
   const { user } = useAuth();

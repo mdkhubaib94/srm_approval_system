@@ -183,12 +183,12 @@ export default function NavigationPane({ children }) {
       href: "/requests",
       icon: ClipboardDocumentListIcon,
     },
-    ["REQUESTER", "HEAD_OF_INSTITUTION"].includes(user?.role) && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER"].includes(user?.role) && {
       name: "Create Requests",
       href: "/create-request",
       icon: DocumentPlusIcon,
     },
-    ["REQUESTER", "HEAD_OF_INSTITUTION", "CHAIRMAN"].includes(user?.role) && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER", "CHAIRMAN"].includes(user?.role) && {
       name: "Flow Categories",
       href: "/flow-categories",
       icon: Squares2X2Icon,
@@ -224,7 +224,7 @@ export default function NavigationPane({ children }) {
       href: "/workflow",
       icon: ArrowPathIcon,
     },
-    ["REQUESTER", "HEAD_OF_INSTITUTION", "DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"].includes(user?.role) && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER", "DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"].includes(user?.role) && {
       name: "Completion Status",
       href: "/completion-status",
       icon: CheckBadgeIcon,

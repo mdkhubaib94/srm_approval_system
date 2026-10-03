@@ -29,6 +29,7 @@ async def _serialize(db: AsyncSession, c: Completed) -> dict:
                 "request_id": c.request.request_id,
                 "title": c.request.title,
                 "is_hoi_created": c.request.is_hoi_created,
+                "is_im_created": c.request.is_im_created,
                 "requester": (
                     {"id": c.request.requester.id, "name": c.request.requester.name, "email": c.request.requester.email}
                     if c.request.requester
@@ -53,6 +54,10 @@ async def list_completed(db: AsyncSession, current_user: CurrentUser) -> dict:
     role = current_user.role
     if role == "REQUESTER":
         owned_ids = await repo.list_request_ids_for_requester(db, current_user.id)
+        completed = await repo.list_completed(db, request_ids=owned_ids)
+    elif role == "INSTITUTION_MANAGER":
+        # Institution Managers only track requests they created themselves.
+        owned_ids = await repo.list_request_ids_created_by(db, current_user.id, im_created=True)
         completed = await repo.list_completed(db, request_ids=owned_ids)
     elif role == "HEAD_OF_INSTITUTION":
         inst_ids = await repo.list_request_ids_for_institution(db, current_user.institution)
