@@ -12,7 +12,7 @@ from app.sops.index_service import enqueue_sop_indexing
 from app.sops.models import Sop
 from app.sops.search_service import invalidate_sop_cache
 
-SOP_VIEW_ROLES = ("REQUESTER", "INSTITUTION_MANAGER", "CHAIRMAN_OFFICE")
+SOP_VIEW_ROLES = ("REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER", "CHAIRMAN_OFFICE")
 SOP_ADMIN_ROLE = "CHAIRMAN_OFFICE"
 
 

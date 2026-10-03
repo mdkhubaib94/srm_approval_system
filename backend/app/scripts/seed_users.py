@@ -31,7 +31,6 @@ SEED_USERS = [
     {"name": "Jack Chief Director", "employee_id": "EMP010", "email": "chiefdirector@gmail.com", "phone": "9000000010", "role": "CHIEF_DIRECTOR", "institution": None, "department": "Management Studies"},
     {"name": "Karen Chairman", "employee_id": "EMP011", "email": "chairman@gmail.com", "phone": "9000000011", "role": "CHAIRMAN", "institution": None, "department": "Management Studies"},
     {"name": "Leo Chairman Office", "employee_id": "EMP012", "email": "chairmanoffice@gmail.com", "phone": "9000000012", "role": "CHAIRMAN_OFFICE", "institution": None, "department": "Management Studies"},
-    {"name": "Mia Manager Accounts", "employee_id": "EMP013", "email": "manageraccounts@gmail.com", "phone": "9000000013", "role": "MANAGER_ACCOUNTS", "institution": None, "department": "Management Studies"},
     {"name": "Nathan GM Finance", "employee_id": "EMP014", "email": "gmfinance@gmail.com", "phone": "9000000014", "role": "GM_FINANCE", "institution": None, "department": "Management Studies"},
     {"name": "Olivia Director Admissions", "employee_id": "EMP015", "email": "directoradmissions@gmail.com", "phone": "9000000015", "role": "DIRECTOR_ADMISSIONS", "institution": None, "department": "Management Studies"},
     {"name": "Paul Director Research", "employee_id": "EMP016", "email": "directorresearch@gmail.com", "phone": "9000000016", "role": "DIRECTOR_RESEARCH", "institution": None, "department": "Management Studies"},

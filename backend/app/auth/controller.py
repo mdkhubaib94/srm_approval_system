@@ -7,15 +7,12 @@ from app.auth.schemas import (
     ForgotPasswordIn,
     LoginIn,
     MessageOut,
-    RegisterIn,
-    RegisterOut,
-    RegisteredUserOut,
     ResetPasswordIn,
     VerifyResetOtpIn,
     VerifyResetOtpOut,
 )
 from app.config import get_settings
-from app.core.rate_limit import login_rate_limit_precheck, otp_rate_limit, register_rate_limit
+from app.core.rate_limit import login_rate_limit_precheck, otp_rate_limit
 from app.core.security import refresh_cookie_kwargs, reset_cookie_kwargs
 from app.db.session import get_db
 from app.auth import service
@@ -25,32 +22,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 def _error_response(exc: service.AuthServiceError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content=exc.body)
-
-
-# ─── Register ─────────────────────────────────────────────────────────────────
-
-
-@router.post("/register", status_code=status.HTTP_201_CREATED, dependencies=[Depends(register_rate_limit)])
-async def register(body: RegisterIn, db: AsyncSession = Depends(get_db)):
-    try:
-        user = await service.register(
-            db,
-            password=body.password,
-            email=body.email,
-            employee_id=body.employee_id,
-            role=body.role,
-            name=body.name,
-            phone=body.phone,
-            institution=body.institution,
-            department=body.department,
-        )
-    except service.AuthServiceError as exc:
-        return _error_response(exc)
-
-    return RegisterOut(
-        message="Account created successfully",
-        user=RegisteredUserOut(id=user.id, name=user.name, email=user.email, role=user.role, institution=user.institution),
-    )
 
 
 # ─── Login / refresh / logout ─────────────────────────────────────────────────

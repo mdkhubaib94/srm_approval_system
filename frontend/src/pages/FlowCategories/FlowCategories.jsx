@@ -42,7 +42,7 @@ const CATEGORIES = [
           "Lab Equipment",
           "Others",
         ],
-        flow: ["MMA", "Audit", "Manager Accounts", "Dean Admin", "Chairman"],
+        flow: ["MMA", "Audit", "Dean Admin", "Chairman"],
       },
       {
         id: "ADMIN_IT",
@@ -59,7 +59,6 @@ const CATEGORIES = [
         flow: [
           "Manager – Data Management",
           "Audit",
-          "Manager Accounts",
           "Director Admissions",
           "Dean Admin",
           "Chairman",
@@ -72,7 +71,6 @@ const CATEGORIES = [
         flow: [
           "MMA",
           "Audit",
-          "Manager Accounts",
           "Dean Admin",
           "Chief Director",
           "Chairman",
@@ -130,13 +128,11 @@ const CATEGORIES = [
         ],
         flow: [
           "Audit",
-          "Manager Accounts*",
           "Director Research",
           "Dean Admin",
           "Chief Director",
           "Chairman",
         ],
-        note: "* Manager Accounts is included only for finance-related research items.",
       },
     ],
   },

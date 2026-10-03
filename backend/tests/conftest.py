@@ -97,7 +97,6 @@ def _reset_rate_limiters():
     for limiter in (
         rate_limit_module.login_limiter,
         rate_limit_module.otp_limiter,
-        rate_limit_module.register_limiter,
         rate_limit_module.api_limiter,
     ):
         limiter._buckets.clear()

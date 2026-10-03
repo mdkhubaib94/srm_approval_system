@@ -2,6 +2,7 @@
 src/controllers/requestController.js.
 """
 
+from app.users.constants import institutions_for, same_institution
 from datetime import datetime, timezone
 
 from fastapi import BackgroundTasks
@@ -30,6 +31,7 @@ from app.requests.workflow import (
     REQUEST_CATEGORIES,
     derive_request_category,
     get_next_stage,
+    skip_hoi_stage,
     is_institution_scoped,
 )
 from app.files.service import store_uploaded_files
@@ -189,6 +191,7 @@ async def create_request(
         sop_available=True if sop_id else None,
         stage="INSTITUTION_MANAGER",
         status="PENDING",
+        is_hoi_created=current_user.role == "HEAD_OF_INSTITUTION",
     )
     repo.add_request(db, request)
     await repo.flush(db)
@@ -243,7 +246,7 @@ def visible_requests_clause(current_user: CurrentUser):
         return Request.requester_id == current_user.id
 
     if role in INSTITUTION_VIEW_ROLES:
-        base_clause = and_(Request.stage == role, Request.institution == current_user.institution)
+        base_clause = and_(Request.stage == role, Request.institution.in_(institutions_for(current_user.institution, role)))
     elif role in GLOBAL_VIEW_ROLES:
         base_clause = Request.stage == role
     else:
@@ -311,6 +314,7 @@ async def serialize_request(
         "details_model": request.details_model,
         "stage": request.stage,
         "status": request.status,
+        "is_hoi_created": request.is_hoi_created,
         "cost": float(request.cost) if request.cost is not None else None,
         "rejected_reason": request.rejected_reason,
         "sop_available": request.sop_available,
@@ -618,6 +622,8 @@ async def update_request(
         if request.stage == "INSTITUTION_MANAGER" and not request.cost:
             next_stage = "HEAD_OF_INSTITUTION"
 
+        next_stage = skip_hoi_stage(effective_category, next_stage, request.is_hoi_created)
+
         if next_stage:
             request.stage = next_stage
             request.working_hrs_taken = 0
@@ -677,7 +683,7 @@ async def update_indent_details(
         raise RequestServiceError(403, "Materials requirement can no longer be edited once the request has been submitted.")
     if request.stage != current_user.role:
         raise RequestServiceError(403, f"You cannot modify materials requirement while the request is at the {request.stage} stage.")
-    if is_institution_scoped(request.stage) and request.institution != current_user.institution:
+    if is_institution_scoped(request.stage) and not same_institution(request.institution, current_user.institution, current_user.role):
         raise RequestServiceError(403, "Unauthorized: Institution mismatch.")
 
     DetailModel = get_detail_model(request.details_model)
@@ -836,7 +842,7 @@ async def add_indent_remark(db: AsyncSession, current_user: CurrentUser, lookup_
         raise RequestServiceError(403, "Only the role currently reviewing this request can add a remark.")
     if request.stage != current_user.role:
         raise RequestServiceError(403, f"You cannot add a remark while the request is at the {request.stage} stage.")
-    if is_institution_scoped(request.stage) and request.institution != current_user.institution:
+    if is_institution_scoped(request.stage) and not same_institution(request.institution, current_user.institution, current_user.role):
         raise RequestServiceError(403, "Unauthorized: Institution mismatch.")
 
     row = await repo.get_indent_line_item(db, row_id)
@@ -866,7 +872,7 @@ async def add_change_log_remark(db: AsyncSession, current_user: CurrentUser, loo
         raise RequestServiceError(403, "Only the role currently reviewing this request can add change notes.")
     if request.stage != current_user.role:
         raise RequestServiceError(403, f"You cannot add a change note while the request is at the {request.stage} stage.")
-    if is_institution_scoped(request.stage) and request.institution != current_user.institution:
+    if is_institution_scoped(request.stage) and not same_institution(request.institution, current_user.institution, current_user.role):
         raise RequestServiceError(403, "Unauthorized: Institution mismatch.")
 
     detail_doc = await get_detail_document(db, request)

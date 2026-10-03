@@ -14,7 +14,6 @@ import CreateSop from "./pages/CreateSop/CreateSop";
 import CreatePolicy from "./pages/CreatePolicy/CreatePolicy";
 import CreateRequest from "./pages/CreateRequest/CreateRequest";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-import Signup from "./pages/Signup/Signup";
 import CompletionStatus from "./pages/CompletionStatus/CompletionStatus";
 import CompletionStatusDetails from "./pages/CompletionStatus/CompletionStatusDetails/CompletionStatusDetails";
 import RequestDetails from "./pages/Requests/RequestDetails/RequestDetails";
@@ -46,7 +45,6 @@ function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/create-policy" element={<CreatePolicy />} />
           <Route path="/create-request" element={<CreateRequest />} />
           <Route path="/requests" element={<Requests />} />

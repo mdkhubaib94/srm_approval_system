@@ -103,7 +103,6 @@ export default function GeneralProcessingForm({
       case 'MMA':
       case 'MANAGER_DATA_MANAGEMENT':
       case 'AUDIT':
-      case 'MANAGER_ACCOUNTS':
       case 'GM_FINANCE':
       case 'DIRECTOR_ADMISSIONS':
       case 'DIRECTOR_RESEARCH':

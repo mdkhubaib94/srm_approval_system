@@ -23,7 +23,7 @@ from app.users.models import User
 
 STAGES = [
     "INSTITUTION_MANAGER", "ACCOUNTANT", "HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "MMA",
-    "AUDIT", "MANAGER_ACCOUNTS", "DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN",
+    "AUDIT", "DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN",
 ]
 INSTITUTIONS = ["SRMIST - E&T", "EEC", "DENTAL"]
 DEPARTMENTS = ["Computer Science and Engineering", "Mechanical Engineering", "Electrical and Electronics Engineering", "Civil Engineering", "Information Technology"]

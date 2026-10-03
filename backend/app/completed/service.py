@@ -28,6 +28,7 @@ async def _serialize(db: AsyncSession, c: Completed) -> dict:
                 "id": c.request.id,
                 "request_id": c.request.request_id,
                 "title": c.request.title,
+                "is_hoi_created": c.request.is_hoi_created,
                 "requester": (
                     {"id": c.request.requester.id, "name": c.request.requester.name, "email": c.request.requester.email}
                     if c.request.requester

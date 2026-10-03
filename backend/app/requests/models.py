@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, Numeric
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Numeric
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy import Integer, String, func
+from sqlalchemy import Integer, String, false, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -48,6 +48,10 @@ class Request(Base):
     stage: Mapped[str | None] = mapped_column(String, nullable=True)
 
     status: Mapped[str] = mapped_column(RequestStatusEnum, nullable=False, server_default="PENDING")
+
+    # True when a Head of Institution submitted the request: the HEAD_OF_INSTITUTION
+    # approval stage is skipped (they are already the institution's approver).
+    is_hoi_created: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=false(), default=False)
 
     cost: Mapped[float] = mapped_column(Numeric, nullable=False, server_default="0")
     rejected_reason: Mapped[str | None] = mapped_column(String, nullable=True)

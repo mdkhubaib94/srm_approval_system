@@ -15,7 +15,6 @@ async def _approve_via_full_chain(client, db_session, req_email, req_institution
         "HEAD_OF_INSTITUTION",
         "CHAIRMAN_OFFICE",
         "AUDIT",
-        "MANAGER_ACCOUNTS",
         "DIRECTOR_RESEARCH",
         "DEAN_ADMIN",
         "CHIEF_DIRECTOR",
@@ -27,7 +26,7 @@ async def _approve_via_full_chain(client, db_session, req_email, req_institution
     # Cost defaults to 0, so IM -> ACCOUNTANT is *not* skipped only when cost>0;
     # with cost 0 the IM forward skips straight to HEAD_OF_INSTITUTION. Build
     # the actor list to match that.
-    actor_roles = ["INSTITUTION_MANAGER", "HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "AUDIT", "MANAGER_ACCOUNTS", "DIRECTOR_RESEARCH", "DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"]
+    actor_roles = ["INSTITUTION_MANAGER", "HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "AUDIT", "DIRECTOR_RESEARCH", "DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"]
 
     for i, role in enumerate(actor_roles):
         email = f"actor.{role.lower()}.{req_email}"

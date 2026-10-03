@@ -238,7 +238,13 @@ export default function CompletionDetailPage() {
   };
 
   const isRequester = () => {
-    return currentUser?.role === 'REQUESTER';
+    if (currentUser?.role === 'REQUESTER') return true;
+    // A Head of Institution acts like the requester only on requests they created themselves.
+    return (
+      currentUser?.role === 'HEAD_OF_INSTITUTION' &&
+      completed?.request?.isHoiCreated === true &&
+      String(completed?.request?.requester?.id) === String(currentUser?.id)
+    );
   };
 
   const isAdminRole = () => {

@@ -6,32 +6,6 @@ class MessageOut(BaseModel):
     message: str
 
 
-class RegisterIn(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    name: str
-    employee_id: str = Field(alias="employeeID")
-    email: str
-    phone: str | None = None
-    password: str
-    role: str | None = None
-    institution: str | None = None
-    department: str | None = None
-
-
-class RegisteredUserOut(BaseModel):
-    id: int
-    name: str
-    email: str
-    role: str
-    institution: str | None = None
-
-
-class RegisterOut(BaseModel):
-    message: str
-    user: RegisteredUserOut
-
-
 class LoginIn(BaseModel):
     email: str
     password: str

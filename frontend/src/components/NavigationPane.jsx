@@ -27,7 +27,7 @@ import { getFlagged } from "../api/flagged.api";
 
 import styles from "./NavigationPane.module.css";
 
-const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password"];
+const PUBLIC_ROUTES = ["/", "/login", "/forgot-password"];
 
 export default function NavigationPane({ children }) {
   const navigate = useNavigate();
@@ -183,7 +183,7 @@ export default function NavigationPane({ children }) {
       href: "/requests",
       icon: ClipboardDocumentListIcon,
     },
-    user?.role === "REQUESTER" && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION"].includes(user?.role) && {
       name: "Create Requests",
       href: "/create-request",
       icon: DocumentPlusIcon,
@@ -204,7 +204,7 @@ export default function NavigationPane({ children }) {
       href: "/create-policy",
       icon: DocumentArrowUpIcon,
     },
-    ["REQUESTER", "INSTITUTION_MANAGER", "CHAIRMAN_OFFICE"].includes(user?.role) && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER", "CHAIRMAN_OFFICE"].includes(user?.role) && {
       name: "SOPs",
       href: "/sops",
       icon: BookOpenIcon,

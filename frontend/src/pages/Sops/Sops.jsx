@@ -8,7 +8,7 @@ import { openInNewTab } from '../../utils/safeOpen';
 import LoadingScreen from '../../common/LoadingScreen';
 import SopDetailModal from '../../components/SopDetailModal';
 import styles from './Sops.module.css';
-const SOP_VIEW_ROLES = ['REQUESTER', 'INSTITUTION_MANAGER', 'CHAIRMAN_OFFICE'];
+const SOP_VIEW_ROLES = ['REQUESTER', 'HEAD_OF_INSTITUTION', 'INSTITUTION_MANAGER', 'CHAIRMAN_OFFICE'];
 const SOPS_PAGE_SIZE = 20;
 
 const SopsPage = () => {

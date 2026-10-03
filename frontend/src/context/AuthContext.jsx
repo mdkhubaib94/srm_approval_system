@@ -7,7 +7,7 @@ import {
   isNetworkError,
   subscribeToAuthToken,
 } from "../api/client";
-import { login as loginApi, register as registerApi, logout as logoutApi } from "../api/auth.api";
+import { login as loginApi, logout as logoutApi } from "../api/auth.api";
 
 const AuthContext = createContext(null);
 
@@ -155,11 +155,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (payload) => {
-    const { data } = await registerApi(payload);
-    return data;
-  };
-
   const logout = async () => {
     try {
       // Must match the origin that set the cookie for clearCookie to land.
@@ -170,7 +165,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ accessToken, user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
