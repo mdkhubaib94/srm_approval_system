@@ -8,11 +8,10 @@ export default function ReviewOnlyForm({ role }) {
     MMA: 'MMA',
     MANAGER_DATA_MANAGEMENT: 'Manager - Data Management',
     AUDIT: 'Audit',
-    MANAGER_ACCOUNTS: 'Manager - Accounts',
     GM_FINANCE: 'GM Finance',
     DIRECTOR_ADMISSIONS: 'Director Admissions',
     DIRECTOR_RESEARCH: 'Director Research',
-    DEAN_ADMIN: 'Dean Admin',
+    DIRECTOR_ADMIN: 'Director Admin',
     CHIEF_DIRECTOR: 'Chief Director',
   };
 

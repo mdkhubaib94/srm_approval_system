@@ -68,8 +68,8 @@ def sign_access_token(user) -> str:
 
 def sign_refresh_token(user) -> str:
     """tv pins the token to the user's current token_version so logout /
-    password reset can invalidate it. Expiry mirrors the cookie policy: 30
-    days for CHAIRMAN, 1 day for everyone else.
+    password reset can invalidate it. Expiry mirrors the cookie policy: ~10
+    years (until manual logout) for CHAIRMAN, 1 day for everyone else.
 
     jti makes each issuance unique even when two tokens are signed for the
     same user within the same second (e.g. login immediately followed by a
@@ -121,13 +121,16 @@ def cookie_secure(request: Request | None) -> bool:
     return True
 
 
-THIRTY_DAYS_SECONDS = 30 * 24 * 60 * 60
+# Chairman stays signed in across browser/tab close and machine restarts until
+# they log out manually. Browsers clamp cookie lifetimes (Chrome: 400 days), but
+# the cookie is re-issued on every refresh, so the window keeps sliding forward.
+CHAIRMAN_COOKIE_MAX_AGE_SECONDS = 10 * 365 * 24 * 60 * 60
 
 
 def refresh_cookie_kwargs(request: Request | None, user) -> dict[str, Any]:
     """kwargs for Response.set_cookie(...) for the `jwt` refresh cookie.
 
-    Chairman gets a 30-day persistent cookie; everyone else gets a session
+    Chairman gets a long-lived persistent cookie; everyone else gets a session
     cookie (max_age omitted) that the browser discards on close.
     """
     kwargs: dict[str, Any] = {
@@ -137,7 +140,7 @@ def refresh_cookie_kwargs(request: Request | None, user) -> dict[str, Any]:
         "path": "/",
     }
     if user is not None and user.role == "CHAIRMAN":
-        kwargs["max_age"] = THIRTY_DAYS_SECONDS
+        kwargs["max_age"] = CHAIRMAN_COOKIE_MAX_AGE_SECONDS
     return kwargs
 
 

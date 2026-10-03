@@ -67,18 +67,12 @@ class RateLimiter:
 login_limiter = RateLimiter(15 * 60, 10, "Too many login attempts. Please try again in 15 minutes.")
 # Anything that sends an email or checks an OTP.
 otp_limiter = RateLimiter(15 * 60, 8, "Too many attempts. Please try again in 15 minutes.")
-# Account creation.
-register_limiter = RateLimiter(60 * 60, 10, "Too many registration attempts. Please try again later.")
 # Broad backstop for the rest of the API (wired globally in Phase 9).
 api_limiter = RateLimiter(60, 300, "Too many requests. Please slow down.")
 
 
 def otp_rate_limit(request: Request) -> None:
     otp_limiter.check(request)
-
-
-def register_rate_limit(request: Request) -> None:
-    register_limiter.check(request)
 
 
 def login_rate_limit_precheck(request: Request) -> str:

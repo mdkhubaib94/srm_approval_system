@@ -1,6 +1,7 @@
 """Business logic for Flagged (SLA-breach) records. Reference:
 src/controllers/flagController.js."""
 
+from app.users.constants import institutions_for, same_institution
 from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +12,7 @@ from app.flagged import repository as repo
 from app.requests.access import filter_action_history_for_viewer
 from app.requests.models import Request, RequestActionHistory
 from app.requests.service import serialize_action_history
-from app.requests.workflow import ALL_STAGES, get_next_stage
+from app.requests.workflow import ALL_STAGES, get_next_stage, skip_hoi_stage
 
 # Flat ordering of all stages, low-to-high seniority. Branches (HR_HEAD, MMA,
 # MANAGER_DATA_MANAGEMENT, etc.) are ordered between CHAIRMAN_OFFICE and
@@ -19,8 +20,8 @@ from app.requests.workflow import ALL_STAGES, get_next_stage
 # visibility since each role only acts at its own stage.
 STAGES_ORDER = list(ALL_STAGES)
 
-# Stages DEAN_ADMIN can see/act on: everything except CHAIRMAN_OFFICE, CHIEF_DIRECTOR, CHAIRMAN
-DEAN_ADMIN_STAGES = [s for s in STAGES_ORDER if s not in ("CHAIRMAN_OFFICE", "CHIEF_DIRECTOR", "CHAIRMAN")]
+# Stages DIRECTOR_ADMIN can see/act on: everything except CHAIRMAN_OFFICE, CHIEF_DIRECTOR, CHAIRMAN
+DIRECTOR_ADMIN_STAGES = [s for s in STAGES_ORDER if s not in ("CHAIRMAN_OFFICE", "CHIEF_DIRECTOR", "CHAIRMAN")]
 # Stages CHIEF_DIRECTOR can see/act on: everything except CHAIRMAN_OFFICE, CHAIRMAN
 CHIEF_DIRECTOR_STAGES = [s for s in STAGES_ORDER if s not in ("CHAIRMAN_OFFICE", "CHAIRMAN")]
 
@@ -35,15 +36,15 @@ class FlaggedServiceError(Exception):
 def _has_access(current_user: CurrentUser, request: Request) -> bool:
     role = current_user.role
     if role in ("INSTITUTION_MANAGER", "ACCOUNTANT"):
-        return request.stage == role and request.institution == current_user.institution
+        return request.stage == role and same_institution(request.institution, current_user.institution, role)
     if role == "HEAD_OF_INSTITUTION":
         return request.stage in ("INSTITUTION_MANAGER", "ACCOUNTANT", "HEAD_OF_INSTITUTION") and request.institution == current_user.institution
     if role == "CHAIRMAN_OFFICE":
         return True
-    if role in ("HR_HEAD", "MMA", "MANAGER_DATA_MANAGEMENT", "AUDIT", "MANAGER_ACCOUNTS", "GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_RESEARCH"):
+    if role in ("HR_HEAD", "MMA", "MANAGER_DATA_MANAGEMENT", "AUDIT", "GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_RESEARCH"):
         return request.stage == role
-    if role == "DEAN_ADMIN":
-        return request.stage in DEAN_ADMIN_STAGES
+    if role == "DIRECTOR_ADMIN":
+        return request.stage in DIRECTOR_ADMIN_STAGES
     if role == "CHIEF_DIRECTOR":
         return request.stage in CHIEF_DIRECTOR_STAGES
     if role == "CHAIRMAN":
@@ -114,7 +115,7 @@ async def list_flagged(db: AsyncSession, current_user: CurrentUser, *, show_reso
         stmt = stmt.where(Flagged.flag_resolved.is_(False))
 
     if role in ("INSTITUTION_MANAGER", "ACCOUNTANT"):
-        stmt = stmt.where(Request.stage == role, Request.institution == current_user.institution)
+        stmt = stmt.where(Request.stage == role, Request.institution.in_(institutions_for(current_user.institution, role)))
     elif role == "HEAD_OF_INSTITUTION":
         stmt = stmt.where(
             Request.stage.in_(["INSTITUTION_MANAGER", "ACCOUNTANT", "HEAD_OF_INSTITUTION"]),
@@ -122,10 +123,10 @@ async def list_flagged(db: AsyncSession, current_user: CurrentUser, *, show_reso
         )
     elif role == "CHAIRMAN_OFFICE":
         pass
-    elif role in ("HR_HEAD", "MMA", "MANAGER_DATA_MANAGEMENT", "AUDIT", "MANAGER_ACCOUNTS", "GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_RESEARCH"):
+    elif role in ("HR_HEAD", "MMA", "MANAGER_DATA_MANAGEMENT", "AUDIT", "GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_RESEARCH"):
         stmt = stmt.where(Request.stage == role)
-    elif role == "DEAN_ADMIN":
-        stmt = stmt.where(Request.stage.in_(DEAN_ADMIN_STAGES))
+    elif role == "DIRECTOR_ADMIN":
+        stmt = stmt.where(Request.stage.in_(DIRECTOR_ADMIN_STAGES))
     elif role == "CHIEF_DIRECTOR":
         stmt = stmt.where(Request.stage.in_(CHIEF_DIRECTOR_STAGES))
     elif role == "CHAIRMAN":
@@ -166,6 +167,7 @@ async def resolve_flag_and_forward(db: AsyncSession, current_user: CurrentUser, 
         raise FlaggedServiceError(403, "You do not have permission to resolve this flagged record")
 
     next_stage = get_next_stage(request.request_category, request.stage)
+    next_stage = skip_hoi_stage(request.request_category, next_stage, request.is_hoi_created)
     if not next_stage:
         raise FlaggedServiceError(400, "Request is already at the final stage and cannot be forwarded")
 

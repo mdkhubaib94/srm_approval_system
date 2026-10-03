@@ -10,6 +10,7 @@ helpers apply the equivalent rule when a single document is fetched by id,
 which is where broken-object-level-authorization bugs normally live.
 """
 
+from app.users.constants import institutions_for, same_institution
 from app.requests.workflow import CATEGORY_STAGE_SEQUENCES, INSTITUTION_SCOPED_STAGES
 
 # Roles whose remit spans every institution.
@@ -19,11 +20,10 @@ GLOBAL_VIEW_ROLES = [
     "MMA",
     "MANAGER_DATA_MANAGEMENT",
     "AUDIT",
-    "MANAGER_ACCOUNTS",
     "GM_FINANCE",
     "DIRECTOR_ADMISSIONS",
     "DIRECTOR_RESEARCH",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "CHIEF_DIRECTOR",
     "CHAIRMAN",
 ]
@@ -32,10 +32,10 @@ GLOBAL_VIEW_ROLES = [
 INSTITUTION_VIEW_ROLES = ["INSTITUTION_MANAGER", "ACCOUNTANT", "HEAD_OF_INSTITUTION"]
 
 # Roles allowed to pull the unfiltered cross-institution request list.
-ALL_REQUESTS_ROLES = ["DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"]
+ALL_REQUESTS_ROLES = ["DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"]
 
 # Roles that see every completion record (mirrors get_all_completed, Phase 4).
-COMPLETED_ADMIN_ROLES = ["DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN", "CHAIRMAN_OFFICE"]
+COMPLETED_ADMIN_ROLES = ["DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN", "CHAIRMAN_OFFICE"]
 
 
 def _same_id(a, b) -> bool:
@@ -56,7 +56,7 @@ def can_view_request(user, request) -> bool:
         return _same_id(request.requester_id, user.id)
 
     if user.role in INSTITUTION_VIEW_ROLES:
-        if request.institution and request.institution != user.institution:
+        if request.institution and not same_institution(request.institution, user.institution, user.role):
             # Still allow it if they personally acted on it (audit trail).
             return any(_same_id(entry.action_by_id, user.id) for entry in (request.action_history or []))
         return True
@@ -127,7 +127,7 @@ def is_stage_holder(user, request) -> bool:
         return False
     if request.stage != user.role:
         return False
-    if stage_is_institution_scoped(request.stage) and request.institution != user.institution:
+    if stage_is_institution_scoped(request.stage) and not same_institution(request.institution, user.institution, user.role):
         return False
     return True
 
@@ -136,7 +136,8 @@ def is_request_owner(user, request) -> bool:
     """Is this user the REQUESTER who submitted this request?"""
     if not user or not request:
         return False
-    if user.role != "REQUESTER":
+    # A Head of Institution who submitted the request owns it like a requester.
+    if user.role != "REQUESTER" and not (user.role == "HEAD_OF_INSTITUTION" and getattr(request, "is_hoi_created", False)):
         return False
     return _same_id(request.requester_id, user.id)
 
@@ -149,7 +150,7 @@ def can_act_on_request(user, request) -> bool:
     """
     if not user or not request:
         return False
-    if user.role == "REQUESTER":
+    if user.role == "REQUESTER" or is_request_owner(user, request):
         return is_request_owner(user, request)
     return is_stage_holder(user, request)
 
@@ -208,20 +209,20 @@ def can_reply_to_query(user, query, request) -> bool:
         return True
     if not request:
         return False
-    if user.role == "REQUESTER":
+    if user.role == "REQUESTER" or is_request_owner(user, request):
         return is_request_owner(user, request)
     return is_stage_holder(user, request)
 
 
 # ─── Policies ─────────────────────────────────────────────────────────────────
 
-POLICY_FULL_VIEW_ROLES = ["DEAN_ADMIN", "CHAIRMAN"]
+POLICY_FULL_VIEW_ROLES = ["DIRECTOR_ADMIN", "CHAIRMAN"]
 
 POLICY_PUBLIC_FIELDS = ["title", "description", "cost", "requester", "created_at", "updated_at", "policy_approval_status"]
 
 
 def can_view_full_policy(user, policy) -> bool:
-    """Authors see their own; DEAN_ADMIN and CHAIRMAN approve them so they
+    """Authors see their own; DIRECTOR_ADMIN and CHAIRMAN approve them so they
     see all."""
     if not user or not policy:
         return False

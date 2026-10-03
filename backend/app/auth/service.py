@@ -44,68 +44,6 @@ class AuthServiceError(Exception):
         self.body = body
 
 
-@lru_cache
-def self_signup_roles() -> list[str]:
-    """Roles a stranger may assign to themselves at /auth/register.
-
-    Port of authController.js's SELF_SIGNUP_ROLES: validated against ROLES,
-    never left empty (falls back to ["REQUESTER"]) so a bad env value cannot
-    silently disable signup entirely.
-    """
-    configured = [r for r in get_settings().self_signup_roles if r in ROLES]
-    return configured or ["REQUESTER"]
-
-
-# ─── Register ─────────────────────────────────────────────────────────────────
-
-
-async def register(
-    db: AsyncSession,
-    *,
-    password: str,
-    email: str,
-    employee_id: str,
-    role: str | None,
-    name: str,
-    phone: str | None,
-    institution: str | None,
-    department: str | None,
-) -> User:
-    if len(password) < MIN_PASSWORD_LENGTH:
-        raise AuthServiceError(400, {"message": f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"})
-
-    requested_role = role or "REQUESTER"
-    if requested_role not in ROLES:
-        raise AuthServiceError(400, {"message": f"Invalid role: {requested_role}"})
-    if requested_role not in self_signup_roles():
-        raise AuthServiceError(
-            403,
-            {
-                "message": "That role cannot be selected at signup. Register as a requester, or ask an administrator to create the account for you."
-            },
-        )
-
-    normalized_email = email.strip().lower()
-    existing = await repo.find_user_by_normalized_email_or_employee_id(db, normalized_email, employee_id)
-    if existing:
-        raise AuthServiceError(409, {"message": "A user with that email or employee ID already exists"})
-
-    user = User(
-        name=name,
-        employee_id=employee_id,
-        email=normalized_email,
-        phone=phone,
-        password_hash=hash_password(password),
-        role=requested_role,
-        institution=institution,
-        department=department,
-    )
-    repo.add_user(db, user)
-    await repo.commit(db)
-    await repo.refresh(db, user)
-    return user
-
-
 # ─── Login / refresh / logout ─────────────────────────────────────────────────
 
 

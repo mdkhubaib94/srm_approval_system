@@ -15,11 +15,10 @@ ALL_STAGES: list[str] = [
     "MMA",
     "MANAGER_DATA_MANAGEMENT",
     "AUDIT",
-    "MANAGER_ACCOUNTS",
     "GM_FINANCE",
     "DIRECTOR_ADMISSIONS",
     "DIRECTOR_RESEARCH",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "CHIEF_DIRECTOR",
     "CHAIRMAN",
 ]
@@ -41,7 +40,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "HEAD_OF_INSTITUTION",
         "CHAIRMAN_OFFICE",
         "HR_HEAD",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHIEF_DIRECTOR",
         "CHAIRMAN",
     ],
@@ -52,8 +51,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "MMA",
         "AUDIT",
-        "MANAGER_ACCOUNTS",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "ADMIN_IT": [
@@ -63,9 +61,8 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "MANAGER_DATA_MANAGEMENT",
         "AUDIT",
-        "MANAGER_ACCOUNTS",
         "DIRECTOR_ADMISSIONS",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "ADMIN_MAINTENANCE": [
@@ -75,8 +72,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "MMA",
         "AUDIT",
-        "MANAGER_ACCOUNTS",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHIEF_DIRECTOR",
         "CHAIRMAN",
     ],
@@ -87,7 +83,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "CHAIRMAN_OFFICE",
         "AUDIT",
         "GM_FINANCE",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "ACADEMIC_NON_FINANCE": [
@@ -95,7 +91,7 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "ACCOUNTANT",
         "HEAD_OF_INSTITUTION",
         "CHAIRMAN_OFFICE",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHAIRMAN",
     ],
     "RESEARCH": [
@@ -104,9 +100,8 @@ CATEGORY_STAGE_SEQUENCES: dict[str, list[str]] = {
         "HEAD_OF_INSTITUTION",
         "CHAIRMAN_OFFICE",
         "AUDIT",
-        "MANAGER_ACCOUNTS",
         "DIRECTOR_RESEARCH",
-        "DEAN_ADMIN",
+        "DIRECTOR_ADMIN",
         "CHIEF_DIRECTOR",
         "CHAIRMAN",
     ],
@@ -212,6 +207,8 @@ DEPARTMENT_SHORTFORMS: dict[str, str] = {
     "Physical Education": "PE",
     "Counselling": "COUN",
     "Management Studies": "MS",
+    "MBA": "MBA",
+    "BBA": "BBA",
     "Others": "OTH",
 }
 
@@ -285,6 +282,15 @@ def get_next_stage(category: str | None, current_stage: str | None) -> str | Non
     if index >= len(seq) - 1:
         return None
     return seq[index + 1]
+
+
+def skip_hoi_stage(category: str | None, next_stage: str | None, is_hoi_created: bool) -> str | None:
+    """Requests created by a Head of Institution skip the HEAD_OF_INSTITUTION stage.
+    OTHER is the exception: it ends at HOI, who must re-route it to a real
+    category, so that stage is kept."""
+    if is_hoi_created and next_stage == "HEAD_OF_INSTITUTION" and category != "OTHER":
+        return get_next_stage(category, "HEAD_OF_INSTITUTION")
+    return next_stage
 
 
 def is_institution_scoped(stage: str | None) -> bool:

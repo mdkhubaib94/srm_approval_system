@@ -8,6 +8,7 @@ Mon-Sat). SLA warning fires once on crossing the 7-hour mark; SLA breach at
 every user responsible for the request's current stage.
 """
 
+from app.users.constants import institutions_for, same_institution
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -38,7 +39,7 @@ async def find_responsible_users(db: AsyncSession, request: Request) -> list[Use
 
     stmt = select(User).where(User.role.in_(allowed_roles))
     if request.stage in INSTITUTION_SCOPED_STAGES:
-        stmt = stmt.where(User.institution == request.institution)
+        stmt = stmt.where(User.institution.in_(institutions_for(request.institution, request.stage)))
 
     try:
         result = await db.execute(stmt)

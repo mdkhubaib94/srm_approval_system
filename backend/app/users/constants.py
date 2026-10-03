@@ -10,7 +10,7 @@ INSTITUTIONS: list[str] = [
     "SRM Nightingale School",
     "Others",
     # Sentinel for central roles that are not scoped to a single institution
-    # (Chairman Office, Audit, Deans, etc.). Signup sends this when the
+    # (Chairman Office, Audit, Director Admin, etc.). Signup sends this when the
     # selected role does not require a college.
     "COMMON",
 ]
@@ -81,4 +81,35 @@ DEPARTMENTS: list[str] = [
     "Physical Education",
     "Counselling",
     "Management Studies",
+    "MBA",
+    "BBA",
 ]
+
+
+# Institutions whose users of a given role form one shared pool: a pooled user
+# can see/act on requests from every institution in their group. Roles not
+# listed here (and institutions outside any group) stay scoped to their own
+# institution.
+_DENTAL_AND_SRMIST = {"SRMIST - E&T", "SRMIST - FSH", "SRMIST - Management", "SRMIST - SEAD", "DENTAL"}
+INSTITUTION_GROUPS: dict[str, list[set[str]]] = {
+    "INSTITUTION_MANAGER": [
+        {"SRMIST - E&T", "SRMIST - SEAD"},
+        {"SRMIST - Management", "SRMIST - FSH"},
+    ],
+    "ACCOUNTANT": [
+        _DENTAL_AND_SRMIST,
+        {"EEC", "SRM Nightingale School"},
+    ],
+}
+
+
+def institutions_for(institution: str | None, role: str | None) -> list[str | None]:
+    """Institutions whose records `role` at `institution` may handle."""
+    for group in INSTITUTION_GROUPS.get(role or "", []):
+        if institution in group:
+            return sorted(group)
+    return [institution]
+
+
+def same_institution(a: str | None, b: str | None, role: str | None) -> bool:
+    return b in institutions_for(a, role)

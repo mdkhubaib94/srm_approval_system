@@ -11,11 +11,10 @@ const STAGE_DISPLAY_NAMES = {
   MMA: 'MMA',
   MANAGER_DATA_MANAGEMENT: 'Manager Data Mgmt',
   AUDIT: 'Audit',
-  MANAGER_ACCOUNTS: 'Manager Accounts',
   GM_FINANCE: 'GM Finance',
   DIRECTOR_ADMISSIONS: 'Director Admissions',
   DIRECTOR_RESEARCH: 'Director Research',
-  DEAN_ADMIN: 'Dean Admin',
+  DIRECTOR_ADMIN: 'Director Admin',
   CHIEF_DIRECTOR: 'Chief Director',
   CHAIRMAN: 'Chairman',
 };
@@ -24,11 +23,14 @@ const STAGE_DISPLAY_NAMES = {
  * Build workflow steps for the given requestCategory.
  * Always starts with REQUESTER, then the category-specific sequence.
  */
-const getWorkflowSteps = (requestCategory) => {
+const getWorkflowSteps = (requestCategory, isHoiCreated = false) => {
   const seq = CATEGORY_STAGE_SEQUENCES[requestCategory] || [];
   return [
     { id: 'REQUESTER', name: STAGE_DISPLAY_NAMES.REQUESTER },
-    ...seq.map((stage) => ({
+    ...seq
+      // HOI-created requests skip the Head of Institution stage (OTHER keeps it: HOI re-routes it).
+      .filter((stage) => !(isHoiCreated && requestCategory !== 'OTHER' && stage === 'HEAD_OF_INSTITUTION'))
+      .map((stage) => ({
       id: stage,
       name: STAGE_DISPLAY_NAMES[stage] || stage,
     })),
@@ -53,7 +55,7 @@ const getStatusBadgeClass = (stepId, isCurrent, isCompleted) => {
 export default function ApprovalWorkflow({ request }) {
   if (!request) return null;
 
-  const workflowSteps = getWorkflowSteps(request.requestCategory);
+  const workflowSteps = getWorkflowSteps(request.requestCategory, request.isHoiCreated);
   const currentStage = request.stage || 'REQUESTER';
   const currentStatusIndex = workflowSteps.findIndex((step) => step.id === currentStage);
 

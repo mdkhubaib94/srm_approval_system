@@ -19,7 +19,8 @@ import { useAuth } from "../../context/AuthContext";
 import { getRequests } from "../../api/requests.api";
 import { getQueries } from "../../api/queries.api";
 import { getPolicies } from "../../api/policies.api";
-import styles from "./Dashboard.module.css";
+import styles from "./Dashboard.module.css";
+import { sameInstitution } from "../../utils/institutionGroups";
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -81,7 +82,7 @@ export default function DashboardPage() {
     if (INSTITUTION_SCOPED_STAGES.includes(currentUser?.role)) {
       return requests.filter((r) => 
         r.stage === currentUser?.role && 
-        r.institution === currentUser?.institution &&
+        sameInstitution(r.institution, currentUser?.institution, currentUser?.role) &&
         r.status === "PENDING"
       ).length;
     }
@@ -107,8 +108,8 @@ export default function DashboardPage() {
     // For HOI - count total policies they created (all statuses)
     if (currentUser?.role === "HEAD_OF_INSTITUTION") {
       return policies.length; // Total policies created by this HOI
-    } else if (currentUser?.role === "DEAN_ADMIN") {
-      return policies.filter((p) => p.stage === "DEAN_ADMIN" && p.policyApprovalStatus === "PENDING").length;
+    } else if (currentUser?.role === "DIRECTOR_ADMIN") {
+      return policies.filter((p) => p.stage === "DIRECTOR_ADMIN" && p.policyApprovalStatus === "PENDING").length;
     } else if (currentUser?.role === "CHAIRMAN") {
       return policies.filter((p) => p.stage === "CHAIRMAN" && p.policyApprovalStatus === "PENDING").length;
     } else {
@@ -189,12 +190,12 @@ export default function DashboardPage() {
   };
 
   // Policies are authored by HEAD_OF_INSTITUTION and approved up the
-  // CHAIRMAN_OFFICE -> DEAN_ADMIN -> CHAIRMAN chain; nobody else acts on
+  // CHAIRMAN_OFFICE -> DIRECTOR_ADMIN -> CHAIRMAN chain; nobody else acts on
   // them, so the tile is hidden from every other role.
   const POLICY_TILE_ROLES = [
     "CHAIRMAN",
     "CHAIRMAN_OFFICE",
-    "DEAN_ADMIN",
+    "DIRECTOR_ADMIN",
     "HEAD_OF_INSTITUTION",
   ];
 
@@ -263,7 +264,7 @@ export default function DashboardPage() {
             description:
               currentUser?.role === "HEAD_OF_INSTITUTION"
                 ? "View all policies you have created"
-                : ["DEAN_ADMIN", "CHAIRMAN"].includes(currentUser?.role)
+                : ["DIRECTOR_ADMIN", "CHAIRMAN"].includes(currentUser?.role)
                   ? "View policies awaiting your approval"
                   : "View policies in the system",
           },

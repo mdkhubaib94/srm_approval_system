@@ -30,11 +30,10 @@ const ALL_ROLES = [
   "MMA",
   "MANAGER_DATA_MANAGEMENT",
   "AUDIT",
-  "MANAGER_ACCOUNTS",
   "GM_FINANCE",
   "DIRECTOR_ADMISSIONS",
   "DIRECTOR_RESEARCH",
-  "DEAN_ADMIN",
+  "DIRECTOR_ADMIN",
   "CHIEF_DIRECTOR",
   "CHAIRMAN",
 ];
@@ -67,11 +66,10 @@ const ROLE_LABELS = {
   MMA: "MMA",
   MANAGER_DATA_MANAGEMENT: "Manager - Data Management",
   AUDIT: "Audit",
-  MANAGER_ACCOUNTS: "Manager - Accounts",
   GM_FINANCE: "GM Finance",
   DIRECTOR_ADMISSIONS: "Director - Admissions",
   DIRECTOR_RESEARCH: "Director - Research",
-  DEAN_ADMIN: "Dean Admin",
+  DIRECTOR_ADMIN: "Director Admin",
   CHIEF_DIRECTOR: "Chief Director",
   CHAIRMAN: "Chairman",
 };
@@ -83,7 +81,7 @@ const allowedRolesFor = (role) => {
   if (role === "CHAIRMAN") return [...ALL_ROLES];
   if (role === "HEAD_OF_INSTITUTION")
     return ["REQUESTER", "INSTITUTION_MANAGER", "ACCOUNTANT"];
-  if (role === "CHAIRMAN_OFFICE" || role === "DEAN_ADMIN")
+  if (role === "CHAIRMAN_OFFICE" || role === "DIRECTOR_ADMIN")
     return ALL_ROLES.filter((r) => r !== "CHAIRMAN" && r !== role);
   return [];
 };
@@ -469,7 +467,9 @@ function UsersTable({ users, onEdit, onDelete }) {
 
 // ─── Manage-users modal (large, scrollable) ─────────────────────────────────────
 
-function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose, deleteError }) {
+function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose, deleteError, showInstitutionFilter }) {
+  const [institutionFilter, setInstitutionFilter] = useState("");
+  const visibleUsers = institutionFilter ? users.filter((u) => u.institution === institutionFilter) : users;
   return (
     <div className={styles.overlay} onMouseDown={onClose}>
       <div className={styles.modalWide} onMouseDown={(e) => e.stopPropagation()}>
@@ -486,14 +486,24 @@ function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, 
               {allowed.map((r) => <option key={r} value={r}>{label(r)}</option>)}
             </select>
           </label>
-          <span className={styles.count}>{users.length} user{users.length === 1 ? "" : "s"}</span>
+          {showInstitutionFilter && (
+            <label className={styles.filterLabel}>
+              Filter by institution:
+              <select className={styles.inputSm} value={institutionFilter}
+                onChange={(e) => setInstitutionFilter(e.target.value)}>
+                <option value="">All</option>
+                {INSTITUTIONS.map((i) => <option key={i} value={i}>{i}</option>)}
+              </select>
+            </label>
+          )}
+          <span className={styles.count}>{visibleUsers.length} user{visibleUsers.length === 1 ? "" : "s"}</span>
         </div>
         {deleteError && <div className={styles.inlineError}>{deleteError}</div>}
         <div className={styles.wideBody}>
           {loading ? (
             <div className={styles.empty}>Loading…</div>
           ) : (
-            <UsersTable users={users} onEdit={onEdit} onDelete={onDelete} />
+            <UsersTable users={visibleUsers} onEdit={onEdit} onDelete={onDelete} />
           )}
         </div>
       </div>
@@ -512,7 +522,7 @@ const HOI_TABS = [
 function UserManagementContent() {
   const { user } = useAuth();
 
-  const managerRoles = ["HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "DEAN_ADMIN", "CHAIRMAN"];
+  const managerRoles = ["HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "DIRECTOR_ADMIN", "CHAIRMAN"];
   const isHoi = user?.role === "HEAD_OF_INSTITUTION";
   const allowed = allowedRolesFor(user?.role);
 
@@ -707,6 +717,7 @@ function UserManagementContent() {
           onEdit={(u) => setModal({ mode: "edit", initial: u })}
           onDelete={requestDelete}
           deleteError={deleteError}
+          showInstitutionFilter={user?.role !== "HEAD_OF_INSTITUTION"}
           onClose={() => setShowManage(false)}
         />
       )}

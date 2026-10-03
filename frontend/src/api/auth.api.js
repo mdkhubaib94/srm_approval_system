@@ -2,7 +2,6 @@ import api, { sessionApi } from "./client";
 
 export const login = (email, password) => sessionApi.post("/login", { email, password });
 
-export const register = (payload) => api.post("/auth/register", payload);
 
 export const logout = () => sessionApi.post("/logout");
 

@@ -27,7 +27,7 @@ import { getFlagged } from "../api/flagged.api";
 
 import styles from "./NavigationPane.module.css";
 
-const PUBLIC_ROUTES = ["/", "/login", "/signup", "/forgot-password"];
+const PUBLIC_ROUTES = ["/", "/login", "/forgot-password"];
 
 export default function NavigationPane({ children }) {
   const navigate = useNavigate();
@@ -85,18 +85,18 @@ export default function NavigationPane({ children }) {
           setQueryCount(0);
         }
 
-        // Fetch policies count - only for DEAN_ADMIN and CHAIRMAN
-        if (user?.role === "DEAN_ADMIN" || user?.role === "CHAIRMAN") {
+        // Fetch policies count - only for DIRECTOR_ADMIN and CHAIRMAN
+        if (user?.role === "DIRECTOR_ADMIN" || user?.role === "CHAIRMAN") {
           try {
             const policiesResponse = await getPolicies();
             const policies = policiesResponse.data?.data || [];
             
             let pendingPolicies = 0;
             
-            if (user?.role === "DEAN_ADMIN") {
-              // Count policies at DEAN_ADMIN stage with PENDING status
+            if (user?.role === "DIRECTOR_ADMIN") {
+              // Count policies at DIRECTOR_ADMIN stage with PENDING status
               pendingPolicies = policies.filter(p => 
-                p.stage === "DEAN_ADMIN" && p.policyApprovalStatus === "PENDING"
+                p.stage === "DIRECTOR_ADMIN" && p.policyApprovalStatus === "PENDING"
               ).length;
             } else if (user?.role === "CHAIRMAN") {
               // Count policies at CHAIRMAN stage with PENDING status
@@ -183,7 +183,7 @@ export default function NavigationPane({ children }) {
       href: "/requests",
       icon: ClipboardDocumentListIcon,
     },
-    user?.role === "REQUESTER" && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION"].includes(user?.role) && {
       name: "Create Requests",
       href: "/create-request",
       icon: DocumentPlusIcon,
@@ -194,7 +194,7 @@ export default function NavigationPane({ children }) {
       icon: Squares2X2Icon,
     },
     { name: "Queries", href: "/queries", icon: ClockIcon },
-    ["HEAD_OF_INSTITUTION", "DEAN_ADMIN", "CHAIRMAN"].includes(user?.role) && {
+    ["HEAD_OF_INSTITUTION", "DIRECTOR_ADMIN", "CHAIRMAN"].includes(user?.role) && {
       name: "Policies",
       href: "/policies",
       icon: DocumentTextIcon,
@@ -204,7 +204,7 @@ export default function NavigationPane({ children }) {
       href: "/create-policy",
       icon: DocumentArrowUpIcon,
     },
-    ["REQUESTER", "INSTITUTION_MANAGER", "CHAIRMAN_OFFICE"].includes(user?.role) && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION", "INSTITUTION_MANAGER", "CHAIRMAN_OFFICE"].includes(user?.role) && {
       name: "SOPs",
       href: "/sops",
       icon: BookOpenIcon,
@@ -219,17 +219,17 @@ export default function NavigationPane({ children }) {
       href: "/flagged",
       icon: FlagIcon,
     },
-    ["DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"].includes(user?.role) && {
+    ["DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"].includes(user?.role) && {
       name: "Workflow",
       href: "/workflow",
       icon: ArrowPathIcon,
     },
-    ["REQUESTER", "HEAD_OF_INSTITUTION", "DEAN_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"].includes(user?.role) && {
+    ["REQUESTER", "HEAD_OF_INSTITUTION", "DIRECTOR_ADMIN", "CHIEF_DIRECTOR", "CHAIRMAN"].includes(user?.role) && {
       name: "Completion Status",
       href: "/completion-status",
       icon: CheckBadgeIcon,
     },
-    ["HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "DEAN_ADMIN", "CHAIRMAN"].includes(user?.role) && {
+    ["HEAD_OF_INSTITUTION", "CHAIRMAN_OFFICE", "DIRECTOR_ADMIN", "CHAIRMAN"].includes(user?.role) && {
       name: "User Management",
       href: "/user-management",
       icon: UsersIcon,

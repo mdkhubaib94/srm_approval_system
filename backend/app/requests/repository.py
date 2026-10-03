@@ -1,6 +1,7 @@
 """Raw persistence operations for the Requests domain (including the
 polymorphic detail rows and the shared indent tables)."""
 
+from app.users.constants import institutions_for, same_institution
 from sqlalchemy import or_, select
 from sqlalchemy import update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -50,7 +51,7 @@ async def get_request_by_lookup(db: AsyncSession, value: str | None) -> Request 
 async def list_stage_users(db: AsyncSession, stage: str, *, institution: str | None = None) -> list[User]:
     stmt = select(User).where(User.role == stage)
     if institution is not None:
-        stmt = stmt.where(User.institution == institution)
+        stmt = stmt.where(User.institution.in_(institutions_for(institution, stage)))
     result = await db.execute(stmt)
     return result.scalars().all()
 

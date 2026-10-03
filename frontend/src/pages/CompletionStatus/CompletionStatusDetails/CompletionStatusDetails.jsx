@@ -10,7 +10,7 @@ import { useAuth } from '../../../context/AuthContext';
 import LoadingScreen from '../../../common/LoadingScreen';
 import styles from './CompletionStatusDetails.module.css';
 
-const ADMIN_ROLES = ['DEAN_ADMIN', 'CHIEF_DIRECTOR', 'CHAIRMAN', 'CHAIRMAN_OFFICE'];
+const ADMIN_ROLES = ['DIRECTOR_ADMIN', 'CHIEF_DIRECTOR', 'CHAIRMAN', 'CHAIRMAN_OFFICE'];
 
 export default function CompletionDetailPage() {
   const navigate = useNavigate();
@@ -238,7 +238,13 @@ export default function CompletionDetailPage() {
   };
 
   const isRequester = () => {
-    return currentUser?.role === 'REQUESTER';
+    if (currentUser?.role === 'REQUESTER') return true;
+    // A Head of Institution acts like the requester only on requests they created themselves.
+    return (
+      currentUser?.role === 'HEAD_OF_INSTITUTION' &&
+      completed?.request?.isHoiCreated === true &&
+      String(completed?.request?.requester?.id) === String(currentUser?.id)
+    );
   };
 
   const isAdminRole = () => {

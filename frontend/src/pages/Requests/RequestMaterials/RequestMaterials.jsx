@@ -8,7 +8,8 @@ import { useAuth } from "../../../context/AuthContext";
 import { INDENT_CAPABLE_MODELS } from "../../../utils/types";
 import { downloadIndentPdf } from "../../../utils/indentPdf";
 import LoadingScreen from "../../../common/LoadingScreen";
-import styles from "./RequestMaterials.module.css";
+import styles from "./RequestMaterials.module.css";
+import { sameInstitution } from "../../../utils/institutionGroups";
 const rowKey = (row) => row?._id || row?.serialNumber;
 
 const formatRequestType = (detailsModel) => {
@@ -144,7 +145,7 @@ export default function MaterialsRequirementPage() {
     request?.stage === currentUser.role &&
     currentUser.role !== 'REQUESTER' &&
     (!['INSTITUTION_MANAGER', 'ACCOUNTANT', 'HEAD_OF_INSTITUTION'].includes(currentUser.role) ||
-      request?.institution === currentUser.institution);
+      sameInstitution(request?.institution, currentUser.institution, currentUser.role));
 
   const fullEditMode = isCurrentStageHolder;
   const displayIndentNumber = request?.details?.indentNumber;
