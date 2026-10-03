@@ -1,5 +1,5 @@
 import { Suspense, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 import PasswordInput from "../../common/PasswordInput";
 import SRMRMP_Logo from "../../assets/SRMRMP_LOGO.png";
@@ -18,7 +18,11 @@ function LoginContent() {
 
   const message = searchParams.get("message");
 
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
+
+  // Already signed in (session restored from the refresh cookie): skip the form.
+  if (authLoading) return <div className={styles.loadingFallback}>Loading...</div>;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

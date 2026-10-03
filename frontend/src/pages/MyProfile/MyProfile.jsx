@@ -1,7 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { getMyProfile, updateMyProfile } from "../../api/profile.api";
+import {
+  getMyProfile,
+  updateMyProfile,
+  verifyMyPassword,
+  changeMyPassword,
+} from "../../api/profile.api";
+import ChangePasswordModal from "../../common/ChangePasswordModal";
 import ProtectedRoute from "../../common/ProtectedRoute";
 import LoadingScreen from "../../common/LoadingScreen";
 import styles from "./MyProfile.module.css";
@@ -9,7 +14,7 @@ const formatRole = (role) =>
   role === "REQUESTER" ? "HEAD OF DEPARTMENT" : (role || "").replace(/_/g, " ");
 
 function MyProfileContent() {
-  const navigate = useNavigate();
+  const [showPw, setShowPw] = useState(false);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -122,16 +127,30 @@ function MyProfileContent() {
       <div className={styles.card}>
         <h2 className={styles.sectionTitle}>Password</h2>
         <p className={styles.help}>
-          Reset your password via an OTP sent to your email ({profile.email}).
+          Change your password by confirming your current one first.
         </p>
         <button
           type="button"
           className={styles.resetBtn}
-          onClick={() => navigate("/forgot-password")}
+          onClick={() => setShowPw(true)}
         >
           Reset Password
         </button>
       </div>
+
+      {showPw && (
+        <ChangePasswordModal
+          requireCurrent
+          onVerifyCurrent={verifyMyPassword}
+          onSubmit={changeMyPassword}
+          onClose={() => setShowPw(false)}
+          onDone={() => {
+            setShowPw(false);
+            setErr("");
+            setMsg("Password changed successfully.");
+          }}
+        />
+      )}
     </div>
   );
 }

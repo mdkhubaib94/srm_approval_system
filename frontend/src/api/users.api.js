@@ -9,3 +9,5 @@ export const bulkCreateUsers = (payload) => api.post("/users/bulk", payload);
 export const updateUser = (id, payload) => api.patch(`/users/${id}`, payload);
 
 export const deleteUser = (id) => api.delete(`/users/${id}`);
+
+export const setUserPassword = (id, newPassword) => api.post(`/users/${id}/password`, { newPassword });

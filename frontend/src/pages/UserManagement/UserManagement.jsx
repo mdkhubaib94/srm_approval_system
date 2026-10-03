@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { getUsers, createUser, bulkCreateUsers, updateUser, deleteUser } from "../../api/users.api";
+import { getUsers, createUser, bulkCreateUsers, updateUser, deleteUser, setUserPassword } from "../../api/users.api";
 import { PencilSquareIcon, TrashIcon, UsersIcon } from "@heroicons/react/24/outline";
 import ConfirmModal from "../../common/ConfirmModal";
+import ChangePasswordModal from "../../common/ChangePasswordModal";
 import { useAuth } from "../../context/AuthContext";
 import ProtectedRoute from "../../common/ProtectedRoute";
 import NestedSelect from "../../common/NestedSelect";
@@ -44,6 +45,7 @@ const SCOPED_ROLES = [
   "ACCOUNTANT",
   "HEAD_OF_INSTITUTION",
 ];
+
 
 const INSTITUTIONS = [
   "SRMIST - E&T",
@@ -296,10 +298,14 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [showPwModal, setShowPwModal] = useState(false);
+  const [pwChanged, setPwChanged] = useState(false);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const scoped = isScoped(form.role);
   const showInstitution = scoped && !isHoi;
+  // When editing, an admin can move any user to another institution; HOI stays locked to their own.
+  const showInstitutionField = isEdit ? !isHoi : showInstitution;
   const showDepartment = form.role === "REQUESTER";
   const deptSource = isHoi ? deptInstitution : form.institution || initial?.institution;
 
@@ -309,9 +315,8 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
     setError("");
     try {
       if (isEdit) {
-        const body = { name: form.name, email: form.email, phone: form.phone };
-        if (showInstitution) body.institution = form.institution;
-        if (showDepartment) body.department = form.department;
+        const body = { name: form.name, email: form.email, phone: form.phone, department: form.department };
+        if (showInstitutionField) body.institution = form.institution;
         const { data } = await updateUser(initial._id, body);
         onSaved(data);
       } else {
@@ -335,6 +340,7 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
   };
 
   return (
+    <>
     <div className={styles.overlay} onMouseDown={onClose}>
       <div className={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
         <h3 className={styles.modalTitle}>{isEdit ? "Edit user" : "Add user"}</h3>
@@ -372,17 +378,25 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
             </label>
           )}
 
-          {showInstitution && (
+          {showInstitutionField && (
             <label className={styles.mLabel}>Institution
               <select className={styles.input} value={form.institution}
-                onChange={(e) => set("institution", e.target.value)} required>
-                <option value="">Select institution</option>
+                onChange={(e) => set("institution", e.target.value)} required={scoped}>
+                <option value="">{scoped ? "Select institution" : "None"}</option>
                 {INSTITUTIONS.map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
             </label>
           )}
 
-          {showDepartment && (
+          {isEdit && (
+            <label className={styles.mLabel}>Department
+              <input className={styles.input} value={form.department}
+                onChange={(e) => set("department", e.target.value)}
+                required={showDepartment} placeholder="Department" />
+            </label>
+          )}
+
+          {!isEdit && showDepartment && (
             <div className={styles.mLabel}>Department
               <NestedSelect
                 value={form.department}
@@ -397,6 +411,17 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
             <p className={styles.note}>Default password: <code>123456</code></p>
           )}
 
+          {isEdit && (
+            <div className={styles.mLabel}>Password
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <button type="button" className={styles.ghostBtn} onClick={() => setShowPwModal(true)}>
+                  Change password
+                </button>
+                {pwChanged && <span className={styles.note}>Password changed.</span>}
+              </div>
+            </div>
+          )}
+
           <div className={styles.actionsRow}>
             <button type="submit" className={styles.primaryBtn} disabled={busy}>
               {busy ? "Saving…" : isEdit ? "Save changes" : "Create user"}
@@ -406,6 +431,18 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
         </form>
       </div>
     </div>
+    {showPwModal && (
+      <ChangePasswordModal
+        subtitle={`Enter the new password for ${initial?.name || "this user"} twice.`}
+        onSubmit={(_current, newPassword) => setUserPassword(initial._id, newPassword)}
+        onClose={() => setShowPwModal(false)}
+        onDone={() => {
+          setShowPwModal(false);
+          setPwChanged(true);
+        }}
+      />
+    )}
+    </>
   );
 }
 
@@ -469,7 +506,13 @@ function UsersTable({ users, onEdit, onDelete }) {
 
 function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, onEdit, onDelete, onClose, deleteError, showInstitutionFilter }) {
   const [institutionFilter, setInstitutionFilter] = useState("");
-  const visibleUsers = institutionFilter ? users.filter((u) => u.institution === institutionFilter) : users;
+  const [search, setSearch] = useState("");
+  const query = search.trim().toLowerCase();
+  const visibleUsers = users.filter((u) => {
+    if (institutionFilter && u.institution !== institutionFilter) return false;
+    if (!query) return true;
+    return [u.name, u.employeeID, u.email, u.phone].some((v) => (v || "").toLowerCase().includes(query));
+  });
   return (
     <div className={styles.overlay} onMouseDown={onClose}>
       <div className={styles.modalWide} onMouseDown={(e) => e.stopPropagation()}>
@@ -478,6 +521,16 @@ function ManageUsersModal({ users, loading, roleFilter, setRoleFilter, allowed, 
           <button className={styles.closeX} onClick={onClose} aria-label="Close">×</button>
         </div>
         <div className={styles.wideToolbar}>
+          <label className={styles.filterLabel}>
+            Search:
+            <input
+              type="search"
+              className={styles.inputSm}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Name, employee ID, email or phone"
+            />
+          </label>
           <label className={styles.filterLabel}>
             Filter by role:
             <select className={styles.inputSm} value={roleFilter}

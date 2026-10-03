@@ -5,7 +5,16 @@ from app.auth.dependencies import CurrentUser, get_current_user, require_roles
 from app.core.rbac import USER_MANAGER_ROLES
 from app.db.session import get_db
 from app.users import service
-from app.users.schemas import BulkCreateUsersIn, CreateUserIn, UpdateMeIn, UpdateUserIn, UserOut
+from app.users.schemas import (
+    BulkCreateUsersIn,
+    ChangeMyPasswordIn,
+    CreateUserIn,
+    SetUserPasswordIn,
+    UpdateMeIn,
+    UpdateUserIn,
+    UserOut,
+    VerifyMyPasswordIn,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -108,6 +117,20 @@ async def update_user(
         _raise(exc)
 
 
+@router.post("/{user_id:int}/password")
+async def set_user_password(
+    user_id: int,
+    body: SetUserPasswordIn,
+    current_user: CurrentUser = Depends(require_roles(*USER_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await service.set_user_password(db, current_user, user_id, new_password=body.new_password)
+    except service.UsersServiceError as exc:
+        _raise(exc)
+    return {"message": "Password changed", "id": user_id}
+
+
 @router.delete("/{user_id:int}")
 async def delete_user(
     user_id: int,
@@ -134,3 +157,31 @@ async def update_me(
         return await service.update_me(db, current_user, phone=body.phone, department=body.department)
     except service.UsersServiceError as exc:
         _raise(exc)
+
+
+@router.post("/me/verify-password")
+async def verify_my_password(
+    body: VerifyMyPasswordIn,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await service.verify_my_password(db, current_user, current_password=body.current_password)
+    except service.UsersServiceError as exc:
+        _raise(exc)
+    return {"message": "Password verified"}
+
+
+@router.post("/me/change-password")
+async def change_my_password(
+    body: ChangeMyPasswordIn,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await service.change_my_password(
+            db, current_user, current_password=body.current_password, new_password=body.new_password
+        )
+    except service.UsersServiceError as exc:
+        _raise(exc)
+    return {"message": "Password changed"}

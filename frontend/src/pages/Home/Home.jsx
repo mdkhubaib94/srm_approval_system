@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import srmLogo from "../../assets/SRMRMP_LOGO.png";
 import styles from "./Home.module.css";
 
 export default function HomePage() {
+  const { user, loading: authLoading } = useAuth();
   const [backgroundImages] = useState([
     "/images/easwari-engineering-college.jpeg",
     "/images/srm-dental-college.jpeg",
@@ -20,6 +22,9 @@ export default function HomePage() {
     }, 5000);
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
+
+  // Already signed in (session restored from the refresh cookie): go straight in.
+  if (!authLoading && user) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className={styles.container}>

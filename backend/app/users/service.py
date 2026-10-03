@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import CurrentUser
 from app.core.rbac import allowed_roles_for, is_institution_scoped_role
-from app.core.security import hash_password
+from app.core.security import MIN_PASSWORD_LENGTH, hash_password, verify_password
 from app.users import repository as repo
 from app.users.constants import INSTITUTIONS
 from app.users.models import User
@@ -268,15 +268,20 @@ async def update_user(
             target.email = new_email
 
     # Institution: HoI cannot change it (locked to own). Others may, for scoped roles.
-    if institution is not None and current_user.role != "HEAD_OF_INSTITUTION" and is_institution_scoped_role(target.role):
+    if institution is not None and current_user.role != "HEAD_OF_INSTITUTION":
         inst = norm(institution)
         if inst and inst not in INSTITUTIONS:
             raise UsersServiceError(400, f"Invalid institution: {inst}")
+        if not inst and is_institution_scoped_role(target.role):
+            raise UsersServiceError(400, "Institution is required for this role.")
         target.institution = inst
 
-    # Department: only meaningful for requesters (free-text).
-    if department is not None and target.role == "REQUESTER":
-        target.department = norm(department)
+    # Department: free text, any role. Requesters must keep one.
+    if department is not None:
+        dept = norm(department)
+        if not dept and target.role == "REQUESTER":
+            raise UsersServiceError(400, "Department is required for requesters.")
+        target.department = dept
 
     await repo.commit(db)
     await repo.refresh(db, target)
@@ -309,3 +314,44 @@ async def update_me(db: AsyncSession, current_user: CurrentUser, *, phone: str |
     await repo.commit(db)
     await repo.refresh(db, user)
     return user
+
+
+def _validate_new_password(new_password: str) -> None:
+    if len(new_password) < MIN_PASSWORD_LENGTH:
+        raise UsersServiceError(400, f"Password must be at least {MIN_PASSWORD_LENGTH} characters long")
+
+
+async def verify_my_password(db: AsyncSession, current_user: CurrentUser, *, current_password: str) -> None:
+    user = await repo.get_user_by_id(db, current_user.id)
+    if user is None:
+        raise UsersServiceError(404, "User not found")
+    if not verify_password(current_password, user.password_hash):
+        raise UsersServiceError(400, "Current password is incorrect.")
+
+
+async def change_my_password(db: AsyncSession, current_user: CurrentUser, *, current_password: str, new_password: str) -> None:
+    user = await repo.get_user_by_id(db, current_user.id)
+    if user is None:
+        raise UsersServiceError(404, "User not found")
+    if not verify_password(current_password, user.password_hash):
+        raise UsersServiceError(400, "Current password is incorrect.")
+    _validate_new_password(new_password)
+    if verify_password(new_password, user.password_hash):
+        raise UsersServiceError(400, "New password must be different from the current password.")
+
+    user.password_hash = hash_password(new_password)
+    await repo.commit(db)
+
+
+async def set_user_password(db: AsyncSession, current_user: CurrentUser, user_id: int, *, new_password: str) -> None:
+    target = await repo.get_user_by_id(db, user_id)
+    if target is None:
+        raise UsersServiceError(404, "User not found")
+    if not can_manage_target(current_user.role, current_user.institution, target.role, target.institution):
+        raise UsersServiceError(403, "You cannot manage this user.")
+    _validate_new_password(new_password)
+
+    target.password_hash = hash_password(new_password)
+    # Sign the target out everywhere � their old password may be compromised.
+    target.token_version = (target.token_version or 0) + 1
+    await repo.commit(db)

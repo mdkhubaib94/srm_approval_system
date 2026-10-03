@@ -54,3 +54,22 @@ class UpdateUserIn(BaseModel):
     phone: str | None = None
     institution: str | None = None
     department: str | None = None
+
+
+class ChangeMyPasswordIn(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    current_password: str = Field(alias="currentPassword")
+    new_password: str = Field(alias="newPassword")
+
+
+class VerifyMyPasswordIn(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    current_password: str = Field(alias="currentPassword")
+
+
+class SetUserPasswordIn(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    new_password: str = Field(alias="newPassword")
