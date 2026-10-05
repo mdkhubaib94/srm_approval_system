@@ -1,5 +1,9 @@
+import asyncio
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+from alembic import command
+from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -29,11 +33,19 @@ settings = get_settings()
 configure_logging(settings)
 
 
+def _run_migrations() -> None:
+    backend_dir = Path(__file__).resolve().parent.parent
+    alembic_cfg = AlembicConfig(str(backend_dir / "alembic.ini"))
+    command.upgrade(alembic_cfg, "head")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Apply pending schema changes before serving traffic or starting jobs.
+    # Alembic's async environment owns its event loop, so run it in a thread.
+    await asyncio.to_thread(_run_migrations)
     # Pre-load the local embedding model so the first AI search isn't slow,
-    # then start the SLA/overdue/SOP-indexing background jobs. Port of
-    # server.js's connectDB().then(...) startup sequence.
+    # then start the SLA/overdue/SOP-indexing background jobs.
     warm_up_embeddings()
     start_scheduler()
     yield
