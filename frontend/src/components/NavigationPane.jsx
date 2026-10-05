@@ -17,6 +17,7 @@ import {
   UserCircleIcon,
   XMarkIcon,
   Bars3Icon,
+  BookmarkSquareIcon,
 } from "@heroicons/react/24/outline";
 import SRMRMP_Logo from "../assets/SRMRMP_LOGO.png";
 import { useAuth } from "../context/AuthContext";
@@ -238,7 +239,13 @@ export default function NavigationPane({ children }) {
       name: "My Profile",
       href: "/my-profile",
       icon: UserCircleIcon,
-    }
+    },
+    {
+      name: "User Manual",
+      href: "/SRM_PRIME_User_Manual.pdf",
+      icon: BookmarkSquareIcon,
+      external: true,
+    },
   ].filter(Boolean);
 
   const isActiveRoute = (href) =>
@@ -290,8 +297,26 @@ export default function NavigationPane({ children }) {
             aria-label="Primary navigation"
           >
             {navigation.map((item) => {
-              const isActive = isActiveRoute(item.href);
+              const isActive = !item.external && isActiveRoute(item.href);
               const Icon = item.icon;
+
+              if (item.external) {
+                // Static PDF served from /public; opens in a new tab so the
+                // user keeps their place in the app.
+                return (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${styles.navLink} ${styles.navLinkInactive}`}
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    <Icon className={`${styles.navIcon} ${styles.navIconInactive}`} />
+                    <span className="flex-1">{item.name}</span>
+                  </a>
+                );
+              }
               
               // Determine badge count and style for each navigation item
               let badgeCount = 0;
