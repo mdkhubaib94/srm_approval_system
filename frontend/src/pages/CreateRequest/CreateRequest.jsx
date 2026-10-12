@@ -41,20 +41,15 @@ import {
 // uploaded, viewed and downloaded.
 const FILE_ACCEPT = `application/pdf,${SPREADSHEET_ACCEPT}`;
 
-const NO_SPECIAL_CHARS_REGEX = /^[a-zA-Z0-9\s_-]*$/;
-const NO_SPECIAL_CHARS_MESSAGE = "Only letters, numbers, spaces, - and _ are allowed";
-
 const CreateRequestSchema = z.object({
   title: z
     .string()
     .min(5, { message: "Title must be at least 5 characters" })
-    .trim()
-    .regex(NO_SPECIAL_CHARS_REGEX, { message: NO_SPECIAL_CHARS_MESSAGE }),
+    .trim(),
   purpose: z
     .string()
     .min(10, { message: "Purpose must be at least 10 characters" })
-    .trim()
-    .regex(NO_SPECIAL_CHARS_REGEX, { message: NO_SPECIAL_CHARS_MESSAGE }),
+    .trim(),
   costEstimate: z
     .number()
     .nonnegative({ message: "Cost estimate cannot be negative" })
@@ -306,24 +301,12 @@ export default function CreateRequestPage() {
         message: "Title must be at least 5 characters",
       });
       hasErrors = true;
-    } else if (!NO_SPECIAL_CHARS_REGEX.test(data.title)) {
-      setFieldError("title", {
-        type: "manual",
-        message: NO_SPECIAL_CHARS_MESSAGE,
-      });
-      hasErrors = true;
     }
 
     if (!data.purpose || data.purpose.trim().length < 10) {
       setFieldError("purpose", {
         type: "manual",
         message: "Purpose must be at least 10 characters",
-      });
-      hasErrors = true;
-    } else if (!NO_SPECIAL_CHARS_REGEX.test(data.purpose)) {
-      setFieldError("purpose", {
-        type: "manual",
-        message: NO_SPECIAL_CHARS_MESSAGE,
       });
       hasErrors = true;
     }
@@ -682,11 +665,6 @@ export default function CreateRequestPage() {
                       type: "manual",
                       message: "Title must be at least 5 characters",
                     });
-                  } else if (value.length > 0 && !NO_SPECIAL_CHARS_REGEX.test(value)) {
-                    setFieldError("title", {
-                      type: "manual",
-                      message: NO_SPECIAL_CHARS_MESSAGE,
-                    });
                   }
                 }}
                 className={`${styles.input} ${errors.title ? styles.inputError : ""}`}
@@ -714,11 +692,6 @@ export default function CreateRequestPage() {
                     setFieldError("purpose", {
                       type: "manual",
                       message: "Purpose must be at least 10 characters",
-                    });
-                  } else if (value.length > 0 && !NO_SPECIAL_CHARS_REGEX.test(value)) {
-                    setFieldError("purpose", {
-                      type: "manual",
-                      message: NO_SPECIAL_CHARS_MESSAGE,
                     });
                   }
                 }}
@@ -793,6 +766,7 @@ export default function CreateRequestPage() {
                     }}
                     options={departmentOptions}
                     placeholder="Select Department"
+                    searchable
                     error={errors.department?.message}
                     disabled={!college}
                   />

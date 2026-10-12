@@ -290,7 +290,7 @@ export default function BudgetVerificationModal({ request, isOpen, onClose, onSu
                 <div className={styles.fileInfo}>
                   <p className={styles.fileTypes}>Supported file types:</p>
                   <p className={styles.fileTypes}>Documents: PDF only</p>
-                  <p className={styles.fileTypes}>Maximum file size: 10MB per file</p>
+                  <p className={styles.fileTypes}>PDF files only</p>
                 </div>
               </div>
 

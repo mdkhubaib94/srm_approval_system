@@ -28,7 +28,6 @@ export default function QueryDetailPage() {
   const dragCounter = useRef(0);
 
   const MAX_ATTACHMENTS = 10;
-  const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 
   const formatFileSize = (bytes) => {
     if (!bytes && bytes !== 0) return '';
@@ -82,10 +81,6 @@ export default function QueryDetailPage() {
     for (const file of picked) {
       if (file.type !== 'application/pdf') {
         toast.error(`"${file.name}" is not a PDF and was skipped.`);
-        continue;
-      }
-      if (file.size > MAX_ATTACHMENT_SIZE) {
-        toast.error(`"${file.name}" exceeds the 10MB limit and was skipped.`);
         continue;
       }
       accepted.push(file);
@@ -513,7 +508,7 @@ export default function QueryDetailPage() {
                         )}
                       </p>
                       <p className={styles.dropzoneHint}>
-                        PDF only, up to 10MB each · shows up on this query and the related request
+                        PDF only · shows up on this query and the related request
                       </p>
                     </div>
 

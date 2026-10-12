@@ -11,11 +11,13 @@ export default function NestedSelect({
   className,
   dropUp = false,
   disabled = false,
+  searchable = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredOption, setHoveredOption] = useState(null);
   const containerRef = useRef(null);
   const [subMenuPos, setSubMenuPos] = useState(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -24,6 +26,7 @@ export default function NestedSelect({
         !containerRef.current.contains(event.target)
       ) {
         setIsOpen(false);
+        setQuery("");
       }
     };
 
@@ -35,6 +38,7 @@ export default function NestedSelect({
     onChange(val);
     setIsOpen(false);
     setHoveredOption(null);
+    setQuery("");
   };
 
   const handleMouseEnter = (event, uniqueKey) => {
@@ -55,6 +59,21 @@ export default function NestedSelect({
     }
     return opt;
   };
+
+  // While searching, nested groups are flattened so a match inside a submenu is
+  // directly selectable; the group name is kept as context.
+  const searchTerm = searchable ? query.trim().toLowerCase() : "";
+  const searchResults = searchTerm
+    ? options.flatMap((rawOpt) => {
+        const opt = normalizeOption(rawOpt);
+        if (opt.subOptions?.length) {
+          return opt.subOptions
+            .filter((sub) => sub.label.toLowerCase().includes(searchTerm))
+            .map((sub) => ({ ...sub, group: opt.label }));
+        }
+        return opt.value && opt.label.toLowerCase().includes(searchTerm) ? [opt] : [];
+      })
+    : null;
 
   return (
     <div className={`${styles.container} ${className}`} ref={containerRef}>
@@ -78,8 +97,36 @@ export default function NestedSelect({
         <div
           className={`${styles.dropdown} ${dropUp ? styles.dropdownDropup : styles.dropdownDropdown}`}
         >
+          {searchable && (
+            <div className={styles.searchWrapper}>
+              <input
+                type="text"
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search..."
+                className={styles.searchInput}
+              />
+            </div>
+          )}
           <div className={styles.scrollWrapper}>
-            {options.map((rawOpt) => {
+            {searchResults && searchResults.length === 0 && (
+              <div className={styles.noResults}>No matches found</div>
+            )}
+            {searchResults
+              ? searchResults.map((opt) => (
+                  <div
+                    key={`${opt.group || ""}-${opt.value}`}
+                    className={`${styles.option} ${value === opt.value ? styles.optionSelected : ""}`}
+                    onClick={() => handleSelect(opt.value)}
+                  >
+                    <span className={styles.optionLabel}>
+                      {opt.label}
+                      {opt.group && <span className={styles.groupHint}> · {opt.group}</span>}
+                    </span>
+                  </div>
+                ))
+              : options.map((rawOpt) => {
               const opt = normalizeOption(rawOpt);
               const hasSub = !!opt.subOptions && opt.subOptions.length > 0;
               const uniqueKey = opt.label; // Assuming generic labels are unique enough for key

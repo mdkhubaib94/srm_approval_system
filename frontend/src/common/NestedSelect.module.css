@@ -52,6 +52,22 @@
   @apply mt-1;
 }
 
+.searchWrapper {
+  @apply px-2 pb-1 pt-1;
+}
+
+.searchInput {
+  @apply w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none;
+}
+
+.noResults {
+  @apply py-2 px-3 text-sm text-gray-500;
+}
+
+.groupHint {
+  @apply text-xs text-gray-400;
+}
+
 .scrollWrapper {
   @apply max-h-60 overflow-y-auto;
 }

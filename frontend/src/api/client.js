@@ -143,6 +143,17 @@ api.interceptors.response.use(
     const original = error.config;
     const status = error.response?.status;
 
+    // 413 can come from nginx (an HTML body) or the API (JSON). Normalise it so
+    // every upload form shows the same readable message instead of a raw
+    // "Request failed with status code 413".
+    if (status === 413) {
+      const message =
+        "The files you are uploading are too large. Please remove or compress some files and try again.";
+      error.message = message;
+      error.response.data = { message };
+      return Promise.reject(error);
+    }
+
     // Only 401 means "your token is missing/expired". 403 is a genuine
     // permission denial and must not trigger a refresh. The refresh call itself
     // runs on `sessionApi`, which has no interceptor, so it cannot recurse here.

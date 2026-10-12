@@ -2,8 +2,8 @@
 `express.json({ limit: "200kb" })` / `express.urlencoded({ limit: "200kb" })`.
 
 Only applies to JSON/form-urlencoded bodies — multipart/form-data (file
-uploads) has its own limits enforced in app/files/validation.py
-(10MB/file, 20 files/request), same layering as the source (multer's own
+uploads) has no size limit (only a 20 files/request cap in
+app/files/validation.py), same layering as the source (multer's own
 limits, separate from the body-parser cap that would otherwise reject an
 upload outright).
 """
