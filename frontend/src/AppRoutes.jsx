@@ -23,6 +23,7 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import RequestMaterials from "./pages/Requests/RequestMaterials/RequestMaterials";
 import NavigationPane from "./components/NavigationPane";
+import Footer from "./common/Footer";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -53,6 +54,7 @@ function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </NavigationPane>
+      <Footer />
     </BrowserRouter>
   );
 }
