@@ -59,7 +59,13 @@ async def login(db: AsyncSession, *, credential: str, password: str, rate_limit_
         login_limiter.record_failure(rate_limit_key)
         raise AuthServiceError(401, GENERIC_LOGIN_FAILURE)
 
-    if not verify_password(password, user.password_hash):
+    # Tolerate accidental leading/trailing whitespace: try the password exactly
+    # as typed first (in case it genuinely contains spaces), then trimmed.
+    stripped = password.strip()
+    password_ok = verify_password(password, user.password_hash) or (
+        stripped != password and bool(stripped) and verify_password(stripped, user.password_hash)
+    )
+    if not password_ok:
         login_limiter.record_failure(rate_limit_key)
         raise AuthServiceError(401, GENERIC_LOGIN_FAILURE)
 
