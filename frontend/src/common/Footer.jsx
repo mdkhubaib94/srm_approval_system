@@ -13,7 +13,7 @@ export default function Footer() {
 
   return (
     <footer className={`${BASE} ${layout}`}>
-      © 2026 SRM PRIME Approval System. All rights reserved.
+      © 2026 SRM Group of Institutions. All rights reserved.
     </footer>
   );
 }
