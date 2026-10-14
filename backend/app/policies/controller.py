@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import CurrentUser, get_current_user
+from app.core.multipart import parse_staged_file_refs
 from app.db.session import get_db
 from app.policies import service
 
@@ -31,11 +32,12 @@ async def create_policy(
     description: str = Form(...),
     cost: float | None = Form(None),
     attachments: list[UploadFile] = File(default=[]),
+    attachment_file_ids: str | None = Form(None, alias="attachmentFileIds"),
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        return await service.create_policy(db, current_user, title=title, description=description, cost=cost, files=attachments)
+        return await service.create_policy(db, current_user, title=title, description=description, cost=cost, files=[*attachments, *parse_staged_file_refs(attachment_file_ids)])
     except service.PolicyServiceError as exc:
         _raise(exc)
 

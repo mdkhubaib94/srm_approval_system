@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { processRequest } from '../api/requests.api';
+import { appendStagedFiles } from '../api/files.api';
+import { getApiErrorMessage } from '../utils/apiError';
 import GeneralProcessingForm from './GeneralProcessingForm';
 import RejectReasonModal from '../common/RejectReasonModal';
 import SuccessModal from '../common/SuccessModal';
@@ -64,14 +66,12 @@ export default function ProcessRequestModal({ request, isOpen, onClose, onSucces
       }
 
       // Handle attachments array from GeneralProcessingForm
-      if (formData.attachments && formData.attachments.length > 0) {
-        formData.attachments.forEach((file) => {
-          submitData.append('attachments', file);
-        });
-      }
+      // Documents are uploaded one per request first, so the action itself
+      // carries only ids and no body is large enough to hit a proxy limit (413).
+      await appendStagedFiles(submitData, formData.attachments || []);
 
-      // Submit to backend - let axios auto-detect Content-Type for FormData
-      const response = await processRequest(request._id || request.requestID, submitData);
+      const requestRef = request._id || request.requestID;
+      const response = await processRequest(requestRef, submitData);
 
       if (response.data.success) {
         if (formData.attachments && formData.attachments.length > 0) {
@@ -98,9 +98,7 @@ export default function ProcessRequestModal({ request, isOpen, onClose, onSucces
       }
     } catch (err) {
       console.error('Error processing request:', err);
-      const errorMsg = err.response?.data?.message ||
-        err.message ||
-        'Failed to process request';
+      const errorMsg = getApiErrorMessage(err, 'Failed to process request');
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {

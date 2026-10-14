@@ -8,8 +8,24 @@ either-or behavior parse the raw request with this helper instead of
 declaring Form/File parameters.
 """
 
-from fastapi import Request, UploadFile
+import json
+
+from fastapi import HTTPException, Request, UploadFile
 from starlette.datastructures import UploadFile as StarletteUploadFile
+
+from app.files.validation import StagedFileRef
+
+
+def parse_staged_file_refs(raw) -> list[StagedFileRef]:
+    """`attachmentFileIds`: ids from POST /uploads/stage, as a JSON list (JSON
+    body) or a JSON-encoded string (multipart field)."""
+    if raw in (None, ""):
+        return []
+    try:
+        ids = json.loads(raw) if isinstance(raw, str) else raw
+        return [StagedFileRef(int(i)) for i in ids]
+    except (TypeError, ValueError):
+        raise HTTPException(400, "attachmentFileIds must be a list of uploaded file ids")
 
 
 async def parse_form_or_json(request: Request) -> tuple[dict, list[UploadFile]]:
@@ -32,12 +48,12 @@ async def parse_form_or_json(request: Request) -> tuple[dict, list[UploadFile]]:
                 files.append(value)
             else:
                 fields[key] = value
+        files.extend(parse_staged_file_refs(fields.get("attachmentFileIds")))
         return fields, files
 
     body = await request.body()
     if not body:
         return {}, []
-    import json
-
     parsed = json.loads(body)
-    return (parsed if isinstance(parsed, dict) else {}), []
+    fields = parsed if isinstance(parsed, dict) else {}
+    return fields, parse_staged_file_refs(fields.get("attachmentFileIds"))

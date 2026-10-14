@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { processRequest } from '../api/requests.api';
+import { appendStagedFiles } from '../api/files.api';
+import { getApiErrorMessage } from '../utils/apiError';
 import CostEstimateInput from './CostEstimateInput';
 import SuccessModal from '../common/SuccessModal';
 import styles from './BudgetVerificationModal.module.css';
@@ -91,13 +93,12 @@ export default function BudgetVerificationModal({ request, isOpen, onClose, onSu
       submitData.append('budgetAvailable', formData.finalBudgetStatus === 'available' ? 'true' : 'false');
       submitData.append('comments', formData.comments || 'Budget verification completed');
       
-      // Add file attachments
-      formData.attachments.forEach((file) => {
-        submitData.append('attachments', file);
-      });
+      // Documents are uploaded one per request first, so the action itself
+      // carries only ids and no body is large enough to hit a proxy limit (413).
+      await appendStagedFiles(submitData, formData.attachments || []);
 
-      // Submit to backend
-      const response = await processRequest(request._id || request.requestID, submitData);
+      const requestRef = request._id || request.requestID;
+      const response = await processRequest(requestRef, submitData);
 
       if (response.data.success) {
         if (formData.attachments.length > 0) {
@@ -115,9 +116,7 @@ export default function BudgetVerificationModal({ request, isOpen, onClose, onSu
       }
     } catch (err) {
       console.error('Error processing budget verification:', err);
-      const errorMsg = err.response?.data?.message ||
-        err.message ||
-        'Failed to complete budget verification';
+      const errorMsg = getApiErrorMessage(err, 'Failed to complete budget verification');
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {

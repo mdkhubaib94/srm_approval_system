@@ -127,3 +127,65 @@ async def test_dedicated_upload_endpoint_appends_attachment_for_owner(client, db
         await db_session.execute(select(RequestAttachment).where(RequestAttachment.request_id == created["id"]))
     ).scalars().all()
     assert len(count) == 2  # original creation attachment + the new one
+
+
+async def test_request_can_be_created_from_staged_files_only(client, db_session):
+    import json
+
+    from sqlalchemy import select
+
+    from app.files.models import RequestAttachment
+    from tests.api_helpers import MOU_PAYLOAD
+
+    await make_user(db_session, employee_id="FIL110", email="req.fil10@example.com", role="REQUESTER", institution="EEC", department="Physics")
+    token = await login(client, "req.fil10@example.com")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    ids = []
+    for name in ("a.pdf", "b.pdf"):
+        staged = await client.post("/uploads/stage", files=[pdf_upload(name)], headers=headers)
+        assert staged.status_code == 201, staged.text
+        ids.append(staged.json()["fileId"])
+
+    resp = await client.post(
+        "/requests",
+        data={
+            "title": "Staged upload",
+            "department": "Physics",
+            "details_model": "MouDetail",
+            "details_payload": json.dumps(MOU_PAYLOAD),
+            "attachmentFileIds": json.dumps(ids),
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 201, resp.text
+
+    rows = (await db_session.execute(select(RequestAttachment).where(RequestAttachment.request_id == resp.json()["id"]))).scalars().all()
+    assert sorted(r.file_id for r in rows) == sorted(ids)
+
+
+async def test_staged_file_of_another_user_cannot_be_attached(client, db_session):
+    import json
+
+    from tests.api_helpers import MOU_PAYLOAD
+
+    await make_user(db_session, employee_id="FIL111", email="owner.fil11@example.com", role="REQUESTER", institution="EEC", department="Physics")
+    await make_user(db_session, employee_id="FIL112", email="thief.fil11@example.com", role="REQUESTER", institution="EEC", department="Physics")
+    owner = await login(client, "owner.fil11@example.com")
+    thief = await login(client, "thief.fil11@example.com")
+
+    staged = await client.post("/uploads/stage", files=[pdf_upload()], headers={"Authorization": f"Bearer {owner}"})
+    file_id = staged.json()["fileId"]
+
+    resp = await client.post(
+        "/requests",
+        data={
+            "title": "Stolen file",
+            "department": "Physics",
+            "details_model": "MouDetail",
+            "details_payload": json.dumps(MOU_PAYLOAD),
+            "attachmentFileIds": json.dumps([file_id]),
+        },
+        headers={"Authorization": f"Bearer {thief}"},
+    )
+    assert resp.status_code == 400

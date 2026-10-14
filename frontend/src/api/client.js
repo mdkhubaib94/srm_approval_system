@@ -1,4 +1,5 @@
 import axios from "axios";
+import { FILE_TOO_LARGE_MESSAGE } from "../utils/apiError";
 
 /**
  * Every API call goes through this app's own origin under `/api`, which a
@@ -147,10 +148,8 @@ api.interceptors.response.use(
     // every upload form shows the same readable message instead of a raw
     // "Request failed with status code 413".
     if (status === 413) {
-      const message =
-        "The files you are uploading are too large. Please remove or compress some files and try again.";
-      error.message = message;
-      error.response.data = { message };
+      error.message = FILE_TOO_LARGE_MESSAGE;
+      error.response.data = { message: FILE_TOO_LARGE_MESSAGE };
       return Promise.reject(error);
     }
 

@@ -10,6 +10,8 @@ import LoadingScreen from "../../common/LoadingScreen";
 import CostEstimateInput from "../../components/CostEstimateInput";
 import ConfirmModal from "../../common/ConfirmModal";
 import styles from "./CreatePolicy.module.css";
+import { appendStagedFiles } from "../../api/files.api";
+import { getApiErrorMessage } from "../../utils/apiError";
 export default function CreatePolicyPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -141,10 +143,8 @@ export default function CreatePolicyPage() {
       submitData.append("description", formData.description.trim());
       submitData.append("cost", formData.cost || "");
 
-      // Append files
-      selectedFiles.forEach((file) => {
-        submitData.append("attachments", file);
-      });
+      // Documents are uploaded one per request first; the form carries only ids.
+      await appendStagedFiles(submitData, selectedFiles);
 
       const response = await createPolicy(submitData);
 
@@ -157,11 +157,7 @@ export default function CreatePolicyPage() {
       }
     } catch (err) {
       console.error("Submission error:", err);
-      const errMsg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Failed to create policy";
+      const errMsg = getApiErrorMessage(err, "Failed to create policy");
       setError(errMsg);
       toast.error(errMsg);
       window.scrollTo({ top: 0, behavior: "smooth" });

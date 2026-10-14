@@ -19,6 +19,19 @@ def _raise(exc: service.FilesServiceError):
     raise HTTPException(status_code=exc.status_code, detail=exc.message)
 
 
+@router.post("/stage", status_code=201)
+async def stage_file(
+    http_request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    _fields, files = await parse_form_or_json(http_request)
+    try:
+        return await service.stage_uploaded_file(db, current_user, files)
+    except service.FilesServiceError as exc:
+        _raise(exc)
+
+
 @router.post("/requests/{request_id}/attachments")
 async def upload_request_attachments(
     request_id: int,

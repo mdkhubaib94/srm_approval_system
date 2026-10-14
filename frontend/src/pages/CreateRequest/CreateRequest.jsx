@@ -5,7 +5,9 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createRequest } from "../../api/requests.api";
+import { appendStagedFiles } from "../../api/files.api";
 import { openInNewTab } from "../../utils/safeOpen";
+import { getApiErrorMessage } from "../../utils/apiError";
 import { REQUEST_CATEGORY_LABELS, DETAILS_MODEL_DEFAULT_CATEGORY, GENERAL_CATEGORY_DEFAULT_CATEGORY, INDENT_CAPABLE_MODELS } from "../../utils/types";
 import { useAuth } from "../../context/AuthContext";
 import ProtectedRoute from "../../common/ProtectedRoute";
@@ -41,6 +43,9 @@ import {
 // uploaded, viewed and downloaded.
 const FILE_ACCEPT = `application/pdf,${SPREADSHEET_ACCEPT}`;
 
+// Mirrors MAX_FILES_PER_REQUEST in backend/app/files/validation.py.
+const MAX_ATTACHMENTS = 20;
+
 const CreateRequestSchema = z.object({
   title: z
     .string()
@@ -59,7 +64,10 @@ const CreateRequestSchema = z.object({
   detailsModel: z.string().min(1, { message: "Request Type is required" }),
   attachments: z
     .array(z.any())
-    .min(1, { message: "At least one document is required" }),
+    .min(1, { message: "At least one document is required" })
+    .max(MAX_ATTACHMENTS, {
+      message: `You can attach at most ${MAX_ATTACHMENTS} documents per request. Please remove some documents.`,
+    }),
 }).passthrough();
 
 // True when the user has actually typed/selected something worth keeping
@@ -429,26 +437,22 @@ export default function CreateRequestPage() {
 
       formData.append("detailsPayload", JSON.stringify(detailsPayload));
 
-      // Append files matching field "attachments" in the backend
-      selectedFiles.forEach(({ file }) => {
-        formData.append("attachments", file);
-      });
+      // Documents are uploaded one per request first, so the create call
+      // carries only ids and no body is large enough to hit a proxy limit
+      // (413). Staged ids are remembered per file, so a retry after a failed
+      // submit does not re-upload anything.
+      await appendStagedFiles(formData, selectedFiles.map(({ file }) => file));
 
       const response = await createRequest(formData);
-
       const result = response.data;
       console.log("[DEBUG] Request created successfully:", result.requestID);
+
       clearDraft();
       setRedirecting(true);
       navigate(`/requests/${result.requestID}`);
     } catch (err) {
       console.error("[DEBUG] Submission error:", err);
-      const errMsg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Failed to create request";
-      setError(errMsg);
+      setError(getApiErrorMessage(err));
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsSubmitting(false);
@@ -487,13 +491,41 @@ export default function CreateRequestPage() {
       else rejected.push(file);
     }
 
+    // Enforce the per-request document cap here so users hear about it when they
+    // pick files, not after a failed upload. Spreadsheets count too — each one
+    // becomes a PDF attachment.
+    const remaining = Math.max(0, MAX_ATTACHMENTS - selectedFiles.length);
+    const accepted = picked.filter((f) => !rejected.includes(f)).length;
+    const overflow = Math.max(0, accepted - remaining);
+    if (overflow > 0) {
+      let slots = remaining;
+      const keep = (list) =>
+        list.filter(() => {
+          if (slots <= 0) return false;
+          slots -= 1;
+          return true;
+        });
+      const keptPdfs = keep(pdfs);
+      const keptSheets = keep(spreadsheets);
+      pdfs.splice(0, pdfs.length, ...keptPdfs);
+      spreadsheets.splice(0, spreadsheets.length, ...keptSheets);
+    }
+
+    const messages = [];
     if (rejected.length) {
-      setError(
+      messages.push(
         `Only PDF and Excel files are allowed. Skipped: ${rejected.map((f) => f.name).join(", ")}`
       );
-    } else {
-      setError(null);
     }
+    if (overflow > 0) {
+      messages.push(
+        `A maximum of ${MAX_ATTACHMENTS} documents can be attached per request. ` +
+          (remaining === 0
+            ? "Remove a document before adding more."
+            : `Only ${remaining} more could be added, so ${overflow} ${overflow === 1 ? "file was" : "files were"} not added.`)
+      );
+    }
+    setError(messages.length ? messages.join(" ") : null);
 
     if (pdfs.length) {
       commitAttachments(pdfs.map((file) => ({ file, convertedFrom: null })));

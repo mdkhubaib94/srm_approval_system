@@ -9,7 +9,7 @@ from app.db.helpers import get_with_options
 from app.files.access import can_access_file
 from app.files.models import StoredFile
 from app.files.storage import save_bytes
-from app.files.validation import MAX_FILES_PER_REQUEST, InvalidUploadError, assert_pdf
+from app.files.validation import MAX_FILES_PER_REQUEST, InvalidUploadError, StagedFileRef, assert_pdf
 from app.files import repository as repo
 from app.requests.access import can_attach_to_request, can_view_request
 from app.requests.models import Request, RequestActionHistory
@@ -30,16 +30,32 @@ async def store_uploaded_files(db: AsyncSession, files: list[UploadFile], *, upl
     any of them is written to permanent storage.
     """
     if len(files) > MAX_FILES_PER_REQUEST:
-        raise InvalidUploadError(f"No more than {MAX_FILES_PER_REQUEST} files are allowed.")
+        raise InvalidUploadError(
+            f"You attached {len(files)} documents, but a maximum of {MAX_FILES_PER_REQUEST} "
+            "documents is allowed per request. Please remove some and try again."
+        )
+
+    inline = [f for f in files if not isinstance(f, StagedFileRef)]
+    staged_ids = [f.file_id for f in files if isinstance(f, StagedFileRef)]
+    if len(set(staged_ids)) != len(staged_ids):
+        raise InvalidUploadError("The same document was attached more than once.")
+
+    staged: dict[int, StoredFile] = {}
+    for file_id in staged_ids:
+        record = await repo.get_stored_file_by_id(db, file_id)
+        # Only the uploader's own staged documents may be attached.
+        if record is None or record.uploaded_by_id != uploaded_by_id:
+            raise InvalidUploadError("An uploaded document could not be found. Please upload it again.")
+        staged[file_id] = record
 
     contents: list[bytes] = []
-    for f in files:
+    for f in inline:
         content = await f.read()
         assert_pdf(f.filename or "", f.content_type, content)
         contents.append(content)
 
-    stored: list[StoredFile] = []
-    for f, content in zip(files, contents):
+    stored_inline: list[StoredFile] = []
+    for f, content in zip(inline, contents):
         path_on_disk = save_bytes(content)
         record = StoredFile(
             path_on_disk=path_on_disk,
@@ -49,10 +65,27 @@ async def store_uploaded_files(db: AsyncSession, files: list[UploadFile], *, upl
             uploaded_by_id=uploaded_by_id,
         )
         repo.add_stored_file(db, record)
-        stored.append(record)
+        stored_inline.append(record)
+
+    # Preserve the caller's order across inline and staged documents.
+    inline_iter = iter(stored_inline)
+    stored = [staged[f.file_id] if isinstance(f, StagedFileRef) else next(inline_iter) for f in files]
 
     await repo.flush(db)
     return stored
+
+
+async def stage_uploaded_file(db: AsyncSession, current_user: CurrentUser, files: list[UploadFile]) -> dict:
+    """Store one PDF without attaching it to anything yet. The client then
+    references the returned id when it submits the real form."""
+    if len(files) != 1:
+        raise FilesServiceError(400, "Upload exactly one document per call.")
+    try:
+        stored = await store_uploaded_files(db, files, uploaded_by_id=current_user.id)
+    except InvalidUploadError as exc:
+        raise FilesServiceError(400, str(exc)) from exc
+    await repo.commit(db)
+    return {"fileId": stored[0].id, "filename": stored[0].original_filename}
 
 
 async def upload_request_attachments(

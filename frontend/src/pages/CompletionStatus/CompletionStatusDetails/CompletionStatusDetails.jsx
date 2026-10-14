@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getCompletedById, setExpectedCompletion, submitActualCompletion } from '../../../api/completionStatus.api';
-import { downloadFile } from '../../../api/files.api';
+import { downloadFile, appendStagedFiles } from '../../../api/files.api';
 import { openInNewTab } from '../../../utils/safeOpen';
 import { useAuth } from '../../../context/AuthContext';
 import LoadingScreen from '../../../common/LoadingScreen';
 import styles from './CompletionStatusDetails.module.css';
+import { getApiErrorMessage } from '../../../utils/apiError';
 
 const ADMIN_ROLES = ['DIRECTOR_ADMIN', 'CHIEF_DIRECTOR', 'CHAIRMAN', 'CHAIRMAN_OFFICE'];
 
@@ -181,17 +182,11 @@ export default function CompletionDetailPage() {
 
       if (status === 'completed') {
         formData.append('completionDate', actualCompletionDate);
-        // Attach files if any
-        attachments.forEach((file) => {
-          formData.append('attachments', file);
-        });
       } else {
         formData.append('reasonForPending', reasonForPending);
-        // Attach files for pending status too
-        attachments.forEach((file) => {
-          formData.append('attachments', file);
-        });
       }
+      // Documents are uploaded one per request first; the form carries only ids.
+      await appendStagedFiles(formData, attachments);
       
       const response = await submitActualCompletion(id, formData);
       
@@ -205,7 +200,7 @@ export default function CompletionDetailPage() {
       }
     } catch (err) {
       console.error('Error updating completion status:', err);
-      toast.error(err.response?.data?.message || 'Failed to update completion status');
+      toast.error(getApiErrorMessage(err, 'Failed to update completion status'));
     } finally {
       setSubmittingCompletion(false);
     }

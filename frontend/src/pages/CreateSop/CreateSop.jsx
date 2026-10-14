@@ -10,6 +10,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import LoadingScreen from "../../common/LoadingScreen";
 import ConfirmModal from "../../common/ConfirmModal";
 import styles from "./CreateSop.module.css";
+import { appendStagedFiles } from "../../api/files.api";
+import { getApiErrorMessage } from "../../utils/apiError";
 export default function CreateSopPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -156,9 +158,8 @@ export default function CreateSopPage() {
       submitData.append("title", formData.title.trim());
       submitData.append("description", formData.description.trim());
 
-      selectedFiles.forEach((file) => {
-        submitData.append("attachments", file);
-      });
+      // Documents are uploaded one per request first; the form carries only ids.
+      await appendStagedFiles(submitData, selectedFiles);
 
       const response = await createSop(submitData);
 
@@ -172,11 +173,7 @@ export default function CreateSopPage() {
       }
     } catch (err) {
       console.error("Submission error:", err);
-      const errMsg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Failed to create SOP";
+      const errMsg = getApiErrorMessage(err, "Failed to create SOP");
       setError(errMsg);
       toast.error(errMsg);
       window.scrollTo({ top: 0, behavior: "smooth" });

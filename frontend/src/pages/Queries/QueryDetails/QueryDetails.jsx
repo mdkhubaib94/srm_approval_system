@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { getQueryById, updateQuery } from '../../../api/queries.api';
-import { downloadFile } from '../../../api/files.api';
+import { downloadFile, appendStagedFiles } from '../../../api/files.api';
+import { getApiErrorMessage } from '../../../utils/apiError';
 import { openInNewTab } from '../../../utils/safeOpen';
 import { buildQueryAttachmentFilename } from '../../../utils/downloadNaming';
 import { useAuth } from '../../../context/AuthContext';
@@ -202,7 +203,8 @@ export default function QueryDetailPage() {
         payload = new FormData();
         payload.append('queryReply', queryReply.trim());
         payload.append('queryResolved', 'true');
-        replyFiles.forEach((file) => payload.append('attachments', file));
+        // Documents are uploaded one per request first; the form carries only ids.
+        await appendStagedFiles(payload, replyFiles);
       } else {
         payload = {
           queryReply: queryReply.trim(),
@@ -230,10 +232,7 @@ export default function QueryDetailPage() {
       }
     } catch (err) {
       console.error('Error submitting reply:', err);
-      const errorMsg = err.response?.data?.message ||
-        err.message ||
-        'Failed to submit reply';
-      toast.error(errorMsg);
+      toast.error(getApiErrorMessage(err, 'Failed to submit reply'));
     } finally {
       setSubmitting(false);
     }
