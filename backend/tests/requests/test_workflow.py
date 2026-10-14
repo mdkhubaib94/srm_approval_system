@@ -267,3 +267,21 @@ def test_academic_finance_always_includes_director_admissions():
     assert CATEGORY_STAGE_SEQUENCES["ACADEMIC_FINANCE"][-4:] == ["GM_FINANCE", "DIRECTOR_ADMISSIONS", "DIRECTOR_ADMIN", "CHAIRMAN"]
     assert get_next_stage("ACADEMIC_FINANCE", "GM_FINANCE") == "DIRECTOR_ADMISSIONS"
     assert get_next_stage("ACADEMIC_FINANCE", "DIRECTOR_ADMISSIONS") == "DIRECTOR_ADMIN"
+
+
+async def test_requester_cannot_forward_their_own_request_past_approvers(client, db_session):
+    await make_user(db_session, employee_id="WF108", email="req.wf5@example.com", role="REQUESTER", institution="EEC", department="Physics")
+
+    token = await _login(client, "req.wf5@example.com")
+    created = await _create_mou_request(client, token)
+    request_id = created["requestID"]
+
+    resp = await client.patch(
+        f"/requests/{request_id}",
+        data={"action": "forwarded"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 403
+
+    detail = await client.get(f"/requests/{request_id}", headers={"Authorization": f"Bearer {token}"})
+    assert detail.json()["stage"] == "INSTITUTION_MANAGER"

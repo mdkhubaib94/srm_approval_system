@@ -20,6 +20,7 @@ from app.requests.access import (
     can_view_all_requests,
     can_view_request,
     filter_action_history_for_viewer,
+    is_stage_holder,
 )
 from app.requests.details.fields import model_to_dict, pick_model_fields
 from app.requests.details.nesting import flatten_detail_payload, nest_detail_dict
@@ -560,6 +561,13 @@ async def update_request(
             else f"You cannot act on this request while it is at the {request.stage} stage."
         )
         raise RequestServiceError(403, message)
+
+    # The owner may act on their own request (attach files, withdraw/reject),
+    # but advancing it is the current approver's call. Without this, a
+    # REQUESTER (or an HOI/IM who created the request) could forward it past
+    # every approval stage.
+    if action == "forwarded" and not is_stage_holder(current_user, request):
+        raise RequestServiceError(403, f"Only the approver at the {request.stage} stage can forward this request.")
 
     if request.status != "PENDING" and action != "created":
         raise RequestServiceError(400, "This request has already been finalized and cannot be modified.")

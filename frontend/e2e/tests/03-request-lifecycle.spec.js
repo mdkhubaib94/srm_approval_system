@@ -71,21 +71,20 @@ test.describe("Request lifecycle", () => {
     expect(after.stage).toBe("ACCOUNTANT");
   });
 
-  // KNOWN DEFECT (found by this suite, reported to the team): the request OWNER
-  // is allowed through can_act_on_request(), and the "forwarded" branch of
-  // update_request() never checks that the actor holds the current stage, so a
-  // REQUESTER can push their own request past the approvers. This test asserts
-  // the SECURE behaviour and is marked test.fail(): the suite stays green
-  // while the defect exists and goes red ("unexpected pass") the moment it is
-  // fixed, prompting removal of the annotation.
-  test("REQ-06 [KNOWN DEFECT] the requester cannot forward their own request past the approvers", async ({ request }) => {
-    test.fail(true, "Requester can advance their own request through approval stages");
+  // Regression guard for a defect found by this suite: the request owner used
+  // to be able to forward their own request past every approver.
+  test("REQ-06 the requester cannot forward their own request past the approvers", async ({ request }) => {
     const created = await createMouRequest(request, requesterToken, { title: "REQ-06 self-forward" });
     const r = await request.patch(`${API}/requests/${created.requestID}`, {
       multipart: { action: "forwarded" },
       headers: { Authorization: `Bearer ${requesterToken}` },
     });
     expect([401, 403]).toContain(r.status());
+    const detail = await request.get(`${API}/requests/${created.requestID}`, {
+      headers: { Authorization: `Bearer ${requesterToken}` },
+    });
+    const body = await detail.json();
+    expect((body.data ?? body).stage).toBe("INSTITUTION_MANAGER");
   });
 
   test("REQ-07 a user at the wrong stage cannot forward (HOI cannot act at IM stage)", async ({ request }) => {

@@ -38,12 +38,6 @@ worktree of a release commit), `E2E_PYTHON`, `E2E_API_PORT`, `E2E_FRONTEND_PORT`
 | `03-request-lifecycle` | Create (API and full UI form), list/detail, stage holder actions, forward/reject, cost-based routing, form validation |
 | `04-profile-and-content` | Profile, flow categories, empty states, all-role dashboards, unknown routes, mobile layout |
 
-## Known defect marker
-
-`REQ-06` is annotated `test.fail()`: a REQUESTER can currently forward their own
-request past the approvers. The test asserts the *secure* behaviour; once the
-backend is fixed it will report "unexpected pass" - remove the annotation then.
-
 ## Notes
 
 - Tests run serially (`workers: 1`) because they share one database.
