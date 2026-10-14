@@ -16,7 +16,6 @@ from app.files.controller import router as files_router
 from app.flagged.controller import router as flagged_router
 from app.form_configs.controller import router as form_configs_router
 from app.logging_config import configure_logging
-from app.middleware.body_size_limit import BodySizeLimitMiddleware
 from app.middleware.camel_case import CamelCaseResponseMiddleware
 from app.middleware.global_rate_limit import GlobalRateLimitMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
@@ -66,7 +65,7 @@ app = FastAPI(
 # Starlette executes the LAST-added middleware outermost, so this list is
 # written innermost-first, i.e. add_middleware() is called in the reverse of
 # request-processing order. Final order (outer to inner):
-#   TrustedProxy -> SecurityHeaders -> CORS -> GlobalRateLimit -> BodySizeLimit -> CamelCase -> routes
+#   TrustedProxy -> SecurityHeaders -> CORS -> GlobalRateLimit -> CamelCase -> routes
 #
 # TrustedProxy must be outermost so every downstream layer (in particular
 # GlobalRateLimit and the per-route limiters, which key off request.client)
@@ -79,7 +78,6 @@ app = FastAPI(
 # responses (rate-limit 429s, etc. — their bodies don't need it anyway).
 
 app.add_middleware(CamelCaseResponseMiddleware)
-app.add_middleware(BodySizeLimitMiddleware)
 app.add_middleware(GlobalRateLimitMiddleware)
 
 # credentials=True is required for the jwt/resetToken auth cookies to be sent

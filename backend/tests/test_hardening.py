@@ -23,25 +23,18 @@ async def test_health_ping_and_root_are_never_rate_limited(client):
         assert resp.status_code == 200
 
 
-async def test_oversized_json_body_is_rejected(client, db_session, monkeypatch):
-    from app.middleware import body_size_limit
-
-    # Shrink the cap so the test doesn't have to ship 100MB.
-    monkeypatch.setattr(body_size_limit, "JSON_BODY_LIMIT_BYTES", 100 * 1024)
-
+async def test_large_json_body_is_never_rejected_with_413(client, db_session):
+    """There is no app-level body size cap — large JSON must never yield 413."""
     await make_user(db_session, employee_id="HARD100", email="req.hard1@example.com", role="REQUESTER")
     token = await login(client, "req.hard1@example.com")
 
-    # Comfortably over the JSON body cap (app/middleware/body_size_limit.py)
-    # — httpx computes the real Content-Length from this payload itself, no
-    # need to fake the header.
     huge_query_text = "x" * (250 * 1024)
     resp = await client.post(
         "/queries",
         json={"request": "1", "query": huge_query_text},
         headers={"Authorization": f"Bearer {token}"},
     )
-    assert resp.status_code == 413
+    assert resp.status_code != 413
 
 
 async def test_multipart_upload_is_not_subject_to_json_body_cap(client, db_session):

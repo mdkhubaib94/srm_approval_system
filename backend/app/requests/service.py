@@ -115,6 +115,7 @@ async def create_request(
     cost_estimate: float | None,
     files: list,
     background_tasks: BackgroundTasks,
+    request_category_override: str | None = None,
 ) -> Request:
     if not files:
         raise RequestServiceError(400, "At least one attachment is required")
@@ -130,6 +131,11 @@ async def create_request(
 
     general_category = details_payload.get("generalCategory") or details_payload.get("general_category")
     request_category = derive_request_category(details_model, general_category)
+    # Only a Head of Institution may pick the approval flow themselves.
+    if request_category_override and current_user.role == "HEAD_OF_INSTITUTION":
+        if request_category_override not in REQUEST_CATEGORIES:
+            raise RequestServiceError(400, "Invalid approval category")
+        request_category = request_category_override
     if not request_category or request_category not in REQUEST_CATEGORIES:
         message = (
             "A valid generalCategory is required to determine the approval flow for General requests"

@@ -382,8 +382,11 @@ export default function CreateRequestPage() {
       formData.append("costEstimate", String(data.costEstimate ?? 0));
       formData.append("department", data.department);
       formData.append("detailsModel", data.detailsModel);
-      // requestCategory is intentionally not sent — the backend derives it
+      // For everyone except Head of Institution the backend derives the category
       // from detailsModel (+ generalCategory) and ignores any client value.
+      if (user?.role === "HEAD_OF_INSTITUTION" && data.requestCategory) {
+        formData.append("requestCategory", data.requestCategory);
+      }
       if (data.sopReference && data.sopReference.trim()) {
         formData.append("SOP", data.sopReference.trim());
       }
@@ -836,23 +839,47 @@ export default function CreateRequestPage() {
               <label className={styles.blockLabel}>
                 Approval Category
               </label>
-              <input
-                type="text"
-                readOnly
-                disabled
-                value={
-                  requestCategory
-                    ? REQUEST_CATEGORY_LABELS[requestCategory] || requestCategory
-                    : detailsModel === "GeneralDetail"
-                      ? "Select a General Category above"
-                      : "Select a Request Type above"
-                }
-                className={styles.input}
-                style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
-              />
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                Determined automatically by the selected request type and cannot be changed.
-              </p>
+              {user?.role === "HEAD_OF_INSTITUTION" ? (
+                <>
+                  <select
+                    value={requestCategory || ""}
+                    onChange={(e) => setValue("requestCategory", e.target.value, { shouldValidate: true })}
+                    className={styles.input}
+                  >
+                    <option value="" disabled>
+                      {detailsModel === "GeneralDetail"
+                        ? "Select a General Category above or choose a flow"
+                        : "Select a Request Type above or choose a flow"}
+                    </option>
+                    {Object.entries(REQUEST_CATEGORY_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                    Pre-filled from the request type; as Head of Institution you can change it to any approval flow.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={
+                      requestCategory
+                        ? REQUEST_CATEGORY_LABELS[requestCategory] || requestCategory
+                        : detailsModel === "GeneralDetail"
+                          ? "Select a General Category above"
+                          : "Select a Request Type above"
+                    }
+                    className={styles.input}
+                    style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
+                  />
+                  <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                    Determined automatically by the selected request type and cannot be changed.
+                  </p>
+                </>
+              )}
             </div>
 
             <div className={styles.colSpan2} style={{ marginBottom: '1.5rem' }}>

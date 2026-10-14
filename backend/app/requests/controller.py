@@ -73,6 +73,8 @@ async def create_request(
 
     general_category = flat_payload.get("general_category")
     request_category = derive_request_category(details_model, general_category)
+    if current_user.role == "HEAD_OF_INSTITUTION" and _field(fields, "request_category", "requestCategory") in REQUEST_CATEGORIES:
+        request_category = _field(fields, "request_category", "requestCategory")
     if not request_category or request_category not in REQUEST_CATEGORIES:
         message = (
             "A valid generalCategory is required to determine the approval flow for General requests"
@@ -105,6 +107,7 @@ async def create_request(
             cost_estimate=cost_estimate,
             files=attachments,
             background_tasks=background_tasks,
+            request_category_override=_field(fields, "request_category", "requestCategory"),
         )
     except service.RequestServiceError as exc:
         _raise(exc)
