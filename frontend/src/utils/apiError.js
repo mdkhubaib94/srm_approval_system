@@ -7,7 +7,7 @@
  */
 
 /** Size shown to users when an upload is rejected as too large (413). */
-export const MAX_FILE_SIZE_LABEL = "100 MB";
+export const MAX_FILE_SIZE_LABEL = "10 MB";
 
 export const FILE_TOO_LARGE_MESSAGE = `The upload was rejected because it is too large. Each document must be ${MAX_FILE_SIZE_LABEL} or smaller. Please compress or remove larger documents and try again.`;
 
