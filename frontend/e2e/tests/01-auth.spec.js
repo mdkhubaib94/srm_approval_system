@@ -88,9 +88,9 @@ test.describe("Auth & platform API", () => {
     expect(r.headers()["x-content-type-options"]).toBe("nosniff");
   });
 
-  test("API-05 JSON body over the 10MB cap is rejected with 413", async ({ request }) => {
+  test("API-05 JSON body over the 100MB cap is rejected with 413", async ({ request }) => {
     const r = await request.post(`${API}/auth/login`, {
-      data: { email: USERS.REQUESTER, password: "x".repeat(11 * 1024 * 1024) },
+      data: { email: USERS.REQUESTER, password: "x".repeat(101 * 1024 * 1024) },
     });
     expect(r.status()).toBe(413);
   });

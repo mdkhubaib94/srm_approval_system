@@ -33,7 +33,7 @@ worktree of a release commit), `E2E_PYTHON`, `E2E_API_PORT`, `E2E_FRONTEND_PORT`
 
 | Spec | Area |
 |---|---|
-| `01-auth` | Login (email / employee ID), bad password, route guards, session refresh, logout, API 401s, cookie flags, security headers, 10 MB body cap |
+| `01-auth` | Login (email / employee ID), bad password, route guards, session refresh, logout, API 401s, cookie flags, security headers, 100 MB body cap |
 | `02-navigation-rbac` | Sidebar per role, every top-level page renders for an allowed role, UI + API access denial |
 | `03-request-lifecycle` | Create (API and full UI form), list/detail, stage holder actions, forward/reject, cost-based routing, form validation |
 | `04-profile-and-content` | Profile, flow categories, empty states, all-role dashboards, unknown routes, mobile layout |
