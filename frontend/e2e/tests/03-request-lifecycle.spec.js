@@ -144,13 +144,18 @@ test.describe("Create Request form", () => {
     await expect(page).toHaveURL(/\/create-request/);
   });
 
-  test("FORM-02 title shorter than 5 characters is flagged on blur", async ({ page }) => {
+  test("FORM-02 short titles/purposes are accepted (no minimum length); empty is still required", async ({ page }) => {
     await uiLogin(page, USERS.REQUESTER);
     await page.goto("/create-request");
-    const title = page.getByPlaceholder("Enter request title (min 5 characters)");
+    const title = page.getByPlaceholder("Enter request title");
     await title.fill("abc");
     await title.blur();
-    await expect(page.getByText("Title must be at least 5 characters").first()).toBeVisible();
+    await page.getByPlaceholder(/Explain the purpose/).fill("ok");
+    await page.getByPlaceholder(/Explain the purpose/).blur();
+    await expect(page.getByText(/at least \d+ characters/)).toHaveCount(0);
+    await page.getByRole("button", { name: "Create Request" }).click();
+    await expect(page.getByText("Validation Errors:")).toBeVisible();
+    await expect(page.getByText(/Title:|Purpose:/)).toHaveCount(0);
   });
 
   test("FORM-03 picking a request type reveals its approval category", async ({ page }) => {
@@ -176,7 +181,7 @@ test.describe("Create Request - full UI happy path", () => {
     const control = (label, tag) =>
       page.locator(`xpath=//label[contains(normalize-space(.), "${label}")]/following-sibling::${tag}[1]`).first();
 
-    await page.getByPlaceholder("Enter request title (min 5 characters)").fill(title);
+    await page.getByPlaceholder("Enter request title").fill(title);
     await page.getByPlaceholder(/Explain the purpose/).fill("Regression test purpose for the MOU request.");
 
     // Institution (custom dropdown) then Department (searchable dropdown).

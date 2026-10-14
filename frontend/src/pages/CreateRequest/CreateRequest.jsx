@@ -49,11 +49,11 @@ const MAX_ATTACHMENTS = 20;
 const CreateRequestSchema = z.object({
   title: z
     .string()
-    .min(5, { message: "Title must be at least 5 characters" })
+    .min(1, { message: "Title is required" })
     .trim(),
   purpose: z
     .string()
-    .min(10, { message: "Purpose must be at least 10 characters" })
+    .min(1, { message: "Purpose is required" })
     .trim(),
   costEstimate: z
     .number()
@@ -303,18 +303,18 @@ export default function CreateRequestPage() {
     let hasErrors = false;
 
     // Manual validation checks
-    if (!data.title || data.title.trim().length < 5) {
+    if (!data.title || !data.title.trim()) {
       setFieldError("title", {
         type: "manual",
-        message: "Title must be at least 5 characters",
+        message: "Title is required",
       });
       hasErrors = true;
     }
 
-    if (!data.purpose || data.purpose.trim().length < 10) {
+    if (!data.purpose || !data.purpose.trim()) {
       setFieldError("purpose", {
         type: "manual",
-        message: "Purpose must be at least 10 characters",
+        message: "Purpose is required",
       });
       hasErrors = true;
     }
@@ -689,16 +689,7 @@ export default function CreateRequestPage() {
               </label>
               <input
                 {...register("title")}
-                placeholder="Enter request title (min 5 characters)"
-                onBlur={(e) => {
-                  const value = e.target.value.trim();
-                  if (value.length > 0 && value.length < 5) {
-                    setFieldError("title", {
-                      type: "manual",
-                      message: "Title must be at least 5 characters",
-                    });
-                  }
-                }}
+                placeholder="Enter request title"
                 className={`${styles.input} ${errors.title ? styles.inputError : ""}`}
               />
               {errors.title && (
@@ -717,16 +708,7 @@ export default function CreateRequestPage() {
               <textarea
                 rows={3}
                 {...register("purpose")}
-                placeholder="Explain the purpose of this request (min 10 characters)"
-                onBlur={(e) => {
-                  const value = e.target.value.trim();
-                  if (value.length > 0 && value.length < 10) {
-                    setFieldError("purpose", {
-                      type: "manual",
-                      message: "Purpose must be at least 10 characters",
-                    });
-                  }
-                }}
+                placeholder="Explain the purpose of this request"
                 className={`${styles.input} ${errors.purpose ? styles.inputError : ""}`}
               />
               {errors.purpose && (

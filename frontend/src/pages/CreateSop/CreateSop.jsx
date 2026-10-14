@@ -128,11 +128,6 @@ export default function CreateSopPage() {
       return;
     }
 
-    if (formData.title.trim().length < 5) {
-      setError("SOP title must be at least 5 characters");
-      return;
-    }
-
     if (!formData.description.trim()) {
       setError("SOP description is required");
       return;
@@ -280,7 +275,7 @@ export default function CreateSopPage() {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder="Enter SOP title (min 5 characters)"
+                placeholder="Enter SOP title"
                 className={styles.input}
                 required
               />

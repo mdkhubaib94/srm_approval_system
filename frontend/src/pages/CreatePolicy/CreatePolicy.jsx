@@ -117,11 +117,6 @@ export default function CreatePolicyPage() {
       return;
     }
 
-    if (formData.title.trim().length < 5) {
-      setError("Policy title must be at least 5 characters");
-      return;
-    }
-
     if (!formData.description.trim()) {
       setError("Policy description is required");
       return;
@@ -246,7 +241,7 @@ export default function CreatePolicyPage() {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder="Enter policy title (min 5 characters)"
+                placeholder="Enter policy title"
                 className={styles.input}
                 required
               />
