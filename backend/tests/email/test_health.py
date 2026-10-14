@@ -31,6 +31,12 @@ async def test_check_email_health_reports_missing_smtp_credentials(monkeypatch):
 
 
 async def test_check_email_health_returns_200_when_transport_verifies(monkeypatch):
+    from app import config as config_module
+
+    settings = config_module.get_settings()
+    monkeypatch.setattr(settings, "email_user", "smtp-user@example.com")
+    monkeypatch.setattr(settings, "email_password", "smtp-password")
+
     from app.email import health as health_module
 
     async def fake_verify_transport():
@@ -44,6 +50,12 @@ async def test_check_email_health_returns_200_when_transport_verifies(monkeypatc
 
 
 async def test_check_email_health_probes_egress_on_transport_failure(monkeypatch):
+    from app import config as config_module
+
+    settings = config_module.get_settings()
+    monkeypatch.setattr(settings, "email_user", "smtp-user@example.com")
+    monkeypatch.setattr(settings, "email_password", "smtp-password")
+
     from app.email import health as health_module
     from app.email.mail_transport import MailError
 

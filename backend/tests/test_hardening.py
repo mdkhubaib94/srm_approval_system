@@ -27,9 +27,10 @@ async def test_oversized_json_body_is_rejected(client, db_session):
     await make_user(db_session, employee_id="HARD100", email="req.hard1@example.com", role="REQUESTER")
     token = await login(client, "req.hard1@example.com")
 
-    # Comfortably over the 200KB JSON body cap — httpx computes the real
-    # Content-Length from this payload itself, no need to fake the header.
-    huge_query_text = "x" * (250 * 1024)
+    # Comfortably over the 10MB JSON body cap (app/middleware/body_size_limit.py)
+    # — httpx computes the real Content-Length from this payload itself, no
+    # need to fake the header.
+    huge_query_text = "x" * (11 * 1024 * 1024)
     resp = await client.post(
         "/queries",
         json={"request": "1", "query": huge_query_text},
@@ -39,7 +40,7 @@ async def test_oversized_json_body_is_rejected(client, db_session):
 
 
 async def test_multipart_upload_is_not_subject_to_json_body_cap(client, db_session):
-    """The 200KB cap must not apply to multipart/form-data — file uploads
+    """The JSON body cap must not apply to multipart/form-data — file uploads
     are validated separately (10MB/file) in app/files/validation.py."""
     from tests.api_helpers import pdf_upload
 

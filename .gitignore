@@ -44,3 +44,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# --- Playwright artifacts ---
+frontend/e2e/test-results/
+frontend/e2e/playwright-report/
+frontend/e2e/reports/
