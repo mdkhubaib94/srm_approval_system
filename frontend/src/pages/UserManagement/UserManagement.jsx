@@ -4,6 +4,8 @@ import { getUsers, createUser, bulkCreateUsers, updateUser, deleteUser, setUserP
 import { PencilSquareIcon, TrashIcon, UsersIcon } from "@heroicons/react/24/outline";
 import ConfirmModal from "../../common/ConfirmModal";
 import ChangePasswordModal from "../../common/ChangePasswordModal";
+import LoadingModal from "../../common/LoadingModal";
+import SuccessModal from "../../common/SuccessModal";
 import { useAuth } from "../../context/AuthContext";
 import ProtectedRoute from "../../common/ProtectedRoute";
 import NestedSelect from "../../common/NestedSelect";
@@ -431,6 +433,7 @@ function UserFormModal({ mode, initial, roleOptions, isHoi, deptInstitution, onC
         </form>
       </div>
     </div>
+    <LoadingModal isOpen={busy} message={isEdit ? "Saving changes…" : "Creating user…"} />
     {showPwModal && (
       <ChangePasswordModal
         subtitle={`Enter the new password for ${initial?.name || "this user"} twice.`}
@@ -619,6 +622,7 @@ function UserManagementContent() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [success, setSuccess] = useState(null); // {title, message}
 
   const requestDelete = (u) => {
     setDeleteError("");
@@ -799,12 +803,29 @@ function UserManagementContent() {
           deptInstitution={user?.institution}
           roleOptions={modal.presetRole ? [modal.presetRole] : allowed}
           onClose={() => setModal(null)}
-          onSaved={() => {
+          onSaved={(saved) => {
+            const wasEdit = modal.mode === "edit";
+            const name = saved?.name || modal.initial?.name;
             setModal(null);
             refresh();
+            setSuccess({
+              title: wasEdit ? "User updated" : "User created",
+              message: name
+                ? `${name} has been ${wasEdit ? "updated" : "added"} successfully.`
+                : `The user has been ${wasEdit ? "updated" : "added"} successfully.`,
+            });
           }}
         />
       )}
+
+      <LoadingModal isOpen={deleting} message="Deleting user…" />
+
+      <SuccessModal
+        isOpen={!!success}
+        onClose={() => setSuccess(null)}
+        title={success?.title}
+        message={success?.message}
+      />
     </div>
   );
 }
