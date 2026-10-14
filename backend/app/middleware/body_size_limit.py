@@ -1,5 +1,6 @@
-"""Cap non-multipart request bodies. Port of server.js's
-`express.json({ limit: "200kb" })` / `express.urlencoded({ limit: "200kb" })`.
+"""Cap non-multipart request bodies. Originally a port of server.js's
+`express.json({ limit: "200kb" })`; raised to 10 MB so large JSON payloads
+(e.g. bulk user imports) are not rejected with 413.
 
 Only applies to JSON/form-urlencoded bodies — multipart/form-data (file
 uploads) has no size limit (only a 20 files/request cap in
@@ -12,7 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-JSON_BODY_LIMIT_BYTES = 200 * 1024
+JSON_BODY_LIMIT_BYTES = 10 * 1024 * 1024
 
 
 class BodySizeLimitMiddleware(BaseHTTPMiddleware):
