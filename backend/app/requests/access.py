@@ -102,6 +102,14 @@ def can_see_action_history_entry(user, request, entry) -> bool:
     return user_index > author_index
 
 
+def action_comment_visibility(request, user):
+    """Predicate `entry -> bool`: may `user` read this entry's comments?
+
+    Every viewer sees the full list of actions (who did what, when); only the
+    comments/notes on them stay restricted by the stage-order rule above."""
+    return lambda entry: can_see_action_history_entry(user, request, entry)
+
+
 def filter_action_history_for_viewer(request, user, action_history: list) -> list:
     """The subset of `action_history` entries `user` is allowed to see."""
     return [entry for entry in action_history if can_see_action_history_entry(user, request, entry)]

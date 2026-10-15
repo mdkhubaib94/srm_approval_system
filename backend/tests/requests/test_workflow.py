@@ -182,9 +182,12 @@ async def test_action_history_visibility_is_filtered_per_viewer(client, db_sessi
     # comments authored by roles in that sequence (only their own).
     req_view = await client.get(f"/requests/{request_id}", headers={"Authorization": f"Bearer {req_token}"})
     assert req_view.status_code == 200
-    comments = [e["comments"] for e in req_view.json()["actionHistory"]]
+    history = req_view.json()["actionHistory"]
+    comments = [e["comments"] for e in history]
     assert "IM internal note" not in comments
     assert "Request submitted" in comments
+    # The action itself stays visible; only its comment is withheld.
+    assert [e["action"] for e in history] == ["created", "forwarded"]
 
 
 async def test_equipment_purchase_indent_details_and_change_log(client, db_session):

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import CurrentUser
 from app.flagged.models import Flagged
 from app.flagged import repository as repo
-from app.requests.access import filter_action_history_for_viewer
+from app.requests.access import action_comment_visibility
 from app.requests.models import Request, RequestActionHistory
 from app.requests.service import serialize_action_history
 from app.requests.workflow import ALL_STAGES, get_next_stage, skip_hoi_stage
@@ -57,7 +57,7 @@ def _serialize_flagged(f: Flagged, *, include_full_request: bool = False, curren
     request_data = None
     if request is not None:
         if include_full_request:
-            visible_history = filter_action_history_for_viewer(request, current_user, list(request.action_history))
+            full_history = list(request.action_history)
             request_data = {
                 "id": request.id,
                 "request_id": request.request_id,
@@ -75,7 +75,7 @@ def _serialize_flagged(f: Flagged, *, include_full_request: bool = False, curren
                     if request.requester
                     else None
                 ),
-                "action_history": serialize_action_history(visible_history),
+                "action_history": serialize_action_history(full_history, action_comment_visibility(request, current_user)),
             }
         else:
             request_data = {
@@ -191,7 +191,7 @@ async def resolve_flag_and_forward(db: AsyncSession, current_user: CurrentUser, 
     request = await repo.get_request_full(db, request.id)
     flagged = await repo.get_flagged_basic(db, flagged_id)
 
-    visible_history = filter_action_history_for_viewer(request, current_user, list(request.action_history))
+    full_history = list(request.action_history)
 
     return {
         "success": True,
@@ -204,7 +204,7 @@ async def resolve_flag_and_forward(db: AsyncSession, current_user: CurrentUser, 
                 "title": request.title,
                 "stage": request.stage,
                 "status": request.status,
-                "action_history": serialize_action_history(visible_history),
+                "action_history": serialize_action_history(full_history, action_comment_visibility(request, current_user)),
             },
         },
     }

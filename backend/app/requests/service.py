@@ -19,7 +19,7 @@ from app.requests.access import (
     can_act_on_request,
     can_view_all_requests,
     can_view_request,
-    filter_action_history_for_viewer,
+    action_comment_visibility,
     is_stage_holder,
 )
 from app.requests.details.fields import model_to_dict, pick_model_fields
@@ -286,7 +286,7 @@ async def get_detail_document(db: AsyncSession, request: Request):
     return await repo.get_detail_row(db, DetailModel, request.details_table_id)
 
 
-def serialize_action_history(entries: list[RequestActionHistory]) -> list[dict]:
+def serialize_action_history(entries: list[RequestActionHistory], can_see_comments=None) -> list[dict]:
     # Node's actionHistory sub-documents (Request.js) name this field
     # `timestamp`, not `createdAt` — the frontend's ActionHistory component
     # reads `action.timestamp` accordingly, so this can't go through the
@@ -298,7 +298,9 @@ def serialize_action_history(entries: list[RequestActionHistory]) -> list[dict]:
                 {"id": e.action_by.id, "name": e.action_by.name, "role": e.action_by.role} if e.action_by else None
             ),
             "action": e.action,
-            "comments": e.comments,
+            # Comments are hidden (not the action itself) from viewers who
+            # aren't allowed to read them.
+            "comments": e.comments if can_see_comments is None or can_see_comments(e) else None,
             "timestamp": e.created_at,
         }
         for e in entries
@@ -347,7 +349,7 @@ async def serialize_request(
     include_detail: bool = True,
     include_queries: bool = False,
 ) -> dict:
-    visible_history = filter_action_history_for_viewer(request, current_user, list(request.action_history))
+    full_history = list(request.action_history)
 
     data = {
         "id": request.id,
@@ -380,7 +382,7 @@ async def serialize_request(
             if request.requester
             else None
         ),
-        "action_history": serialize_action_history(visible_history),
+        "action_history": serialize_action_history(full_history, action_comment_visibility(request, current_user)),
         "approved_by": _final_approval(request),
         "attachments": await repo.list_attachments(db, request.id),
     }
