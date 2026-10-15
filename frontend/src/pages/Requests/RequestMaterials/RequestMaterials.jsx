@@ -7,8 +7,10 @@ import { getRequestById, saveIndentDetails as saveIndentDetailsApi, addIndentCha
 import { useAuth } from "../../../context/AuthContext";
 import { INDENT_CAPABLE_MODELS } from "../../../utils/types";
 import { downloadIndentPdf } from "../../../utils/indentPdf";
+import { canDownloadApprovalProof, buildApprovalData } from "../../../utils/approvalProof";
 import LoadingScreen from "../../../common/LoadingScreen";
-import styles from "./RequestMaterials.module.css";
+import styles from "./RequestMaterials.module.css";
+
 import { sameInstitution } from "../../../utils/institutionGroups";
 const rowKey = (row) => row?._id || row?.serialNumber;
 
@@ -260,7 +262,7 @@ export default function MaterialsRequirementPage() {
     setPendingEditRemark('');
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async ({ withApproval = false } = {}) => {
     const details = [
       { label: 'Request ID', value: request?.requestID },
       { label: 'Request Type', value: formatRequestType(request?.detailsModel) },
@@ -272,12 +274,13 @@ export default function MaterialsRequirementPage() {
     ];
 
     try {
-      downloadIndentPdf({
+      await downloadIndentPdf({
         indentNumber: displayIndentNumber,
         indentDate: request?.createdAt || new Date(),
         reference: request?.requestID,
         rows,
         details,
+        ...(withApproval && { approval: buildApprovalData(request), heading: 'Materials Requirement - Approved' }),
       });
       toast.success('PDF downloaded');
     } catch (err) {
@@ -342,11 +345,22 @@ export default function MaterialsRequirementPage() {
           <button
             type="button"
             className={styles.toolbarButtonPrimary}
-            onClick={handleDownloadPdf}
+            onClick={() => handleDownloadPdf()}
             disabled={saving || rows.length === 0}
           >
             Download as PDF
           </button>
+          {canDownloadApprovalProof(request, currentUser) && (
+            <button
+              type="button"
+              className={styles.toolbarButtonPrimary}
+              onClick={() => handleDownloadPdf({ withApproval: true })}
+              disabled={saving || rows.length === 0}
+              title="PDF stamped with the approval details as proof of approval"
+            >
+              Download Approved Copy
+            </button>
+          )}
         </div>
       </div>
 

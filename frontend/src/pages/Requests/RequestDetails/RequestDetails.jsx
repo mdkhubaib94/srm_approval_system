@@ -23,8 +23,11 @@ import RouteRequestModal from "../../../components/RouteRequestModal";
 import SuccessModal from "../../../common/SuccessModal";
 import styles from './RequestDetails.module.css';
 import { formConfigs } from "../../../utils/formConfigs";
-import { REQUEST_CATEGORY_LABELS, INDENT_CAPABLE_MODELS } from "../../../utils/types";
+import { REQUEST_CATEGORY_LABELS, INDENT_CAPABLE_MODELS } from "../../../utils/types";
+
 import { sameInstitution } from "../../../utils/institutionGroups";
+import { downloadIndentPdf } from "../../../utils/indentPdf";
+import { canDownloadApprovalProof, buildApprovalData, buildApprovalSections } from "../../../utils/approvalProof";
 
 // Helper to resolve nested object path values
 const getNestedValue = (obj, path) => {
@@ -205,6 +208,32 @@ export default function RequestDetailPage() {
     } catch (err) {
       console.error('Error viewing file:', err);
       alert('Failed to view file');
+    }
+  };
+
+  const handleDownloadApprovalProof = async () => {
+    try {
+      await downloadIndentPdf({
+        indentNumber: request.details?.indentNumber,
+        indentDate: request.createdAt,
+        reference: request.requestID,
+        rows: request.details?.indentDetails || [],
+        heading: 'Approval Proof',
+        sections: buildApprovalSections(request, {
+          formFields: formConfigs[request.detailsModel],
+          categoryLabel: REQUEST_CATEGORY_LABELS[request.requestCategory] ?? request.requestCategory ?? '-',
+          formTitle:
+            request.detailsModel === 'ITPurchaseDetail'
+              ? 'IT Purchase'
+              : (request.detailsModel || '').replace(/Detail$/, '').replace(/([A-Z])/g, ' $1').trim(),
+          user: currentUser,
+        }),
+        approval: buildApprovalData(request),
+      });
+      toast.success('Approval proof downloaded');
+    } catch (err) {
+      console.error('Failed to generate approval proof:', err);
+      toast.error('Could not generate the PDF. Please try again.');
     }
   };
 
@@ -695,6 +724,18 @@ export default function RequestDetailPage() {
                   {request.details?.indentDetails?.length > 0
                     ? `Materials Requirement (${request.details.indentDetails.length})`
                     : 'Materials Requirement'}
+                </button>
+              )}
+
+              {/* Proof of approval — requester and Institution Manager, once APPROVED */}
+              {canDownloadApprovalProof(request, currentUser) && (
+                <button
+                  onClick={handleDownloadApprovalProof}
+                  className={styles.primaryBtn}
+                  type="button"
+                  title="Download a PDF showing this request was approved"
+                >
+                  Download Approval Proof
                 </button>
               )}
 

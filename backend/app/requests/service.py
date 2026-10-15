@@ -305,6 +305,40 @@ def serialize_action_history(entries: list[RequestActionHistory]) -> list[dict]:
     ]
 
 
+def _final_approval(request: Request) -> dict | None:
+    """Who gave the final approval, taken from the full (unfiltered) history —
+    the per-viewer action history hides the Chairman's entry from lower roles,
+    but approval proof must always name the Chairman."""
+    if request.status != "APPROVED":
+        return None
+    approvals = [
+        e for e in request.action_history if e.action == "approved" and e.action_by and e.action_by.role == "CHAIRMAN"
+    ]
+    if not approvals:
+        return None
+    entry = approvals[-1]
+    return {"name": entry.action_by.name, "role": entry.action_by.role, "timestamp": entry.created_at}
+
+
+def _serialize_change_log(rows) -> list[dict]:
+    return [
+        {
+            "action": c.action,
+            "rowLabel": c.row_label,
+            "serialNumber": c.serial_number,
+            "productId": c.product_id,
+            "field": c.field,
+            "oldValue": c.old_value,
+            "newValue": c.new_value,
+            "remark": c.remark,
+            "byName": c.by_name,
+            "role": c.role,
+            "at": c.created_at,
+        }
+        for c in rows
+    ]
+
+
 async def serialize_request(
     db: AsyncSession,
     request: Request,
@@ -347,6 +381,7 @@ async def serialize_request(
             else None
         ),
         "action_history": serialize_action_history(visible_history),
+        "approved_by": _final_approval(request),
         "attachments": await repo.list_attachments(db, request.id),
     }
 
@@ -361,22 +396,7 @@ async def serialize_request(
                 owner_table = DETAIL_MODEL_TABLE_NAMES.get(request.details_model)
                 if owner_table:
                     change_log_rows = await repo.list_change_log(db, owner_table=owner_table, owner_id=detail_doc.id)
-                    nested_details["changeLog"] = [
-                        {
-                            "action": c.action,
-                            "rowLabel": c.row_label,
-                            "serialNumber": c.serial_number,
-                            "productId": c.product_id,
-                            "field": c.field,
-                            "oldValue": c.old_value,
-                            "newValue": c.new_value,
-                            "remark": c.remark,
-                            "byName": c.by_name,
-                            "role": c.role,
-                            "at": c.created_at,
-                        }
-                        for c in change_log_rows
-                    ]
+                    nested_details["changeLog"] = _serialize_change_log(change_log_rows)
 
             data["details"] = nested_details
         else:
@@ -841,22 +861,7 @@ async def update_indent_details(
 
     line_items = await _serialize_indent_line_items(db, request, detail_doc)
     change_log_rows = await repo.list_change_log(db, owner_table=owner_table, owner_id=detail_doc.id)
-    change_log = [
-        {
-            "action": c.action,
-            "rowLabel": c.row_label,
-            "serialNumber": c.serial_number,
-            "productId": c.product_id,
-            "field": c.field,
-            "oldValue": c.old_value,
-            "newValue": c.new_value,
-            "remark": c.remark,
-            "byName": c.by_name,
-            "role": c.role,
-            "at": c.created_at,
-        }
-        for c in change_log_rows
-    ]
+    change_log = _serialize_change_log(change_log_rows)
 
     return {
         "success": True,
@@ -927,4 +932,6 @@ async def add_change_log_remark(db: AsyncSession, current_user: CurrentUser, loo
     last_entry.remark = text
     await repo.commit(db)
 
-    return {"success": True, "message": "Change note added."}
+    # Return the refreshed log so the page shows the new note immediately.
+    change_log_rows = await repo.list_change_log(db, owner_table=owner_table, owner_id=detail_doc.id)
+    return {"success": True, "message": "Change note added.", "change_log": _serialize_change_log(change_log_rows)}

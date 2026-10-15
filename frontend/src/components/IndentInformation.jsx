@@ -4,7 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { saveIndentDetails as saveIndentDetailsApi, addIndentChangeLogRemark } from '../api/requests.api';
 import { downloadIndentPdf } from '../utils/indentPdf';
 import { parseMaterialsWorkbook, downloadMaterialsTemplate } from '../utils/loadXlsx';
-import styles from './IndentInformation.module.css';
+import styles from './IndentInformation.module.css';
 import { sameInstitution } from '../utils/institutionGroups';
 
 const EMPTY_DRAFT = { productId: '', productName: '', productDescription: '', quantity: 1 };
@@ -354,7 +354,7 @@ export default function IndentInformation({
   // ─── Download as PDF ─────────────────────────────────────────────────────
   // Generated from the rows currently on screen, so an unsaved inline edit is
   // never silently baked into the document.
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     const details = localMode
       ? [{ label: 'Prepared by', value: currentUser?.name }]
       : [
@@ -368,7 +368,7 @@ export default function IndentInformation({
         ];
 
     try {
-      downloadIndentPdf({
+      await downloadIndentPdf({
         indentNumber: displayIndentNumber,
         indentDate: request?.createdAt || new Date(),
         reference: request?.requestID,

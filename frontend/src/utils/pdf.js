@@ -6,7 +6,7 @@
 // would add ~350KB to the bundle, or another vendored blob to keep patched
 // alongside public/vendor/xlsx.full.min.js. This file has no supply chain.
 //
-// Only the two standard Type1 fonts (Helvetica, Helvetica-Bold) are used, so no
+// Only standard Type1 fonts (Helvetica, Times) are used, so no
 // font program has to be embedded — every PDF reader already has them. That
 // also means text is limited to WinAnsi; sanitizeText() folds anything outside
 // it down to a close ASCII equivalent.
@@ -35,7 +35,25 @@ const HELVETICA_BOLD_WIDTHS = [
   611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584,
 ];
 
-const FALLBACK_WIDTH = { regular: 556, bold: 600 };
+const TIMES_WIDTHS = [
+  250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278,
+  500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444,
+  921, 722, 667, 667, 722, 611, 556, 722, 722, 333, 389, 722, 611, 889, 722, 722,
+  556, 722, 667, 556, 611, 722, 722, 944, 722, 722, 611, 333, 278, 333, 469, 500,
+  333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500, 278, 778, 500, 500,
+  500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
+];
+
+const TIMES_BOLD_WIDTHS = [
+  250, 333, 555, 500, 500, 1000, 833, 278, 333, 333, 500, 570, 250, 333, 250, 278,
+  500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 333, 333, 570, 570, 570, 500,
+  930, 722, 667, 722, 722, 667, 611, 778, 778, 389, 500, 778, 667, 944, 722, 778,
+  611, 778, 722, 556, 667, 722, 722, 1000, 722, 722, 667, 333, 278, 333, 581, 500,
+  333, 500, 556, 444, 556, 444, 333, 500, 556, 278, 333, 556, 278, 833, 556, 500,
+  556, 556, 444, 389, 333, 556, 500, 722, 500, 500, 444, 394, 220, 394, 520,
+];
+
+const FALLBACK_WIDTH = { regular: 556, bold: 600, times: 500, timesBold: 500 };
 
 export const PAGE_SIZES = {
   A4: [595.28, 841.89],
@@ -72,7 +90,13 @@ export function sanitizeText(value) {
     .replace(/[^\n\r -ÿ]/g, '?');
 }
 
-const widthTable = (font) => (font === 'bold' ? HELVETICA_BOLD_WIDTHS : HELVETICA_WIDTHS);
+const WIDTH_TABLES = {
+  regular: HELVETICA_WIDTHS,
+  bold: HELVETICA_BOLD_WIDTHS,
+  times: TIMES_WIDTHS,
+  timesBold: TIMES_BOLD_WIDTHS,
+};
+const widthTable = (font) => WIDTH_TABLES[font] || HELVETICA_WIDTHS;
 
 /** Width of `text` in points at `size`. */
 export function measureText(text, size, font = 'regular') {
@@ -156,6 +180,7 @@ export function createPdfDocument({
   const height = orientation === 'landscape' ? shortSide : longSide;
 
   const pages = [];
+  const images = []; // { bytes: Uint8Array (JPEG), width, height }
   let current = null;
 
   const addPage = () => {
@@ -198,7 +223,7 @@ export function createPdfDocument({
     text(value, x, y, { size: fontSize = 10, font = 'regular', color = [0, 0, 0] } = {}) {
       const clean = sanitizeText(value);
       if (!clean) return doc;
-      const fontRef = font === 'bold' ? '/F2' : '/F1';
+      const fontRef = { bold: '/F2', times: '/F3', timesBold: '/F4' }[font] || '/F1';
       push(
         `BT ${num(color[0])} ${num(color[1])} ${num(color[2])} rg ${fontRef} ${num(fontSize)} Tf ` +
           `1 0 0 1 ${num(x)} ${num(flip(y))} Tm (${escapePdfString(clean)}) Tj ET`
@@ -224,6 +249,17 @@ export function createPdfDocument({
       return doc;
     },
 
+    /**
+     * Draw a JPEG (`{ bytes, width, height }` in pixels) into the box at
+     * (x, y) top-left, `w` x `h` points. The same image can be drawn many times.
+     */
+    image(jpeg, x, y, w, h) {
+      let index = images.indexOf(jpeg);
+      if (index === -1) index = images.push(jpeg) - 1;
+      push(`q ${num(w)} 0 0 ${num(h)} ${num(x)} ${num(flip(y + h))} cm /Im${index} Do Q`);
+      return doc;
+    },
+
     /** Run `callback(pageIndex, pageCount)` with each page targeted in turn. */
     forEachPage(callback) {
       const total = pages.length;
@@ -242,11 +278,11 @@ export function createPdfDocument({
   };
 
   // ─── Serialization ──────────────────────────────────────────────────────
-  // Objects 1..4 are fixed (catalog, page tree, two fonts); each page then
+  // Objects 1..6 are fixed (catalog, page tree, four fonts); each page then
   // contributes a page object and a content stream.
   const serialize = () => {
     const objects = [];
-    const pageObjectIds = pages.map((_, i) => 5 + i * 2);
+    const pageObjectIds = pages.map((_, i) => 7 + i * 2);
 
     objects.push('<< /Type /Catalog /Pages 2 0 R >>');
     objects.push(
@@ -254,15 +290,37 @@ export function createPdfDocument({
     );
     objects.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
     objects.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    objects.push('<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>');
+    objects.push('<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>');
+
+    const firstImageId = 7 + pages.length * 2;
+    const xObjects = images.length
+      ? `/XObject << ${images.map((_, k) => `/Im${k} ${firstImageId + k} 0 R`).join(' ')} >> `
+      : '';
 
     pages.forEach((page, i) => {
       const contentsId = pageObjectIds[i] + 1;
       objects.push(
         `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${num(width)} ${num(height)}] ` +
-          `/Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentsId} 0 R >>`
+          `/Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> ${xObjects}>> /Contents ${contentsId} 0 R >>`
       );
       const stream = page.ops.join('\n');
       objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    });
+
+    images.forEach((img) => {
+      // JPEG bytes ride along as latin1 characters, like the rest of the file.
+      let data = '';
+      for (let b = 0; b < img.bytes.length; b += 8192) {
+        data += String.fromCharCode(...img.bytes.subarray(b, b + 8192));
+      }
+      objects.push(
+        `<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} ` +
+          `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${data.length} >>
+stream
+${data}
+endstream`
+      );
     });
 
     let file = '%PDF-1.4\n';
@@ -311,6 +369,7 @@ export function drawTable(doc, {
   zebraFill = [0.975, 0.98, 0.99],
   bottom = doc.contentBottom,
   onPageBreak,
+  fonts = { regular: 'regular', bold: 'bold' },
 }) {
   const lineHeight = fontSize * lineGap;
   const tableWidth = columns.reduce((sum, col) => sum + col.width, 0);
@@ -324,7 +383,7 @@ export function drawTable(doc, {
   const drawCells = (cells, top, rowHeight, { font, color, size }) => {
     cells.forEach((lines, i) => {
       const col = columns[i];
-      const cellFont = font || col.font || 'regular';
+      const cellFont = font || col.font || fonts.regular;
       lines.forEach((line, lineIndex) => {
         // First baseline sits one ascender below the cell's top padding.
         const baseline = top + paddingY + size * 0.8 + lineIndex * lineHeight;
@@ -345,12 +404,12 @@ export function drawTable(doc, {
 
   const drawHeader = (top) => {
     const cells = columns.map((col) =>
-      wrapText(col.header ?? '', col.width - paddingX * 2, headerFontSize, 'bold')
+      wrapText(col.header ?? '', col.width - paddingX * 2, headerFontSize, fonts.bold)
     );
     const rowHeight = Math.max(...cells.map((lines) => lines.length)) * lineHeight + paddingY * 2;
     doc.rect(x, top, tableWidth, rowHeight, { fill: headerFill });
     doc.line(x, top, x + tableWidth, top, { color: borderColor });
-    drawCells(cells, top, rowHeight, { font: 'bold', color: headerColor, size: headerFontSize });
+    drawCells(cells, top, rowHeight, { font: fonts.bold, color: headerColor, size: headerFontSize });
     return top + rowHeight;
   };
 
@@ -368,7 +427,7 @@ export function drawTable(doc, {
 
   rows.forEach((row, rowIndex) => {
     const cells = columns.map((col, i) =>
-      wrapText(row[i] ?? '', col.width - paddingX * 2, fontSize, col.font || 'regular')
+      wrapText(row[i] ?? '', col.width - paddingX * 2, fontSize, col.font || fonts.regular)
     );
     const totalLines = Math.max(...cells.map((lines) => lines.length));
 

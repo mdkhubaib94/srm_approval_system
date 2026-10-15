@@ -23,7 +23,9 @@ export default function GeneralProcessingForm({
     SOPAvailable: request.SOPAvailable,
     SOP: request.SOP || '',
     budgetAvailable: request.budgetAvailable,
-    statusUpdate: 'APPROVED'
+    // Only the Chairman's decision finalizes a request; sending APPROVED from
+    // any other role makes the backend refuse an ordinary forward.
+    ...(user?.role === 'CHAIRMAN' && { statusUpdate: 'APPROVED' })
   });
 
   const handleCommentsChange = (e) => {
