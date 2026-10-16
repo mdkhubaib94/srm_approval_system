@@ -86,6 +86,11 @@ class Settings(BaseSettings):
 
     # SOP search
     embedding_model: str = "BAAI/bge-small-en-v1.5"
+    # Persistent on-disk cache for the embedding model weights. Empty = a
+    # folder inside storage_root (already persistent and writable by the
+    # service, so no extra setup is needed). Relative paths resolve against
+    # the backend directory.
+    embedding_cache_dir: str = ""
     sop_match_threshold: float = 0.45
 
 

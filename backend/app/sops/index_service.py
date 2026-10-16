@@ -30,7 +30,7 @@ from app.db.helpers import get_with_options
 from app.files.models import SopAttachment, StoredFile
 from app.files.storage import read_bytes
 
-from .embedding_service import generate_embedding
+from .embedding_service import generate_embedding, is_bootstrapping
 from app.sops.models import Sop, SopChunk
 from .pdf_text_service import pdf_to_chunks
 
@@ -93,6 +93,15 @@ async def _run_indexing(sop_id: int, db: AsyncSession) -> None:
 
     sop = await get_with_options(db, Sop, sop_id, selectinload(Sop.chunks))
     if sop is None:
+        return
+
+    # Model still being set up at startup: leave the SOP pending (not
+    # failed). reindex_after_model_ready() picks it up automatically.
+    if is_bootstrapping():
+        sop.doc_index_status = "pending"
+        sop.doc_index_error = "Waiting for the AI model to finish setting up on the server."
+        await db.commit()
+        invalidate_sop_cache()
         return
 
     async def refresh_description_embedding() -> None:
@@ -174,6 +183,38 @@ async def _run_indexing(sop_id: int, db: AsyncSession) -> None:
 
 
 # ─── Sweeps ───────────────────────────────────────────────────────────────────
+
+
+async def reindex_after_model_ready() -> None:
+    """Run once per startup as soon as the embedding model is available:
+    index every SOP that is not fully indexed with the current model —
+    pending/processing/failed, missing a description embedding (created
+    while the model was unavailable), or embedded with another model.
+    Failed SOPs are retried here once per boot (not on the 10-minute sweep),
+    so a fix on the server (e.g. the model becoming available) heals them without manual
+    re-indexing."""
+    sessionmaker = get_sessionmaker()
+    embedding_model = get_settings().embedding_model
+    async with sessionmaker() as db:
+        ids = (
+            await db.execute(
+                select(Sop.id).where(
+                    Sop.is_active.is_(True),
+                    or_(
+                        Sop.doc_index_status.in_(["pending", "processing", "failed"]),
+                        Sop.description_embedding.is_(None),
+                        Sop.embedding_model.is_(None),
+                        Sop.embedding_model != embedding_model,
+                    ),
+                )
+            )
+        ).scalars().all()
+    if ids:
+        logger.info("[sopIndex] AI model ready - indexing %d SOP(s) automatically", len(ids))
+        for sop_id in ids:
+            enqueue_sop_indexing(sop_id)
+    else:
+        logger.info("[sopIndex] AI model ready - all SOPs already indexed")
 
 
 async def sweep_pending_sops() -> None:

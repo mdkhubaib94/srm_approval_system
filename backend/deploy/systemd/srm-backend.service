@@ -9,6 +9,9 @@ User=srm-backend
 Group=srm-backend
 WorkingDirectory=/opt/srm-backend
 EnvironmentFile=/opt/srm-backend/.env
+# Create the writable data dirs (as root, outside the sandbox) so the
+# ReadWritePaths below always exist - systemd refuses to start otherwise.
+ExecStartPre=+/usr/bin/install -d -o srm-backend -g srm-backend /opt/srm-backend/storage /opt/srm-backend/logs
 ExecStart=/opt/srm-backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 Restart=on-failure
 RestartSec=5

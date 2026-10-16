@@ -4,18 +4,24 @@ Direct port of src/services/pdfTextService.js.
 Handles two kinds of PDFs, 100% locally:
  - Text PDFs   -> PyMuPDF reads the embedded text layer (fast)
  - Scanned PDFs -> pages are rendered to images (PyMuPDF) and run through
-                   pytesseract OCR (slow — always call from a background
-                   job, never inside a request handler; see index_service.py)
+                   OCR (slow — always call from a background job, never
+                   inside a request handler; see index_service.py)
 
-pytesseract shells out to a system-installed `tesseract` binary (unlike the
-source's tesseract.js, which bundles its own WASM build) — the deployment
-image must install it (`apt-get install tesseract-ocr` on Debian/Ubuntu).
+OCR engine: RapidOCR (pip package `rapidocr`, ONNX Runtime). Its models ship
+inside the wheel, so OCR works on any server after `pip install` — no system
+package, no download. If RapidOCR is unavailable, a system `tesseract`
+binary is used instead (via pytesseract).
 """
 
 import io
+import logging
 import os
 import re
+import shutil
 from collections.abc import Callable
+from functools import lru_cache
+
+logger = logging.getLogger("app.sops.ocr")
 
 import pymupdf
 
@@ -38,13 +44,41 @@ def extract_text_layer(pdf_bytes: bytes) -> list[str]:
         doc.close()
 
 
+@lru_cache
+def _ocr_engine() -> Callable:
+    """Returns a function image(PIL) -> text. Built once per process."""
+    try:
+        import numpy as np
+        from rapidocr import RapidOCR
+
+        logging.getLogger("RapidOCR").setLevel(logging.WARNING)
+        engine = RapidOCR()
+
+        def rapid(image) -> str:
+            result = engine(np.array(image.convert("RGB")))
+            return "\n".join(result.txts or ()) if result is not None else ""
+
+        logger.info("[ocr] Using RapidOCR")
+        return rapid
+    except Exception as err:  # noqa: BLE001
+        if shutil.which("tesseract") is None:
+            raise RuntimeError(
+                f"No OCR engine available for scanned PDFs (RapidOCR failed to load: {err}). "
+                "Reinstall requirements-lock.txt."
+            ) from err
+        import pytesseract
+
+        logger.warning("[ocr] RapidOCR unavailable (%s); falling back to tesseract", err)
+        return lambda image: pytesseract.image_to_string(image, lang="eng")
+
+
 def ocr_pdf(pdf_bytes: bytes, on_progress: Callable[[int], None] = lambda page: None) -> list[str]:
     """OCR every page of a (scanned) PDF. Renders pages to PNG with PyMuPDF,
-    then recognizes with pytesseract. Sequential on purpose — bounded
-    memory, one page at a time."""
-    import pytesseract
+    then recognizes them. Sequential on purpose — bounded memory, one page
+    at a time."""
     from PIL import Image
 
+    recognize = _ocr_engine()
     doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
     pages: list[str] = []
     try:
@@ -53,7 +87,7 @@ def ocr_pdf(pdf_bytes: bytes, on_progress: Callable[[int], None] = lambda page: 
             on_progress(i + 1)
             pixmap = page.get_pixmap(matrix=matrix, colorspace=pymupdf.csRGB, alpha=False)
             image = Image.open(io.BytesIO(pixmap.tobytes("png")))
-            pages.append(pytesseract.image_to_string(image, lang="eng"))
+            pages.append(recognize(image))
         return pages
     finally:
         doc.close()

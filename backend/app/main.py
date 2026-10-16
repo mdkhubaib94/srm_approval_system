@@ -24,7 +24,8 @@ from app.policies.controller import router as policies_router
 from app.queries.controller import router as queries_router
 from app.requests.controller import router as requests_router
 from app.sops.controller import router as sops_router
-from app.sops.embedding_service import warm_up_embeddings
+from app.sops.embedding_service import bootstrap_model
+from app.sops.index_service import reindex_after_model_ready
 from app.tasks.scheduler import shutdown_scheduler, start_scheduler
 from app.users.controller import router as users_router
 
@@ -43,11 +44,13 @@ async def lifespan(app: FastAPI):
     # Apply pending schema changes before serving traffic or starting jobs.
     # Alembic's async environment owns its event loop, so run it in a thread.
     await asyncio.to_thread(_run_migrations)
-    # Pre-load the local embedding model so the first AI search isn't slow,
-    # then start the SLA/overdue/SOP-indexing background jobs.
-    warm_up_embeddings()
+    # Set up the local AI model in the background (downloads it on first run,
+    # retries until available) and then index every SOP that needs it. Never
+    # blocks startup, so the rest of the app is usable immediately.
+    model_task = asyncio.create_task(bootstrap_model(on_ready=reindex_after_model_ready))
     start_scheduler()
     yield
+    model_task.cancel()
     shutdown_scheduler()
 
 
